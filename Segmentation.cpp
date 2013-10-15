@@ -6,6 +6,8 @@ using std::endl;
 
 #include "Backbone.hpp"
 
-void segExec(msg_t &msg){
+void segExec(imgdata_t &data){
+	data.csegDone = true;
+	data.ssegDone = true;
 	cout << "Segmentation" << endl;
 }

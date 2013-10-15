@@ -21,8 +21,14 @@ enum port_t{
 	VERIFIED_PUB
 };
 
-struct msg_t{
+struct imgdata_t{
 	int id;
-	bool verified;
-	bool workDone;
+	bool orthorectDone = false;
+	bool georefDone = false;
+	bool saliencyDone = false;
+	bool ssegDone = false;
+	bool csegDone = false;
+	bool sDone = false;
+	bool cDone = false;
+	bool verified = false;
 };

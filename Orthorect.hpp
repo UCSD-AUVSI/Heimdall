@@ -1,1 +1,1 @@
-void orthorectExec(msg_t &msg);
+void orthorectExec(imgdata_t &data);

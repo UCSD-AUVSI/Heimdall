@@ -1,1 +1,1 @@
-void salExec(msg_t &msg);
+void salExec(imgdata_t &data);

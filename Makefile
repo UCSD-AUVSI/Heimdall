@@ -10,8 +10,8 @@ all: zServer zDistWorker zPushWorker
 
 debug: dServer dDistWorker dPushWorker
 
-zServer: Server.cpp $(DEPS)
-	$(CC) Server.cpp $(CFLAGS) $@ $(LIBS) $(STD)
+zServer: Server.cpp BackStore.cpp BackStore.hpp $(DEPS)
+	$(CC) Server.cpp BackStore.cpp $(CFLAGS) $@ $(LIBS) $(STD)
 
 zDistWorker: DistWorker.cpp $(DEPS) 
 	$(CC) DistWorker.cpp $(ALGS) $(CFLAGS) $@ $(LIBS) $(STD)

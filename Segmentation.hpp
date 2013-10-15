@@ -1,1 +1,1 @@
-void segExec(msg_t &msg);
+void segExec(imgdata_t &data);

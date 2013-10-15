@@ -6,6 +6,7 @@ using std::endl;
 
 #include "Backbone.hpp"
 
-void geoRefExec(msg_t &msg){
+void geoRefExec(imgdata_t &data){
+	data.georefDone = true;
 	cout << "GeoRef" << endl;
 }

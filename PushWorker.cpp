@@ -27,9 +27,13 @@ int main(int argc, char* argv[]){
 	std::string addr = "tcp://" + server_addr + ":" + std::to_string(IMAGES_PULL);
 	pushsocket.connect(addr.c_str());
 
-	zmq::message_t msg;
-	
+	int count = 0;
 	while(true){
+		imgdata_t data;
+		cout << "Sending " << sizeof(imgdata_t) << " bytes" << endl;
+		zmq::message_t msg(sizeof(imgdata_t));
+		data.id = count++;
+		memcpy(msg.data(), &data, sizeof(imgdata_t));
 		pushsocket.send(msg);
 		std::chrono::milliseconds dura(1000);
 		std::this_thread::sleep_for(dura);

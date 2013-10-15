@@ -6,6 +6,7 @@ using std::endl;
 
 #include "Backbone.hpp"
 
-void orthorectExec(msg_t &msg){
+void orthorectExec(imgdata_t &data){
+	data.orthorectDone = true;
 	cout << "OrthoRect" << endl;
 }

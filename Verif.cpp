@@ -6,6 +6,7 @@ using std::endl;
 
 #include "Backbone.hpp"
 
-void verifExec(msg_t &msg){
-	cout << "Verification" << endl << endl;
+void verifExec(imgdata_t &data){
+	data.verified = true;
+	cout << "Verification" << endl;
 }

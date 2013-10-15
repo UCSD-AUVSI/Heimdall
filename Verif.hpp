@@ -1,1 +1,1 @@
-void verifExec(msg_t &msg);
+void verifExec(imgdata_t &data);

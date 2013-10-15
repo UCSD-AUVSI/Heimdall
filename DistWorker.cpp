@@ -10,6 +10,8 @@
 #include <zmq.hpp>
 
 #include "Backbone.hpp"
+#include "BackStore.hpp"
+
 #include "Orthorect.hpp"
 #include "GeoRef.hpp"
 #include "Saliency.hpp"
@@ -20,7 +22,7 @@
 using std::cout;
 using std::endl;
 
-const std::map<std::string, void (*)(msg_t&)> algMap = 
+const std::map<std::string, void (*)(imgdata_t&)> algMap = 
 {
 	{"Orthorect", &orthorectExec},
 	{"GeoRef", &geoRefExec},
@@ -42,7 +44,7 @@ const std::map<std::string, std::vector<port_t>> portMap =
 	{"Ver",			{TARGET_PUSH, VERIFIED_PULL}}
 };
 
-void doWork(const std::string server_addr, void (*func)(msg_t&), std::vector<port_t> portList){
+void doWork(const std::string server_addr, void (*func)(imgdata_t&), std::vector<port_t> portList){
 	zmq::context_t context(1);
 
 	zmq::socket_t pullsocket(context, ZMQ_PULL);
@@ -59,16 +61,18 @@ void doWork(const std::string server_addr, void (*func)(msg_t&), std::vector<por
 		pushsockets.push_back(pushsocket);
 	}
 
-	zmq::message_t msg;
-
+	zmq::message_t msg(sizeof(imgdata_t));
 	while(true){
 		pullsocket.recv(&msg);
 		
-		msg_t my_msg;
-		func(my_msg);
+		imgdata_t data = *static_cast<imgdata_t*>(msg.data());
 
+		func(data);
+		
 		for(zmq::socket_t *sock : pushsockets){	
-			sock->send(msg);
+			zmq::message_t sendmsg(sizeof(imgdata_t));
+			memcpy(sendmsg.data(), &data, sizeof(imgdata_t));
+			sock->send(sendmsg);
 		}
 	}
 }
@@ -95,7 +99,7 @@ int main(int argc, char* argv[]){
 		std::string alg(argv[i]);
 
 		std::vector<port_t> portList;
-		void (*algFunc)(msg_t&);
+		void (*algFunc)(imgdata_t&);
 
 		try{
 			algFunc = algMap.at(alg);

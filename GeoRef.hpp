@@ -1,1 +1,1 @@
-void geoRefExec(msg_t &msg);
+void geoRefExec(imgdata_t &data);

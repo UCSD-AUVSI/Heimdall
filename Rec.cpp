@@ -6,10 +6,12 @@ using std::endl;
 
 #include "Backbone.hpp"
 
-void sRecExec(msg_t &msg){
+void sRecExec(imgdata_t &data){
+	data.sDone = true;
 	cout << "Shape Rec" << endl;	
 }
 
-void ocrExec(msg_t &msg){
+void ocrExec(imgdata_t &data){
+	data.cDone = true;
 	cout << "OCR" << endl;
 }

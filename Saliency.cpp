@@ -6,6 +6,7 @@ using std::endl;
 
 #include "Backbone.hpp"
 
-void salExec(msg_t &msg){
+void salExec(imgdata_t &data){
+	data.saliencyDone = true;
 	cout << "Saliency" << endl;
 }

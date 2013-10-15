@@ -5,6 +5,7 @@
 #include <zmq.hpp>
 
 #include "Backbone.hpp"
+#include "BackStore.hpp"
 
 using std::cout;
 using std::endl;
@@ -12,36 +13,38 @@ using std::endl;
 void setupPort(int pullPort, int pushPort, int pubPort, bool send){
 	zmq::context_t context(1);
 
+	//Initialize the three sockets
 	zmq::socket_t pullSocket(context, ZMQ_PULL);
 	zmq::socket_t pushSocket(context, ZMQ_PUSH);
 	zmq::socket_t pubSocket(context, ZMQ_PUB);
 
+	//Setup the three sockets
 	std::string port = "tcp://*:" + std::to_string(pullPort);
 	pullSocket.bind(port.c_str());
-
 	if(send){
-		std::string port = "tcp://*:" + std::to_string(pushPort);
+		port = "tcp://*:" + std::to_string(pushPort);
 		pushSocket.bind(port.c_str());
 	}
-
 	if(pubPort){
 		port = "tcp://*:" + std::to_string(pubPort);
 		pubSocket.bind(port.c_str());
 	}
 
-	zmq::message_t msg;
+	zmq::message_t msg(sizeof(imgdata_t));
 
 	while(true){
-		if(!pullSocket.recv(&msg)){
-			cout << "Failed Receive" << endl;
-		}
-		if(send){
-			if(!pushSocket.send(msg)){
-				cout << "Failed" << endl;
+		pullSocket.recv(&msg);
+		imgdata_t data = *static_cast<imgdata_t*>(msg.data());
+		if(img_update(data)){
+			if(send){
+				pushSocket.send(msg);
+			}
+			if(pubPort){
+				pubSocket.send(msg);
 			}
 		}
-		if(pubPort){
-			pubSocket.send(msg);
+		if(data.verified == true){
+			img_delete(data);	
 		}
 	}
 }
