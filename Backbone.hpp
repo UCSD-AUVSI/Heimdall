@@ -1,4 +1,8 @@
-enum port_t{
+#ifndef BACKBONE_H
+#define BACKBONE_H
+
+//Server Ports
+enum zmqport_t{
 	NO_PORT = 0,
 	IMAGES_PULL = 1820,
 	IMAGES_PUSH,
@@ -21,14 +25,17 @@ enum port_t{
 	VERIFIED_PUB
 };
 
-struct imgdata_t{
-	int id;
-	bool orthorectDone = false;
-	bool georefDone = false;
-	bool saliencyDone = false;
-	bool ssegDone = false;
-	bool csegDone = false;
-	bool sDone = false;
-	bool cDone = false;
-	bool verified = false;
+//Used to refer to various algorithms
+enum alg_t{
+	ORTHORECT,
+	GEOREF,
+	SALIENCY,
+	SEG,
+	SSEG,
+	CSEG,
+	SREC,
+	OCR,
+	VERIF
 };
+
+#endif

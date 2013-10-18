@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "Backbone.hpp"
+#include "IMGData.hpp"
 
 using std::cout;
 using std::endl;
@@ -30,14 +31,14 @@ bool img_check(imgdata_t& data){
 }
 
 void orUpdate(imgdata_t& first, imgdata_t& second){
-		first.orthorectDone |= second.orthorectDone;
-		first.georefDone |= second.georefDone;
-		first.saliencyDone |= second.saliencyDone;
-		first.ssegDone |= second.ssegDone;
-		first.csegDone |= second.csegDone;
-		first.sDone |= second.sDone;
-		first.cDone |= second.cDone;
-		first.verified |= second.verified;
+	first.orthorectDone |= second.orthorectDone;
+	first.georefDone |= second.georefDone;
+	first.saliencyDone |= second.saliencyDone;
+	first.ssegDone |= second.ssegDone;
+	first.csegDone |= second.csegDone;
+	first.sDone |= second.sDone;
+	first.cDone |= second.cDone;
+	first.verified |= second.verified;
 }
 
 bool img_update(imgdata_t& data){
@@ -46,9 +47,9 @@ bool img_update(imgdata_t& data){
 	imgdata_t& img = store[data.id];
 	orUpdate(img, data);
 	orUpdate(data, img);
-	
+
 	store_lock.unlock();
-	
+
 	return img_check(data);
 }
 

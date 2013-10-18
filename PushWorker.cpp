@@ -5,6 +5,7 @@
 #include <zmq.hpp>
 
 #include "Backbone.hpp"
+#include "IMGData.hpp"
 
 using std::cout;
 using std::endl;

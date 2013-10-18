@@ -5,8 +5,11 @@ using std::cout;
 using std::endl;
 
 #include "Backbone.hpp"
+#include "Algorithm.hpp"
+#include "IMGData.hpp"
+#include "Algs.hpp"
 
-void orthorectExec(imgdata_t &data){
-	data.orthorectDone = true;
+void Orthorect :: execute(imgdata_t &data){
+	setDone(data, ORTHORECT);
 	cout << "OrthoRect" << endl;
 }

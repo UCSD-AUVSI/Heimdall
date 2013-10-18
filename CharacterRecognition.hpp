@@ -1,7 +1,7 @@
 #include "IMGData.hpp"
 #include "Algorithm.hpp"
 
-class Verify : Algorithm {
+class CharacterRecognition : Algorithm{
 	public:
 		static void execute(imgdata_t &data);
 };

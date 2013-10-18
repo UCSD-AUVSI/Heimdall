@@ -11,40 +11,15 @@
 
 #include "Backbone.hpp"
 #include "BackStore.hpp"
-
-#include "Orthorect.hpp"
-#include "GeoRef.hpp"
-#include "Saliency.hpp"
-#include "Segmentation.hpp"
-#include "Rec.hpp"
-#include "Verif.hpp"
+#include "IMGData.hpp"
+#include "Algorithm.hpp"
+#include "Algs.hpp"
+#include "Maps.hpp"
 
 using std::cout;
 using std::endl;
 
-const std::map<std::string, void (*)(imgdata_t&)> algMap = 
-{
-	{"Orthorect", &orthorectExec},
-	{"GeoRef", &geoRefExec},
-	{"Saliency", &salExec},
-	{"Seg", &segExec},
-	{"SRec", &sRecExec},
-	{"OCR", &ocrExec},
-	{"Ver", &verifExec}
-};
-
-const std::map<std::string, std::vector<port_t>> portMap =
-{
-	{"Orthorect",	{IMAGES_PUSH, ORTHORECT_PULL}},
-	{"GeoRef",		{ORTHORECT_PUSH, GEOREF_PULL}},
-	{"Saliency",	{GEOREF_PUSH, SALIENCY_PULL}},
-	{"Seg",			{SALIENCY_PUSH, S_SEG_PULL, C_SEG_PULL}},
-	{"SRec",		{S_SEG_PUSH, TARGET_PULL}},
-	{"OCR",			{C_SEG_PUSH, TARGET_PULL}},
-	{"Ver",			{TARGET_PUSH, VERIFIED_PULL}}
-};
-
-void doWork(const std::string server_addr, void (*func)(imgdata_t&), std::vector<port_t> portList){
+void doWork(const std::string server_addr, void (*func)(imgdata_t&), std::vector<zmqport_t> portList){
 	zmq::context_t context(1);
 
 	zmq::socket_t pullsocket(context, ZMQ_PULL);
@@ -93,17 +68,18 @@ int main(int argc, char* argv[]){
 		return 1;
 	}
 
-	std::string addr(argv[1]);
+	std::string addr(argv[1]); //TODO: Check that this is a valid address so ZMQ doesn't die on us
 
 	for(int i = 2; i < argc; i++){
 		std::string alg(argv[i]);
-
-		std::vector<port_t> portList;
+		
+		std::vector<zmqport_t> portList;
 		void (*algFunc)(imgdata_t&);
 
 		try{
-			algFunc = algMap.at(alg);
-			portList = portMap.at(alg);
+			alg_t newalg = strMap.at(alg);
+			algFunc = algMap.at(newalg);
+			portList = portMap.at(newalg);
 		}
 		catch(const std::out_of_range &oor){
 			usage();

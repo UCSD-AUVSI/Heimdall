@@ -6,6 +6,8 @@
 
 #include "Backbone.hpp"
 #include "BackStore.hpp"
+#include "IMGData.hpp"
+#include "Algorithm.hpp"
 
 using std::cout;
 using std::endl;
@@ -43,7 +45,7 @@ void setupPort(int pullPort, int pushPort, int pubPort, bool send){
 				pubSocket.send(msg);
 			}
 		}
-		if(data.verified == true){
+		if(data.verified){
 			img_delete(data);	
 		}
 	}
@@ -67,7 +69,7 @@ int main(int argc, char* argv[]){
 	csegThread.detach();
 	targetThread.detach();
 	verThread.detach();
-
+	
 	cout << "Press any key to quit" << endl;
 	getchar();
 

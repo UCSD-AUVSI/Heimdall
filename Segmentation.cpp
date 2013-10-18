@@ -5,9 +5,12 @@ using std::cout;
 using std::endl;
 
 #include "Backbone.hpp"
+#include "Algorithm.hpp"
+#include "IMGData.hpp"
+#include "Algs.hpp"
 
-void segExec(imgdata_t &data){
-	data.csegDone = true;
-	data.ssegDone = true;
+void Segmentation :: execute(imgdata_t &data){
+	setDone(data, CSEG);
+	setDone(data, SSEG);
 	cout << "Segmentation" << endl;
 }
