@@ -9,7 +9,6 @@ ALGS = Publish.cpp GUISaliency.cpp GUIRec.cpp ImagePub.cpp Display.cpp Orthorect
 GDBLIBS = -g
 CFLAGS = -o
 STD = -std=c++11
-STDLIB = -stdlib=libstdc++
 
 ifneq ($(OS),Windows_NT)
 	UNAME_S := $(shell uname -s)
