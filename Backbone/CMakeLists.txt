@@ -31,8 +31,12 @@ add_executable(zDistWorker ${dist_source_files})
 target_link_libraries(
 	zDistWorker
 	dist
-	ogrsaliency
-	recognition
+	orthorect
+	georef
+	saliency
+	segmentation
+	charshapeseg
+	charshaperecog
 	display
 	guirec
 	guisaliency
