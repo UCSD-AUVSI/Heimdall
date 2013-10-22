@@ -4,10 +4,10 @@
 
 #include <zmq.hpp>
 
-#include "Backbone.hpp"
-#include "BackStore.hpp"
-#include "IMGData.hpp"
-#include "Algorithm.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/BackStore.hpp"
+#include "Backbone/IMGData.hpp"
+#include "Backbone/Algorithm.hpp"
 
 using std::cout;
 using std::endl;

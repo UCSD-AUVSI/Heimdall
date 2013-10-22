@@ -4,10 +4,11 @@
 using std::cout;
 using std::endl;
 
-#include "Backbone.hpp"
-#include "Algorithm.hpp"
-#include "IMGData.hpp"
-#include "Algs.hpp"
+#include "OGRSaliency/Saliency.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/Algorithm.hpp"
+#include "Backbone/IMGData.hpp"
+//#include "Backbone/Algs.hpp"
 
 void Saliency :: execute(imgdata_t &data){
 	setDone(data, SALIENCY);

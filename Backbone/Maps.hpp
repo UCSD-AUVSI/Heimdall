@@ -4,8 +4,8 @@
 #include <map>
 #include <vector>
 
-#include "Backbone.hpp"
-#include "Algorithm.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/Algorithm.hpp"
 
 //Mapping between strings referring to algorithms
 //and in code references to algorithms

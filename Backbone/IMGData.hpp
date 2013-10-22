@@ -1,6 +1,8 @@
 #ifndef IMGDATA_H
 #define IMGDATA_H
 
+#include "Backbone/Backbone.hpp"
+
 struct imgdata_t{
 	int id;
 	bool orthorectDone = false;

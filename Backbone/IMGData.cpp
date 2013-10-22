@@ -1,5 +1,5 @@
-#include "Backbone.hpp"
-#include "IMGData.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/IMGData.hpp"
 
 void setDone(imgdata_t &data, alg_t alg){
 	switch(alg){

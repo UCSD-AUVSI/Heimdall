@@ -4,19 +4,19 @@
 
 #include <zmq.hpp>
 
-#include "Backbone.hpp"
-#include "IMGData.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/IMGData.hpp"
 
 using std::cout;
 using std::endl;
 
-void usage(){
+void pusage(){
 	cout << "Expects one argument, the IP of the server" << endl;
 }
 
 int main(int argc, char* argv[]){
 	if(argc != 2){
-		usage();
+		pusage();
 		return 1;
 	}
 

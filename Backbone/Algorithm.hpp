@@ -1,7 +1,7 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "IMGData.hpp"
+#include "Backbone/IMGData.hpp"
 
 class Algorithm{};
 

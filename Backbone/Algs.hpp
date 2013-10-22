@@ -1,20 +1,28 @@
 #ifndef ALGS_H
 #define ALGS_H
 
-#include "Orthorect.hpp"
-#include "GeoRef.hpp"
-#include "Saliency.hpp"
-#include "Segmentation.hpp"
-#include "ShapeSegmentation.hpp"
-#include "CharacterSegmentation.hpp"
-#include "ShapeRecognition.hpp"
-#include "CharacterRecognition.hpp"
-#include "Verif.hpp"
-#include "ImagePub.hpp"
-#include "GUISaliency.hpp"
-#include "GUIRec.hpp"
-#include "Display.hpp"
-#include "ImagePush.hpp"
-#include "Publish.hpp"
+#include "OGRSaliency/Orthorect.hpp"
+#include "OGRSaliency/GeoRef.hpp"
+#include "OGRSaliency/Saliency.hpp"
+
+#include "Recognition/Segmentation.hpp"
+#include "Recognition/ShapeSegmentation.hpp"
+#include "Recognition/CharacterSegmentation.hpp"
+#include "Recognition/ShapeRecognition.hpp"
+#include "Recognition/CharacterRecognition.hpp"
+
+#include "Verification/Verif.hpp"
+
+#include "ImagePub/ImagePub.hpp"
+
+#include "GUISaliency/GUISaliency.hpp"
+
+#include "GUIRec/GUIRec.hpp"
+
+#include "Display/Display.hpp"
+
+#include "ImagePush/ImagePush.hpp"
+
+#include "Publish/Publish.hpp"
 
 #endif

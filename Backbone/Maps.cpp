@@ -1,18 +1,18 @@
 #include <string>
 #include <map>
 
-#include "Maps.hpp"
-#include "Backbone.hpp"
-#include "IMGData.hpp"
-#include "Algs.hpp"
+#include "Backbone/Maps.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/IMGData.hpp"
+#include "Backbone/Algs.hpp"
 
 //Mapping between strings referring to algorithms
 //and in code references to algorithms
 const std::map<std::string, alg_t> strMap = 
 {
-	{"Orthorect", 	ORTHORECT},
+	{"Orthorect", 		ORTHORECT},
 	{"GeoRef", 		GEOREF},
-	{"Saliency", 	SALIENCY},
+	{"Saliency", 		SALIENCY},
 	{"Seg",			SEG},
 	{"SSeg", 		SSEG},
 	{"CSeg", 		CSEG},
@@ -39,7 +39,7 @@ const std::map<alg_t, std::vector<zmqport_t>> portMap =
 
 const std::map<alg_t, void (*)(imgdata_t &)> algMap =
 {
-	{ORTHORECT, Orthorect :: execute},
+	{ORTHORECT, 	Orthorect :: execute},
 	{GEOREF,	GeoRef :: execute},
 	{SALIENCY,	Saliency :: execute},
 	{SEG,		Segmentation :: execute},

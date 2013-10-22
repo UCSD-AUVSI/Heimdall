@@ -3,10 +3,11 @@
 using std::cout;
 using std::endl;
 
-#include "Backbone.hpp"
-#include "Algorithm.hpp"
-#include "IMGData.hpp"
-#include "Algs.hpp"
+#include "Recognition/CharacterRecognition.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/Algorithm.hpp"
+#include "Backbone/IMGData.hpp"
+//#include "Backbone/Algs.hpp"
 
 void CharacterRecognition :: execute(imgdata_t &data){
 	setDone(data, OCR);

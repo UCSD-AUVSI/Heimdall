@@ -9,12 +9,12 @@
 
 #include <zmq.hpp>
 
-#include "Backbone.hpp"
-#include "BackStore.hpp"
-#include "IMGData.hpp"
-#include "Algorithm.hpp"
-#include "Algs.hpp"
-#include "Maps.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/BackStore.hpp"
+#include "Backbone/IMGData.hpp"
+#include "Backbone/Algorithm.hpp"
+#include "Backbone/Algs.hpp"
+#include "Backbone/Maps.hpp"
 
 using std::cout;
 using std::endl;
@@ -52,7 +52,7 @@ void doWork(const std::string server_addr, void (*func)(imgdata_t&), std::vector
 	}
 }
 
-void usage(){
+void dusage(){
 	cout << endl << "Expects the IP of the server, followed by "
 		<< "one or more of the following algorithms, separated by spaces: " << endl;
 
@@ -64,7 +64,7 @@ void usage(){
 
 int main(int argc, char* argv[]){
 	if(argc < 3){
-		usage();
+		dusage();
 		return 1;
 	}
 
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]){
 			portList = portMap.at(newalg);
 		}
 		catch(const std::out_of_range &oor){
-			usage();
+			dusage();
 			return 2;
 		}
 

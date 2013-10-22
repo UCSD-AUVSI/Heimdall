@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <mutex>
 
-#include "Backbone.hpp"
-#include "IMGData.hpp"
+#include "Backbone/Backbone.hpp"
+#include "Backbone/IMGData.hpp"
 
 using std::cout;
 using std::endl;
