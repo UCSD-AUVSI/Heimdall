@@ -21,6 +21,8 @@ set(CMAKE_EXE_LINKER_FLAGS "-lzmq -lpthread")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+
 # Snippet saved for when linking libraries
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 #
