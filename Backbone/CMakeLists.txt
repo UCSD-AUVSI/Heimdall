@@ -44,11 +44,22 @@ target_link_libraries(
 	imagepush
 	publish
 	verification
+	/usr/lib/libzmq.so.3
 	)
 target_link_libraries(
 	zServer
 	server
-	push
 	backbone
+	/usr/lib/libzmq.so.3
 	)
+target_link_libraries(zPushWorker /usr/lib/libzmq.so.3)
+
+#if(OpenCV_FOUND)
+#	include_directories(${OpenCV_INCLUDE_DIRS})
+#	target_link_libraries(zDistWorker ${OpenCV_LIBS})
+#endif(OpenCV_FOUND)
+#if(Qt_FOUND)
+#	include_directories(${QT_USE_FILE})
+#	target_link_libraries(zDistWorker ${QT_LIBRARIES})
+#endif(Qt_FOUND)
 

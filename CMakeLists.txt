@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 project(NUAUVSI)
 
+#find_package(OpenCV REQUIRED)
+#find_package(Qt4 REQUIRED)
+
 # have to set to g++ or will default to clang
 set(CMAKE_CXX_COMPILER "g++")
 
@@ -17,18 +20,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-set(CMAKE_EXE_LINKER_FLAGS "-lzmq -lpthread")
+#set(CMAKE_EXE_LINKER_FLAGS "-lzmq -lpthread")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+# generate binaries in build instead of build/Backbone
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-
-# Snippet saved for when linking libraries
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-#
-#find_package(ZeroMQ REQUIRED)
-#include_directories(${ZEROMQ_INCLUDE_DIRS})
-#set(LIBS ${LIBS} ${ZEROMQ_LIBRARIES})
 
 add_subdirectory(Backbone)
 add_subdirectory(Display)
