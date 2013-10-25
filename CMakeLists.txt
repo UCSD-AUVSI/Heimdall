@@ -8,23 +8,19 @@ find_package(ZeroMQ REQUIRED)
 find_package(OpenCV)
 find_package(Qt4)
 
-# have to set to g++ or will default to clang
-set(CMAKE_CXX_COMPILER "g++")
-
-# if on MAC then use libc++
+# if on MAC then use clang++ with libc++
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-# if on linux then use c++11
+# if on linux then use g++ with c++11
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 include_directories(${CMAKE_SOURCE_DIR} ${ZEROMQ_INCLUDE_DIR})
-
-# generate binaries in build instead of build/Backbone
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 add_subdirectory(Backbone)
 add_subdirectory(Display)
@@ -36,4 +32,3 @@ add_subdirectory(OGRSaliency)
 add_subdirectory(Publish)
 add_subdirectory(Recognition)
 add_subdirectory(Verification)
-
