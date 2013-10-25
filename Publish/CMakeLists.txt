@@ -6,3 +6,5 @@ set(publish_source_files
 add_library(publish ${publish_source_files})
 
 target_link_libraries(publish backbone)
+
+add_subdirectory(Test)

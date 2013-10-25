@@ -6,3 +6,5 @@ set(imagepush_source_lists
 add_library(imagepush ${imagepush_source_lists})
 
 target_link_libraries(imagepush backbone)
+
+add_subdirectory(Test)

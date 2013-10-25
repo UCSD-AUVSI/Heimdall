@@ -6,3 +6,5 @@ set(imagepub_source_files
 add_library(imagepub ${imagepub_source_files})
 
 target_link_libraries(imagepub backbone)
+
+add_subdirectory(Test)

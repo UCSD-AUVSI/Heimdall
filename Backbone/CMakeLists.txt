@@ -1,3 +1,6 @@
+# generate binaries in build instead of build/Backbone
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
+
 set(backbone_source_files
 	Algorithm.hpp
 	Backbone.hpp

@@ -6,3 +6,5 @@ set(verification_source_files
 add_library(verification ${verification_source_files})
 
 target_link_libraries(verification backbone)
+
+add_subdirectory(Test)

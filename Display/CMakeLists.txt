@@ -7,3 +7,5 @@ add_library(display ${display_source_files})
 
 target_link_libraries(display backbone)
 
+add_subdirectory(Test)
+

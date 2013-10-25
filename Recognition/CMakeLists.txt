@@ -22,3 +22,5 @@ add_library(charshapeseg ${csseg_source_files})
 target_link_libraries(segmentation backbone)
 target_link_libraries(charshaperecog backbone)
 target_link_libraries(charshapeseg backbone)
+
+add_subdirectory(Test)

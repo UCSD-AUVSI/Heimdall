@@ -18,3 +18,5 @@ add_library(saliency ${saliency_source_files})
 target_link_libraries(orthorect backbone)
 target_link_libraries(georef backbone)
 target_link_libraries(saliency backbone)
+
+add_subdirectory(Test)
