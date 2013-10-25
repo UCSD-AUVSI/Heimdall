@@ -13,5 +13,9 @@ using std::endl;
 void Segmentation :: execute(imgdata_t &data){
 	setDone(data, CSEG);
 	setDone(data, SSEG);
+
+
+
+
 	cout << "Segmentation" << endl;
 }
