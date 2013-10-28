@@ -2,7 +2,7 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 set(backbone_source_files
-	Algorithm.hpp
+        AUVSI_Algorithm.hpp
 	Backbone.hpp
 	BackStore.hpp
 	BackStore.cpp

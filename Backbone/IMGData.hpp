@@ -2,9 +2,11 @@
 #define IMGDATA_H
 
 #include "Backbone/Backbone.hpp"
+#include "opencv2/opencv.hpp"
 
 struct imgdata_t{
 	int id;
+        cv::Mat image_data;
 	bool orthorectDone = false;
 	bool georefDone = false;
 	bool saliencyDone = false;

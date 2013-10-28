@@ -2,9 +2,9 @@
 #define CHARACTERSEGMENTATION_H
 
 #include "Backbone/IMGData.hpp"
-#include "Backbone/Algorithm.hpp"
+#include "Backbone/AUVSI_Algorithm.hpp"
 
-class CharacterSegmentation : Algorithm{
+class CharacterSegmentation : AUVSI_Algorithm{
 	public:
 		static void execute(imgdata_t &data);
 };

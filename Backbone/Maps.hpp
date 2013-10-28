@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "Backbone/Backbone.hpp"
-#include "Backbone/Algorithm.hpp"
+#include "Backbone/AUVSI_Algorithm.hpp"
 
 //Mapping between strings referring to algorithms
 //and in code references to algorithms
