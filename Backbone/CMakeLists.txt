@@ -12,19 +12,19 @@ set(backbone_source_files
 	)
 set(dist_source_files
 	Algs.hpp
-	Maps.hpp
-	Maps.cpp
-	DistDriver.cpp
+	DistMaps.hpp
+	DistMaps.cpp
 	DistClient.cpp
 	DistClient.hpp
 	)
 set(push_source_files
-	PushDriver.cpp
 	IMGPushClient.cpp
 	IMGPushClient.hpp
 	)
 set(server_source_files
 	Server.cpp
+	ServerMaps.hpp
+	ServerMaps.cpp
 	)
 
 add_library(backbone ${backbone_source_files})

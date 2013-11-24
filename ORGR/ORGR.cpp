@@ -8,7 +8,7 @@
 using std::cout;
 using std::endl;
 
-void ORGRF :: execute(imgdata_t *data){
-	setDone(data, ORGR);
-	cout << "ORGR" << endl;
+void Stub_ORGRF :: execute(imgdata_t *data){
+	setDone(data, STUB_ORGR);
+	cout << "Stub ORGR" << endl;
 }

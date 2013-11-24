@@ -10,7 +10,7 @@ using std::endl;
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 
-void Saliency :: execute(imgdata_t *data){
-	setDone(data, SALIENCY);
-	cout << "Saliency" << endl;
+void Stub_Saliency :: execute(imgdata_t *data){
+	setDone(data, STUB_SALIENCY);
+	cout << "Stub Saliency" << endl;
 }

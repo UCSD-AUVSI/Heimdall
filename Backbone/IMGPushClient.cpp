@@ -9,7 +9,6 @@
 
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
-#include "Backbone/Maps.hpp"
 #include "Backbone/IMGPushClient.hpp"
 
 #include "opencv2/opencv.hpp"
@@ -37,9 +36,10 @@ void IMGPushClient :: work(){
 	int count = 0;
 	while(true){
 		imgdata_t data;
-		cout << "Sending " << sizeof(imgdata_t) << " bytes" << endl;
-		
 		zmq::message_t msg(sizeof(imgdata_t));
+		
+		cout << "Sending " << msg.size() << " bytes" << endl;
+		
 		data.id = count++;
 		cv::imencode(".jpg", cv::imread(image), data.image_data);
 		
@@ -57,4 +57,55 @@ void IMGPushClient :: usage(){
 	cout << "Command Line Options: \n" << endl;
 	cout << "\t--server\tServer IP Address (default localhost)\n" << endl;
 	cout << "\t--image\t\tPath to image to push (default ./foo.jpg)\n" << endl;
+}
+
+int main(int argc, char* argv[]){
+
+	std::string addr = "localhost"; //Default Server Address
+	std::string image = "./foo.jpg"; //Default Image Location
+
+	//Read in command line arguments
+	for(int i = 1; i < argc; i++){
+		std::string arg = std::string(argv[i]);	
+		if(arg == "--server"){
+			if(++i >= argc){
+				IMGPushClient::usage();
+				return -1;
+			}
+			addr = std::string(arg);
+		}
+		else if(arg == "--image"){
+			if(++i >= argc){
+				IMGPushClient::usage();
+				return -1;
+			}
+			image = std::string(argv[i]);
+		}
+		else{
+			IMGPushClient::usage();
+			return -1;
+		}
+	}
+
+	//Check if image exists
+	if(FILE *file = fopen(image.c_str(), "r")){
+		fclose(file);
+	}
+	else{
+		cout << "Image not found!" << endl;
+		IMGPushClient::usage();
+		return -1;
+	}
+
+	cout << "Running with following parameters: \n" << endl;
+	cout << "Server Address: " << addr << endl;
+	cout << "Image Location: " << image << endl;
+
+	IMGPushClient* ipc = new IMGPushClient(addr, image);
+	ipc->run();
+
+	cout << "Press any key to exit. \n\n" << endl;
+	getchar();
+
+	return 0;
 }

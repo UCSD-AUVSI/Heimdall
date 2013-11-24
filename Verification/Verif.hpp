@@ -4,7 +4,7 @@
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 
-class Verify : AUVSI_Algorithm {
+class Stub_Verify : AUVSI_Algorithm {
 	public:
 		static void execute(imgdata_t *data);
 };

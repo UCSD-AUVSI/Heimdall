@@ -25,8 +25,12 @@ enum zmqport_t{
 //Used to refer to various algorithms
 enum alg_t{
 	NONE,
-	ORGR,
-	SALIENCY,
+
+	//ORGR
+	STUB_ORGR,
+
+	//Saliency
+	STUB_SALIENCY,
 	GUISAL,
 
 	//Segmentation
@@ -40,6 +44,17 @@ enum alg_t{
 	//OCR
 	TESS_OCR,
 
+	//Verification
+	STUB_VERIF
+};
+
+//Used to refer to classes of algorithms
+enum algclass_t{
+	ORGR,
+	SALIENCY,
+	SEG,
+	SREC,
+	OCR,
 	VERIF
 };
 

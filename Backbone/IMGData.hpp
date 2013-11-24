@@ -1,9 +1,10 @@
 #ifndef IMGDATA_H
 #define IMGDATA_H
 
-#include "Backbone/Backbone.hpp"
 #include <vector>
 #include <string>
+
+#include "Backbone/Backbone.hpp"
 
 struct imgdata_t{
 	int id;

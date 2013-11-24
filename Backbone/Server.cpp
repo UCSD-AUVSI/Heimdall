@@ -9,12 +9,15 @@
 #include "Backbone/BackStore.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
+#include "Backbone/ServerMaps.hpp"
 
 using std::cout;
 using std::endl;
 
-void setupPort(int pullPort, std::vector<int> pushPorts, int pubPort, bool send){
+void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t pubPort){
 	zmq::context_t context(1);
+
+	bool send = pushPorts[0]?1:0;
 
 	//Initialize the sockets
 	zmq::socket_t pullSocket(context, ZMQ_PULL);
@@ -65,25 +68,13 @@ void setupPort(int pullPort, std::vector<int> pushPorts, int pubPort, bool send)
 }
 
 int main(int argc, char* argv[]){
-	std::vector<int> pushlist = {IMAGES_PUSH};
-	std::thread imageThread(	setupPort, IMAGES_PULL, 	pushlist, IMAGES_PUB, 	true);
-	pushlist = {ORGR_PUSH};
-	std::thread orgrThread(		setupPort, ORGR_PULL, 		pushlist, NO_PORT, 		true);
-	pushlist = {SALIENCY_PUSH};
-	std::thread salThread(		setupPort, SALIENCY_PULL, 	pushlist, SALIENCY_PUB, true);
-	pushlist = {CSEG_PUSH, SSEG_PUSH};
-	std::thread segThread(		setupPort, SEG_PULL, 		pushlist, NO_PORT, 		true);
-	pushlist = {TARGET_PUSH};
-	std::thread targetThread(	setupPort, TARGET_PULL, 	pushlist, TARGET_PUB, 	true);
-	pushlist = {NO_PORT};
-	std::thread verThread(		setupPort, VERIFIED_PULL,	pushlist, VERIFIED_PUB, false);
-
-	imageThread.detach();
-	orgrThread.detach();
-	salThread.detach();
-	segThread.detach();
-	targetThread.detach();
-	verThread.detach();
+	for(int i = 0; i < NUM_SERVER_THREADS; i++){
+		std::thread newThread(setupPort, 
+				(serverPullPortMap.at(i))[0], 
+				serverPushPortMap.at(i), 
+				(serverPubPortMap.at(i))[0]);
+		newThread.detach();
+	}
 
 	cout << "Press any key to quit" << endl;
 	getchar();

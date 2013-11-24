@@ -16,8 +16,8 @@ int main( int argc, char** argv )
     
 	cv::imencode(".jpg", cv::imread(filename), t.image_data);
 
-    setDone(&t,ORGR);
-    setDone(&t,SALIENCY);
+    setDone(&t,STUB_ORGR);
+    setDone(&t,STUB_SALIENCY);
 
 	ErosionSeg::execute(&t);
 
