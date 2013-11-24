@@ -2,21 +2,26 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 set(backbone_source_files
-        AUVSI_Algorithm.hpp
+	AUVSI_Algorithm.hpp
 	Backbone.hpp
 	BackStore.hpp
 	BackStore.cpp
 	IMGData.cpp
 	IMGData.hpp
+	Client.hpp
 	)
 set(dist_source_files
 	Algs.hpp
 	Maps.hpp
 	Maps.cpp
-	DistWorker.cpp
+	DistDriver.cpp
+	DistClient.cpp
+	DistClient.hpp
 	)
 set(push_source_files
-	PushWorker.cpp
+	PushDriver.cpp
+	IMGPushClient.cpp
+	IMGPushClient.hpp
 	)
 set(server_source_files
 	Server.cpp
@@ -28,18 +33,17 @@ add_library(push ${push_source_files})
 add_library(server ${server_source_files})
 
 add_executable(zServer ${server_source_files})
-add_executable(zPushWorker ${push_source_files})
-add_executable(zDistWorker ${dist_source_files})
+add_executable(zPushClient ${push_source_files})
+add_executable(zDistClient ${dist_source_files})
 
 target_link_libraries(
-	zDistWorker
+	zDistClient
 	dist
-	orthorect
-	georef
+	orgr
 	saliency
-	segmentation
-	charshapeseg
-	charshaperecog
+	seg
+	ocr
+	shaperec
 	display
 	guirec
 	guisaliency
@@ -55,16 +59,19 @@ target_link_libraries(
 	backbone
 	${ZEROMQ_LIBRARIES}
 	)
-target_link_libraries(zPushWorker 
+target_link_libraries(
+	zPushClient
 	${ZEROMQ_LIBRARIES}
 	)
 
 if(OpenCV_FOUND)
 	include_directories(${OpenCV_INCLUDE_DIRS})
-	target_link_libraries(zDistWorker ${OpenCV_LIBS})
+	target_link_libraries(zDistClient ${OpenCV_LIBS})
+	target_link_libraries(zServer ${OpenCV_LIBS})
+	target_link_libraries(zPushClient ${OpenCV_LIBS})
 endif(OpenCV_FOUND)
 if(Qt_FOUND)
 	include_directories(${QT_USE_FILE})
-	target_link_libraries(zDistWorker ${QT_LIBRARIES})
+	target_link_libraries(zDistClient ${QT_LIBRARIES})
 endif(Qt_FOUND)
 

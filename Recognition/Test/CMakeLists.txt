@@ -1,17 +1,17 @@
-set(testscseg_source_files
-	TestSCSegmentation.cpp
+set(testtessocr_source_files
+	TestTessOCR.cpp
 	)
-set(testscrecog_source_files
-	TestSCRecognition.cpp
+set(testtemplatesrec_source_files
+	TestTemplateSRec.cpp
 	)
-set(testsegmentation_source_files
-	TestSegmentation.cpp
+set(testerosionseg_source_files
+	TestErosionSeg.cpp
 	)
 
-add_executable(testShapeCharSeg ${testscseg_source_files})
-add_executable(testShapeCharRecog ${testscrecog_source_files})
-add_executable(testSegmentation ${testsegmentation_source_files})
+add_executable(testErosionSeg ${testerosionseg_source_files})
+add_executable(testTemplateSRec ${testtemplatesrec_source_files})
+add_executable(testTessOCR ${testtessocr_source_files})
 
-target_link_libraries(testShapeCharSeg charshapeseg)
-target_link_libraries(testShapeCharRecog charshaperecog)
-target_link_libraries(testSegmentation segmentation ${OpenCV_LIBS})
+target_link_libraries(testTemplateSRec shaperec ${OpenCV_LIBS})
+target_link_libraries(testTessOCR ocr ${OpenCV_LIBS})
+target_link_libraries(testErosionSeg seg ${OpenCV_LIBS})

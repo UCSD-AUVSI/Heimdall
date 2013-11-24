@@ -7,17 +7,14 @@ enum zmqport_t{
 	IMAGES_PULL = 1820,
 	IMAGES_PUSH,
 	IMAGES_PUB,
-	ORTHORECT_PULL,
-	ORTHORECT_PUSH,
-	GEOREF_PULL,
-	GEOREF_PUSH,
+	ORGR_PULL,
+	ORGR_PUSH,
 	SALIENCY_PULL,
 	SALIENCY_PUSH,
 	SALIENCY_PUB,
-	S_SEG_PULL,
-	C_SEG_PULL,
-	S_SEG_PUSH,
-	C_SEG_PUSH,
+	SEG_PULL,
+	CSEG_PUSH,
+	SSEG_PUSH,
 	TARGET_PULL,
 	TARGET_PUSH,
 	TARGET_PUB,
@@ -27,14 +24,22 @@ enum zmqport_t{
 
 //Used to refer to various algorithms
 enum alg_t{
-	ORTHORECT,
-	GEOREF,
+	NONE,
+	ORGR,
 	SALIENCY,
-	SEG,
-	SSEG,
-	CSEG,
-	SREC,
-	OCR,
+	GUISAL,
+
+	//Segmentation
+	BLOB_SEG,
+	EROSION_SEG,	
+	GUIREC,
+
+	//Shape Recognition
+	TEMPLATE_SREC,
+
+	//OCR
+	TESS_OCR,
+
 	VERIF
 };
 

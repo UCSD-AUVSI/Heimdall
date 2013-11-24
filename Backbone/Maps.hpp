@@ -6,6 +6,10 @@
 
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
+#include "Backbone/IMGData.hpp"
+
+//Mapping between classes of algorithms and actual implementations
+extern const std::map<std::string, std::vector<std::string>> selectMap;
 
 //Mapping between strings referring to algorithms
 //and in code references to algorithms
@@ -16,6 +20,6 @@ extern const std::map<std::string, alg_t> strMap;
 //Rest are what they push to
 extern const std::map<alg_t, std::vector<zmqport_t>> portMap;
 
-extern const std::map<alg_t, void (*)(imgdata_t &)> algMap;
+extern const std::map<alg_t, void (*)(imgdata_t *)> algMap;
 
 #endif

@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include <thread>
 #include <iostream>
 
@@ -7,25 +8,33 @@
 #include "Backbone/Backbone.hpp"
 #include "Backbone/BackStore.hpp"
 #include "Backbone/IMGData.hpp"
-#include "Backbone/Algorithm.hpp"
+#include "Backbone/AUVSI_Algorithm.hpp"
 
 using std::cout;
 using std::endl;
 
-void setupPort(int pullPort, int pushPort, int pubPort, bool send){
+void setupPort(int pullPort, std::vector<int> pushPorts, int pubPort, bool send){
 	zmq::context_t context(1);
 
-	//Initialize the three sockets
+	//Initialize the sockets
 	zmq::socket_t pullSocket(context, ZMQ_PULL);
-	zmq::socket_t pushSocket(context, ZMQ_PUSH);
 	zmq::socket_t pubSocket(context, ZMQ_PUB);
 
-	//Setup the three sockets
+	std::vector<zmq::socket_t*> pushsockets;
+	for(int i = 0; i < pushPorts.size(); i++){ //May push to multiple ports
+		//On heap, and while true, but should be freed when process exits anyway
+		zmq::socket_t *pushsocket = new zmq::socket_t(context, ZMQ_PUSH); 
+		pushsockets.push_back(pushsocket);
+	}
+
+	//Setup the sockets
 	std::string port = "tcp://*:" + std::to_string(pullPort);
 	pullSocket.bind(port.c_str());
 	if(send){
-		port = "tcp://*:" + std::to_string(pushPort);
-		pushSocket.bind(port.c_str());
+		for(int i = 0; i < pushPorts.size(); i++){
+			port = "tcp://*:" + std::to_string(pushPorts[i]);
+			pushsockets[i]->bind(port.c_str());
+		}
 	}
 	if(pubPort){
 		port = "tcp://*:" + std::to_string(pubPort);
@@ -36,40 +45,46 @@ void setupPort(int pullPort, int pushPort, int pubPort, bool send){
 
 	while(true){
 		pullSocket.recv(&msg);
-		imgdata_t data = *static_cast<imgdata_t*>(msg.data());
+		imgdata_t* data = static_cast<imgdata_t*>(msg.data());
 		if(img_update(data)){
 			if(send){
-				pushSocket.send(msg);
+				for(int i = 0; i < pushPorts.size(); i++){
+					zmq::message_t sendmsg(sizeof(imgdata_t));
+					memcpy(sendmsg.data(), data, sizeof(imgdata_t));
+					pushsockets[i]->send(sendmsg);
+				}
 			}
 			if(pubPort){
 				pubSocket.send(msg);
 			}
-		}
-		if(data.verified){
-			img_delete(data);	
+			if(data->verified){
+				img_delete(data);	
+			}
 		}
 	}
 }
 
 int main(int argc, char* argv[]){
-	std::thread imageThread(setupPort, IMAGES_PULL, IMAGES_PUSH, IMAGES_PUB, true);
-	std::thread orthoThread(setupPort, ORTHORECT_PULL, ORTHORECT_PUSH, NO_PORT, true);
-	std::thread geoThread(setupPort, GEOREF_PULL, GEOREF_PUSH, NO_PORT, true);
-	std::thread salThread(setupPort, SALIENCY_PULL, SALIENCY_PUSH, SALIENCY_PUB, true);
-	std::thread ssegThread(setupPort, S_SEG_PULL, S_SEG_PUSH, NO_PORT, true);
-	std::thread csegThread(setupPort, C_SEG_PULL, C_SEG_PUSH, NO_PORT, true);
-	std::thread targetThread(setupPort, TARGET_PULL, TARGET_PUSH, TARGET_PUB, true);
-	std::thread verThread(setupPort, VERIFIED_PULL, NO_PORT, VERIFIED_PUB, false);
+	std::vector<int> pushlist = {IMAGES_PUSH};
+	std::thread imageThread(	setupPort, IMAGES_PULL, 	pushlist, IMAGES_PUB, 	true);
+	pushlist = {ORGR_PUSH};
+	std::thread orgrThread(		setupPort, ORGR_PULL, 		pushlist, NO_PORT, 		true);
+	pushlist = {SALIENCY_PUSH};
+	std::thread salThread(		setupPort, SALIENCY_PULL, 	pushlist, SALIENCY_PUB, true);
+	pushlist = {CSEG_PUSH, SSEG_PUSH};
+	std::thread segThread(		setupPort, SEG_PULL, 		pushlist, NO_PORT, 		true);
+	pushlist = {TARGET_PUSH};
+	std::thread targetThread(	setupPort, TARGET_PULL, 	pushlist, TARGET_PUB, 	true);
+	pushlist = {NO_PORT};
+	std::thread verThread(		setupPort, VERIFIED_PULL,	pushlist, VERIFIED_PUB, false);
 
 	imageThread.detach();
-	orthoThread.detach();
-	geoThread.detach();
+	orgrThread.detach();
 	salThread.detach();
-	ssegThread.detach();
-	csegThread.detach();
+	segThread.detach();
 	targetThread.detach();
 	verThread.detach();
-	
+
 	cout << "Press any key to quit" << endl;
 	getchar();
 

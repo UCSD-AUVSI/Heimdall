@@ -6,10 +6,10 @@ using std::endl;
 
 #include "ImagePub/ImagePub.hpp"
 #include "Backbone/Backbone.hpp"
-#include "Backbone/Algorithm.hpp"
+#include "Backbone/AUVSI_Algorithm.hpp"
 #include "Backbone/IMGData.hpp"
-//#include "Backbone/Algs.hpp"
+#include "Backbone/Algs.hpp"
 
-void ImagePub :: execute(imgdata_t &data){
+void ImagePub :: execute(imgdata_t *data){
 	cout << "ImagePub" << endl;
 }

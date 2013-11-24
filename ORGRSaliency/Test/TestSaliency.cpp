@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "OGRSaliency/Saliency.hpp"
+#include "ORGRSaliency/Saliency.hpp"
 
 using std::cout;
 using std::endl;

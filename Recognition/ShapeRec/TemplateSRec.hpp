@@ -1,10 +1,10 @@
-#ifndef GUIREC_H
-#define GUIREC_H
+#ifndef TEMPLATESHAPEREC_H
+#define TEMPLATESHAPEREC_H
 
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 
-class GUIRec : AUVSI_Algorithm{
+class TemplateSRec : AUVSI_Algorithm{
 	public:
 		static void execute(imgdata_t *data);
 };

@@ -6,10 +6,10 @@ using std::endl;
 
 #include "ImagePush/ImagePush.hpp"
 #include "Backbone/Backbone.hpp"
-#include "Backbone/Algorithm.hpp"
+#include "Backbone/AUVSI_Algorithm.hpp"
 #include "Backbone/IMGData.hpp"
-//#include "Backbone/Algs.hpp"
+#include "Backbone/Algs.hpp"
 
-void ImagePush :: execute(imgdata_t &data){
+void ImagePush :: execute(imgdata_t *data){
 	cout << "ImagePush" << endl;
 }

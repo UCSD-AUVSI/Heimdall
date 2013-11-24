@@ -2,11 +2,11 @@
 #define IMAGEPUB_H
 
 #include "Backbone/IMGData.hpp"
-#include "Backbone/Algorithm.hpp"
+#include "Backbone/AUVSI_Algorithm.hpp"
 
-class ImagePub : Algorithm{
+class ImagePub : AUVSI_Algorithm{
 	public:
-		static void execute(imgdata_t &data);
+		static void execute(imgdata_t *data);
 };
 
 #endif

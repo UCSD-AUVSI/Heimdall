@@ -1,11 +1,10 @@
 #include <iostream>
 
-#include "OGRSaliency/GeoRef.hpp"
+#include "ORGRSaliency/ORGR.hpp"
 
 using std::cout;
 using std::endl;
 
 int main() {
-	cout << "Test Georef" << endl;
+	cout << "Test ORGR" << endl;
 }
-
