@@ -1,10 +1,11 @@
 #include <iostream>
 
-#include "ORGRSaliency/ORGR.hpp"
+#include "ImageSub/ImageSub.hpp"
 
 using std::cout;
 using std::endl;
 
 int main() {
-	cout << "Test ORGR" << endl;
+	cout << "Test ImageSub" << endl;
 }
+

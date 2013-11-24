@@ -3,7 +3,7 @@
 
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
-#include "ORGRSaliency/ORGR.hpp"
+#include "ORGR/ORGR.hpp"
 
 using std::cout;
 using std::endl;

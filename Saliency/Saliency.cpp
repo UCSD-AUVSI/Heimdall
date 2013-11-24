@@ -4,7 +4,7 @@
 using std::cout;
 using std::endl;
 
-#include "ORGRSaliency/Saliency.hpp"
+#include "Saliency/Saliency.hpp"
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 #include "Backbone/IMGData.hpp"

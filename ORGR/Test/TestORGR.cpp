@@ -1,11 +1,10 @@
 #include <iostream>
 
-#include "ORGRSaliency/Saliency.hpp"
+#include "ORGR/ORGR.hpp"
 
 using std::cout;
 using std::endl;
 
 int main() {
-	cout << "Test Saliency" << endl;
+	cout << "Test ORGR" << endl;
 }
-

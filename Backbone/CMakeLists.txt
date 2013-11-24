@@ -47,7 +47,7 @@ target_link_libraries(
 	display
 	guirec
 	guisaliency
-	imagepub
+	imagesub
 	imagepush
 	publish
 	verification

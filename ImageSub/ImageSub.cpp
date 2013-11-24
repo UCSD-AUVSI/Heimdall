@@ -4,12 +4,12 @@
 using std::cout;
 using std::endl;
 
-#include "ImagePub/ImagePub.hpp"
+#include "ImageSub/ImageSub.hpp"
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 
-void ImagePub :: execute(imgdata_t *data){
-	cout << "ImagePub" << endl;
+void ImageSub :: execute(imgdata_t *data){
+	cout << "ImageSub" << endl;
 }
