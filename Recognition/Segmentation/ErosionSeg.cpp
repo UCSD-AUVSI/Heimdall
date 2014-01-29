@@ -29,7 +29,7 @@ void ErosionSeg :: execute(imgdata_t *data){
 		return;
 	}
 
-	image = cv::imdecode(data->image_data, CV_LOAD_IMAGE_COLOR);
+	image = cv::imdecode(*(data->image_data), CV_LOAD_IMAGE_COLOR);
 
 	if(image.empty()){cout <<"image is null"<<endl; return;} 
 

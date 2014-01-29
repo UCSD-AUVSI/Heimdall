@@ -8,6 +8,7 @@
 #include <zmq.hpp>
 
 #include "Backbone/Backbone.hpp"
+#include "Backbone/MessageHandling.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/IMGPushClient.hpp"
 
@@ -15,6 +16,11 @@
 
 using std::cout;
 using std::endl;
+
+/***
+ * IMGPushClient
+ * Pushes images to a designated port
+ */
 
 IMGPushClient :: IMGPushClient(std::string addr, std::string imageloc){
 	server_addr = addr;
@@ -36,15 +42,20 @@ void IMGPushClient :: work(){
 	int count = 0;
 	while(true){
 		imgdata_t data;
-		zmq::message_t msg(sizeof(imgdata_t));
-		
-		cout << "Sending " << msg.size() << " bytes" << endl;
-		
 		data.id = count++;
-		cv::imencode(".jpg", cv::imread(image), data.image_data);
 		
-		memcpy(msg.data(), &data, sizeof(imgdata_t));
+		data.image_data = new std::vector<unsigned char>();			
+		cv::imencode(".jpg", cv::imread(image), *(data.image_data));
+		
+		zmq::message_t msg(messageSizeNeeded(&data));
+		packMessageData(&msg, &data);
+
+		cout << "Sending " << msg.size() << " bytes" << endl;
+
 		pushsocket.send(msg);
+		
+		freeIMGData(&data);
+		
 		std::chrono::milliseconds dura(1000);
 		std::this_thread::sleep_for(dura);
 	}

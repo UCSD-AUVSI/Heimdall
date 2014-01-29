@@ -9,6 +9,7 @@
 #include <zmq.hpp>
 
 #include "Backbone/Backbone.hpp"
+#include "Backbone/MessageHandling.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/DistMaps.hpp"
 #include "Backbone/DistClient.hpp"
@@ -44,19 +45,22 @@ void DistClient :: work(){
 		pushsockets.push_back(pushsocket);
 	}
 
-	zmq::message_t msg(sizeof(imgdata_t));
+	imgdata_t data;
 	while(true){
+		zmq::message_t msg;
 		pullsocket.recv(&msg);
-		
-		imgdata_t* data = static_cast<imgdata_t*>(msg.data());
-		
-		func(data);
-		
+
+		unpackMessageData(&data, &msg);
+
+		func(&data);
+
 		for(zmq::socket_t *sock : pushsockets){	
-			zmq::message_t sendmsg(sizeof(imgdata_t));
-			memcpy(sendmsg.data(), data, sizeof(imgdata_t));
+			zmq::message_t sendmsg(messageSizeNeeded(&data));
+			packMessageData(&sendmsg, &data);
 			sock->send(sendmsg);
 		}
+
+		freeIMGData(&data);
 	}
 }
 
@@ -106,13 +110,13 @@ int main(int argc, char* argv[]){
 				algtype = algtype.substr(2); //Strip off two dashes
 
 				alglist = selectMap.at(algtype);
-				
+
 				if(++i >= argc){
 					DistClient::usage();
 					return -1;
 				}
 				alg = std::string(argv[i]);
-				
+
 				if(std::find(alglist.begin(), alglist.end(), alg) == alglist.end()){
 					DistClient :: usage();
 					return -1;

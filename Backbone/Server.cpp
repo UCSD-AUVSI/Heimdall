@@ -6,10 +6,13 @@
 #include <zmq.hpp>
 
 #include "Backbone/Backbone.hpp"
+#include "Backbone/MessageHandling.hpp"
 #include "Backbone/BackStore.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 #include "Backbone/ServerMaps.hpp"
+
+#include "opencv2/opencv.hpp"
 
 using std::cout;
 using std::endl;
@@ -44,26 +47,30 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 		pubSocket.bind(port.c_str());
 	}
 
-	zmq::message_t msg(sizeof(imgdata_t));
-
+	imgdata_t data;
 	while(true){
+		zmq::message_t msg;
 		pullSocket.recv(&msg);
-		imgdata_t* data = static_cast<imgdata_t*>(msg.data());
-		if(img_update(data)){
+		
+		unpackMessageData(&data, &msg);
+			
+		if(img_update(&data)){
 			if(send){
-				for(int i = 0; i < pushPorts.size(); i++){
-					zmq::message_t sendmsg(sizeof(imgdata_t));
-					memcpy(sendmsg.data(), data, sizeof(imgdata_t));
-					pushsockets[i]->send(sendmsg);
+				for(zmq::socket_t *sock : pushsockets){	
+					zmq::message_t sendmsg(messageSizeNeeded(&data));
+					packMessageData(&sendmsg, &data);
+					sock->send(sendmsg);
 				}
 			}
 			if(pubPort){
 				pubSocket.send(msg);
 			}
-			if(data->verified){
-				img_delete(data);	
+			if(data.verified){
+				img_delete(&data);	
 			}
 		}
+
+		freeIMGData(&data);
 	}
 }
 

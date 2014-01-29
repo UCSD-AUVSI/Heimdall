@@ -4,10 +4,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(backbone_source_files
 	AUVSI_Algorithm.hpp
 	Backbone.hpp
-	BackStore.hpp
 	BackStore.cpp
+	BackStore.hpp
 	IMGData.cpp
 	IMGData.hpp
+	MessageHandling.cpp
+	MessageHandling.hpp
 	Client.hpp
 	)
 set(dist_source_files
@@ -61,6 +63,7 @@ target_link_libraries(
 	)
 target_link_libraries(
 	zPushClient
+	backbone
 	${ZEROMQ_LIBRARIES}
 	)
 
