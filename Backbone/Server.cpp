@@ -75,6 +75,7 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 }
 
 int main(int argc, char* argv[]){
+	// TODO: Allow for multiple publish ports
 	for(int i = 0; i < NUM_SERVER_THREADS; i++){
 		std::thread newThread(setupPort, 
 				(serverPullPortMap.at(i))[0], 

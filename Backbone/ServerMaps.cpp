@@ -11,6 +11,7 @@
 // MODIFICATIONS UNNECESSARY FOR MODULE ADDITION
 //
 
+//Only one pull port per thread allowed
 const std::map<int, std::vector<zmqport_t>> serverPullPortMap =
 {
 	{0, {IMAGES_PULL}}, //Image Thread
@@ -31,6 +32,7 @@ const std::map<int, std::vector<zmqport_t>> serverPushPortMap =
 	{5,	{NO_PORT}}  //Verification Thread
 };
 
+// Only one publish port per thread allowed
 const std::map<int, std::vector<zmqport_t>> serverPubPortMap =
 {
 	{0, {IMAGES_PUB}}, //Image Thread

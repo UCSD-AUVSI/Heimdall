@@ -97,7 +97,7 @@ int main(int argc, char* argv[]){
 	}
 
 	for(int i = 1; i < argc; i++){
-		if(argv[i] == "--server"){
+		if(std::string(argv[i]) == "--server"){
 			if(++i >= argc){
 				DistClient::usage();
 				return -1;
