@@ -53,7 +53,6 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 		pullSocket.recv(&msg);
 		
 		unpackMessageData(&data, &msg);
-			
 		if(img_update(&data)){
 			if(send){
 				for(zmq::socket_t *sock : pushsockets){	
@@ -70,7 +69,7 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 			}
 		}
 
-		freeIMGData(&data);
+		clearIMGData(&data);
 	}
 }
 

@@ -28,15 +28,12 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
 	first->verified 	|= second->verified;
 }
 
-void updateImageData(imgdata_t *previmg, imgdata_t *newimg){
-	if(*(previmg->image_data) != *(newimg->image_data)){
-		previmg->image_data = newimg->image_data;
-	}
-}
+// TODO: Currently, BackStore does not save image data properly
+// Need to properly and intelligently save data
+void updateImageData(imgdata_t *previmg, imgdata_t *newimg){}
 
 bool img_update(imgdata_t *data){
 	store_lock.lock();
-
 	unsigned char *&imgarr = store[data->id];
 		
 	imgdata_t img;
@@ -50,6 +47,10 @@ bool img_update(imgdata_t *data){
 	orUpdate(data, &img);
 
 	updateImageData(&img, data);
+
+	if(!data->initialized){
+		initEmptyIMGData(data);
+	}
 
 	// TODO: Make this less inefficient. Currently always deallocates
 	// and reallocates an entire array, which can be a significant 

@@ -1,6 +1,4 @@
 set(seg_source_files
-	ErosionSeg.hpp
-	ErosionSeg.cpp
 	BlobSeg.hpp
 	BlobSeg.cpp
 	)

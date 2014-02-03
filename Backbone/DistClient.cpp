@@ -53,14 +53,18 @@ void DistClient :: work(){
 		unpackMessageData(&data, &msg);
 
 		func(&data);
-
+		
 		for(zmq::socket_t *sock : pushsockets){	
-			zmq::message_t sendmsg(messageSizeNeeded(&data));
-			packMessageData(&sendmsg, &data);
-			sock->send(sendmsg);
+			while(data.image_data->size() > 0){
+				zmq::message_t sendmsg(messageSizeNeeded(&data));
+				packMessageData(&sendmsg, &data);
+				sock->send(sendmsg);
+				data.image_data->back()->clear();
+				data.image_data->pop_back();
+			}
 		}
 
-		freeIMGData(&data);
+		clearIMGData(&data);
 	}
 }
 

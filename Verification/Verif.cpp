@@ -14,7 +14,11 @@ using std::endl;
 void Stub_Verify :: execute(imgdata_t *data){
 	cv::startWindowThread();
 	cv::namedWindow("Image", CV_WINDOW_NORMAL);
-	cv::imshow("Image",	cv::imdecode(*(data->image_data), CV_LOAD_IMAGE_COLOR));
+	cv::imshow("Image",	cv::imdecode(*(data->image_data->at(0)), CV_LOAD_IMAGE_COLOR));
+	cv::waitKey(0);
+	cv::imshow("Image",	cv::imdecode(*(data->sseg_image_data->at(0)), CV_LOAD_IMAGE_COLOR));
+	cv::waitKey(0);
+	cv::imshow("Image",	cv::imdecode(*(data->cseg_image_data->at(0)), CV_LOAD_IMAGE_COLOR));
 	cv::waitKey(0);
 	cv::destroyWindow("Image");
 

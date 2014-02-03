@@ -35,7 +35,6 @@ enum alg_t{
 
 	//Segmentation
 	BLOB_SEG,
-	EROSION_SEG,	
 	GUIREC,
 
 	//Shape Recognition

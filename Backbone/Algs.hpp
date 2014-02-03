@@ -8,7 +8,6 @@
 #include "Saliency/Saliency.hpp"
 #include "GUISaliency/GUISaliency.hpp"
 
-#include "Recognition/Segmentation/ErosionSeg.hpp"
 #include "Recognition/Segmentation/BlobSeg.hpp"
 #include "Recognition/ShapeRec/TemplateSRec.hpp"
 #include "Recognition/OCR/TessOCR.hpp"

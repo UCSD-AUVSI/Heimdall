@@ -44,8 +44,18 @@ void IMGPushClient :: work(){
 		imgdata_t data;
 		data.id = count++;
 		
-		data.image_data = new std::vector<unsigned char>();			
-		cv::imencode(".jpg", cv::imread(image), *(data.image_data));
+		initEmptyIMGData(&data);
+		std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
+		cv::imencode(".jpg", cv::imread(image), *newarr);
+		data.image_data->push_back(newarr);
+		
+		newarr = new std::vector<unsigned char>();
+		cv::imencode(".jpg", cv::imread(image), *newarr);
+		data.sseg_image_data->push_back(newarr);
+		
+		newarr = new std::vector<unsigned char>();
+		cv::imencode(".jpg", cv::imread(image), *newarr);
+		data.cseg_image_data->push_back(newarr);
 		
 		zmq::message_t msg(messageSizeNeeded(&data));
 		packMessageData(&msg, &data);
@@ -54,7 +64,7 @@ void IMGPushClient :: work(){
 
 		pushsocket.send(msg);
 		
-		freeIMGData(&data);
+		clearIMGData(&data);
 		
 		std::chrono::milliseconds dura(1000);
 		std::this_thread::sleep_for(dura);
