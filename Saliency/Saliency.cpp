@@ -1,8 +1,6 @@
 #include <string>
+#include <vector>
 #include <iostream>
-
-using std::cout;
-using std::endl;
 
 #include "Saliency/Saliency.hpp"
 #include "Backbone/Backbone.hpp"
@@ -10,7 +8,14 @@ using std::endl;
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 
-void Stub_Saliency :: execute(imgdata_t *data){
-	setDone(data, STUB_SALIENCY);
+using std::cout;
+using std::endl;
+
+void Stub_Saliency :: execute(imgdata_t *imdata){
+	imdata->image_data->push_back(new std::vector<unsigned char>(*(imdata->image_data->at(0))));
+	imdata->image_data->push_back(new std::vector<unsigned char>(*(imdata->image_data->at(0))));
+	imdata->image_data->push_back(new std::vector<unsigned char>(*(imdata->image_data->at(0))));
+	imdata->image_data->push_back(new std::vector<unsigned char>(*(imdata->image_data->at(0))));
+	setDone(imdata, STUB_SALIENCY);
 	cout << "Stub Saliency" << endl;
 }

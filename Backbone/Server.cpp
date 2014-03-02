@@ -51,7 +51,7 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 	while(true){
 		zmq::message_t msg;
 		pullSocket.recv(&msg);
-		
+		cout << pullPort << " Received" << endl;	
 		unpackMessageData(&imdata, &msg);
 		if(img_update(&imdata)){
 			if(send){

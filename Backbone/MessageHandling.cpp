@@ -117,11 +117,7 @@ void packMessageData(zmq::message_t *msg, imgdata_t *imdata){
 
 void expandData(imgdata_t *imdata, unsigned char *arr){
 	if(arr == 0){
-		imdata->image_data = new std::vector<std::vector<unsigned char>*>();
-		imdata->sseg_image_data = new std::vector<std::vector<unsigned char>*>();
-		imdata->cseg_image_data = new std::vector<std::vector<unsigned char>*>();
-		imdata->sseg_image_sizes = new std::vector<uint32_t>();
-		imdata->cseg_image_sizes = new std::vector<uint32_t>();
+		initEmptyIMGData(imdata);
 		return;
 	}
 	int start = 0;

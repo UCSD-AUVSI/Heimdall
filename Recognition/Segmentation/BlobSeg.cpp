@@ -7,7 +7,7 @@
 using std::cout;
 using std::endl;
 
-void BlobSeg :: execute(imgdata_t *data){
-	setDone(data, BLOB_SEG);
+void BlobSeg :: execute(imgdata_t *imdata){
+	setDone(imdata, BLOB_SEG);
 	cout << "Blob Segmentation" << endl;	
 }	

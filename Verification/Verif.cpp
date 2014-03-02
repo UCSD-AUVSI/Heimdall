@@ -11,17 +11,28 @@
 using std::cout;
 using std::endl;
 
-void Stub_Verify :: execute(imgdata_t *data){
+void Stub_Verify :: execute(imgdata_t *imdata){
 	cv::startWindowThread();
 	cv::namedWindow("Image", CV_WINDOW_NORMAL);
-	cv::imshow("Image",	cv::imdecode(*(data->image_data->at(0)), CV_LOAD_IMAGE_COLOR));
-	cv::waitKey(0);
-	cv::imshow("Image",	cv::imdecode(*(data->sseg_image_data->at(0)), CV_LOAD_IMAGE_COLOR));
-	cv::waitKey(0);
-	cv::imshow("Image",	cv::imdecode(*(data->cseg_image_data->at(0)), CV_LOAD_IMAGE_COLOR));
-	cv::waitKey(0);
+	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
+			i < imdata->image_data->end(); ++i){
+		cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
+		cv::waitKey(0);
+	}
+
+	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
+			i < imdata->sseg_image_data->end(); ++i){
+		cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
+		cv::waitKey(0);
+	}
+
+	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
+			i < imdata->cseg_image_data->end(); ++i){
+		cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
+		cv::waitKey(0);
+	}
 	cv::destroyWindow("Image");
 
-	setDone(data, STUB_VERIF);
+	setDone(imdata, STUB_VERIF);
 	cout << "Stub Verification" << endl << endl;
 }

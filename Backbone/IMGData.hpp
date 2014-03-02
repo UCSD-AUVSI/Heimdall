@@ -7,7 +7,7 @@
 #include "Backbone/Backbone.hpp"
 
 struct imgdata_t{
-	int id, segid;
+	int id, cropid = 0;
 
 	// image_data vector guaranteed to have only one row when packed/unpacked
 	std::vector<std::vector<unsigned char>*> *image_data = 0;

@@ -13,7 +13,7 @@ using std::endl;
 
 std::mutex store_lock;
 
-static std::map<int, unsigned char *> store;
+static std::map<std::pair<int,int>, unsigned char *> store;
 
 bool img_check(imgdata_t *data){
 	return (data->sDone == data->cDone);
@@ -34,10 +34,20 @@ void updateImageData(imgdata_t *previmg, imgdata_t *newimg){}
 
 bool img_update(imgdata_t *data){
 	store_lock.lock();
-	unsigned char *&imgarr = store[data->id];
+	std::pair<int,int> datakey(data->id, data->cropid);
+	unsigned char *&imgarr = store[datakey];
 		
+	if(!data->initialized){
+		initEmptyIMGData(data);
+	}
+
 	imgdata_t img;
-	expandData(&img, imgarr);
+	if(store.find(datakey) != store.end()){
+		expandData(&img, imgarr);
+	}
+	else{
+		initEmptyIMGData(&img);
+	}
 	
 	if(img.id != data->id){
 		img.id = data->id;
@@ -47,10 +57,6 @@ bool img_update(imgdata_t *data){
 	orUpdate(data, &img);
 
 	updateImageData(&img, data);
-
-	if(!data->initialized){
-		initEmptyIMGData(data);
-	}
 
 	// TODO: Make this less inefficient. Currently always deallocates
 	// and reallocates an entire array, which can be a significant 
@@ -67,11 +73,12 @@ bool img_update(imgdata_t *data){
 }
 
 bool img_delete(imgdata_t *data){
+	std::pair<int,int> datakey(data->id, data->cropid);
 	try {
-		delete [] store.at(data->id);
+		delete [] store.at(datakey);
 	}
 	catch(const std::out_of_range& oor){
 		return false;
 	}
-	return store.erase(data->id)==1?true:false;
+	return store.erase(datakey)==1?true:false;
 }
