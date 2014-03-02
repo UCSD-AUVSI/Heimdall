@@ -10,56 +10,57 @@
 using std::cout;
 using std::endl;
 
-int messageSizeNeeded(imgdata_t *data){
-	if(data->image_data->size()){
-		data->image_data_size = data->image_data->at(0)->size();
+int messageSizeNeeded(imgdata_t *imdata){
+	if(imdata->image_data->size()){
+		imdata->image_data_size = imdata->image_data->back()->size();
 	}
 
-	if(data->sseg_image_sizes->size() != data->sseg_image_data->size()){
-		for(std::vector<std::vector<unsigned char>*>::iterator i = data->sseg_image_data->begin();
-				i < data->sseg_image_data->end(); ++i){
-			data->sseg_image_sizes->push_back((*i)->size());
+	if(imdata->sseg_image_sizes->size() != imdata->sseg_image_data->size()){
+		for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
+				i < imdata->sseg_image_data->end(); ++i){
+			imdata->sseg_image_sizes->push_back((*i)->size());
 		}
-		data->sseg_image_size_count = data->sseg_image_sizes->size();
+		imdata->sseg_image_size_count = imdata->sseg_image_sizes->size();
 	}
 
-	if(data->cseg_image_sizes->size() != data->cseg_image_data->size()){
-		for(std::vector<std::vector<unsigned char>*>::iterator i = data->cseg_image_data->begin();
-				i < data->cseg_image_data->end(); ++i){
-			data->cseg_image_sizes->push_back((*i)->size());
+	if(imdata->cseg_image_sizes->size() != imdata->cseg_image_data->size()){
+		for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
+				i < imdata->cseg_image_data->end(); ++i){
+			imdata->cseg_image_sizes->push_back((*i)->size());
 		}
-		data->cseg_image_size_count = data->cseg_image_sizes->size();
+		imdata->cseg_image_size_count = imdata->cseg_image_sizes->size();
 	}
 
 	int len = sizeof(imgdata_t);
-	len += data->image_data_size;
-	len += data->sseg_image_size_count * sizeof(uint32_t);
-	len += data->cseg_image_size_count * sizeof(uint32_t);
+	len += imdata->image_data_size;
+	len += imdata->sseg_image_size_count * sizeof(uint32_t);
+	len += imdata->cseg_image_size_count * sizeof(uint32_t);
 
-	for(std::vector<uint32_t>::iterator i = data->sseg_image_sizes->begin();
-			i < data->sseg_image_sizes->end(); ++i){
+	for(std::vector<uint32_t>::iterator i = imdata->sseg_image_sizes->begin();
+			i < imdata->sseg_image_sizes->end(); ++i){
 		len += *i;
 	}
-	for(std::vector<uint32_t>::iterator i = data->cseg_image_sizes->begin();
-			i < data->cseg_image_sizes->end(); ++i){
+	for(std::vector<uint32_t>::iterator i = imdata->cseg_image_sizes->begin();
+			i < imdata->cseg_image_sizes->end(); ++i){
 		len += *i;
 	}
 	return len;
 }
 
-void printMsgBytes(zmq::message_t *data){
-	unsigned char arr[data->size()];
-	memcpy(arr, data->data(), data->size());
+void printMsgBytes(zmq::message_t *msg){
+	unsigned char arr[msg->size()];
+	memcpy(arr, msg->data(), msg->size());
 
-	cout << "Printing Message (" << data->size() << "): " << endl;
-	for(int i = 0; i < data->size(); i++){
+	cout << "Printing Message (" << msg->size() << "): " << endl;
+	for(int i = 0; i < msg->size(); i++){
 		printf("%x ", arr[i]);
 	}
 	cout << endl;
 }
-void printStructBytes(imgdata_t *data){
+
+void printStructBytes(imgdata_t *imdata){
 	unsigned char arr[sizeof(imgdata_t)];
-	memcpy(arr, data, sizeof(imgdata_t));
+	memcpy(arr, imdata, sizeof(imgdata_t));
 
 	cout << "Printing Struct (" << sizeof(imgdata_t) << "): " << endl;
 	for(int i = 0; i < sizeof(imgdata_t); i++){
@@ -68,104 +69,104 @@ void printStructBytes(imgdata_t *data){
 	cout << endl;
 }
 
-unsigned char *linearizeData(imgdata_t *data, int *retlen){
+unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	int start = 0;
 
-	*retlen = messageSizeNeeded(data);
+	*retlen = messageSizeNeeded(imdata);
 
 	unsigned char *arr = new unsigned char[*retlen];
 
-	memcpy(arr, data, sizeof(imgdata_t));
+	memcpy(arr, imdata, sizeof(imgdata_t));
 	start += sizeof(imgdata_t);
 
-	if(data->image_data_size){
-		memcpy(arr + start, &(*(data->image_data->at(0)))[0], data->image_data_size);
-		start += data->image_data_size;
+	if(imdata->image_data_size){
+		memcpy(arr + start, &(*(imdata->image_data->back()))[0], imdata->image_data_size);
+		start += imdata->image_data_size;
 	}
 
-	if(data->sseg_image_size_count){
-		memcpy(arr + start, &(*(data->sseg_image_sizes))[0], data->sseg_image_size_count * sizeof(uint32_t));
-		start += data->sseg_image_size_count * sizeof(uint32_t);
+	if(imdata->sseg_image_size_count){
+		memcpy(arr + start, &(*(imdata->sseg_image_sizes))[0], imdata->sseg_image_size_count * sizeof(uint32_t));
+		start += imdata->sseg_image_size_count * sizeof(uint32_t);
 	}
 
-	if(data->cseg_image_size_count){
-		memcpy(arr + start, &(*(data->cseg_image_sizes))[0], data->cseg_image_size_count * sizeof(uint32_t));
-		start += data->cseg_image_size_count * sizeof(uint32_t);
+	if(imdata->cseg_image_size_count){
+		memcpy(arr + start, &(*(imdata->cseg_image_sizes))[0], imdata->cseg_image_size_count * sizeof(uint32_t));
+		start += imdata->cseg_image_size_count * sizeof(uint32_t);
 	}
 
-	for(std::vector<std::vector<unsigned char>*>::iterator i = data->sseg_image_data->begin();
-			i < data->sseg_image_data->end(); ++i){
+	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
+			i < imdata->sseg_image_data->end(); ++i){
 		memcpy(arr + start, &(*(*i))[0], (*i)->size());
 		start += (*i)->size();
 	}
 
-	for(std::vector<std::vector<unsigned char>*>::iterator i = data->cseg_image_data->begin();
-			i < data->cseg_image_data->end(); ++i){
+	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
+			i < imdata->cseg_image_data->end(); ++i){
 		memcpy(arr + start, &(*(*i))[0], (*i)->size());
 		start += (*i)->size();
 	}
 	return arr;
 }
 
-void packMessageData(zmq::message_t *msg, imgdata_t *data){
+void packMessageData(zmq::message_t *msg, imgdata_t *imdata){
 	int len = 0;
-	unsigned char *arr = linearizeData(data, &len);
+	unsigned char *arr = linearizeData(imdata, &len);
 	memcpy((unsigned char*)msg->data(), arr, len);
 	delete [] arr;
 }
 
-void expandData(imgdata_t *data, unsigned char *arr){
+void expandData(imgdata_t *imdata, unsigned char *arr){
 	if(arr == 0){
-		data->image_data = new std::vector<std::vector<unsigned char>*>();
-		data->sseg_image_data = new std::vector<std::vector<unsigned char>*>();
-		data->cseg_image_data = new std::vector<std::vector<unsigned char>*>();
-		data->sseg_image_sizes = new std::vector<uint32_t>();
-		data->cseg_image_sizes = new std::vector<uint32_t>();
+		imdata->image_data = new std::vector<std::vector<unsigned char>*>();
+		imdata->sseg_image_data = new std::vector<std::vector<unsigned char>*>();
+		imdata->cseg_image_data = new std::vector<std::vector<unsigned char>*>();
+		imdata->sseg_image_sizes = new std::vector<uint32_t>();
+		imdata->cseg_image_sizes = new std::vector<uint32_t>();
 		return;
 	}
 	int start = 0;
 
-	memcpy(data, arr, sizeof(imgdata_t));
+	memcpy(imdata, arr, sizeof(imgdata_t));
 	start += sizeof(imgdata_t);
 
-	data->image_data = new std::vector<std::vector<unsigned char>*>();
-	data->sseg_image_data = new std::vector<std::vector<unsigned char>*>();
-	data->cseg_image_data = new std::vector<std::vector<unsigned char>*>();
+	imdata->image_data = new std::vector<std::vector<unsigned char>*>();
+	imdata->sseg_image_data = new std::vector<std::vector<unsigned char>*>();
+	imdata->cseg_image_data = new std::vector<std::vector<unsigned char>*>();
 
-	unsigned char img_arr[data->image_data_size];
-	memcpy(img_arr, arr + start, data->image_data_size);
-	start += data->image_data_size;
-	if(data->image_data_size){
-		data->image_data->push_back(new std::vector<unsigned char>(img_arr, img_arr + data->image_data_size));
+	unsigned char img_arr[imdata->image_data_size];
+	memcpy(img_arr, arr + start, imdata->image_data_size);
+	start += imdata->image_data_size;
+	if(imdata->image_data_size){
+		imdata->image_data->push_back(new std::vector<unsigned char>(img_arr, img_arr + imdata->image_data_size));
 	}
 
-	uint32_t sseg_image_sizes_arr[data->sseg_image_size_count];
-	memcpy(sseg_image_sizes_arr, arr+start, data->sseg_image_size_count * sizeof(uint32_t));
-	start += data->sseg_image_size_count * sizeof(uint32_t);
-	data->sseg_image_sizes = new std::vector<uint32_t>(sseg_image_sizes_arr, sseg_image_sizes_arr + data->sseg_image_size_count);
+	uint32_t sseg_image_sizes_arr[imdata->sseg_image_size_count];
+	memcpy(sseg_image_sizes_arr, arr+start, imdata->sseg_image_size_count * sizeof(uint32_t));
+	start += imdata->sseg_image_size_count * sizeof(uint32_t);
+	imdata->sseg_image_sizes = new std::vector<uint32_t>(sseg_image_sizes_arr, sseg_image_sizes_arr + imdata->sseg_image_size_count);
 
-	uint32_t cseg_image_sizes_arr[data->cseg_image_size_count];
-	memcpy(cseg_image_sizes_arr, arr+start, data->cseg_image_size_count * sizeof(uint32_t));
-	start += data->cseg_image_size_count * sizeof(uint32_t);
-	data->cseg_image_sizes = new std::vector<uint32_t>(cseg_image_sizes_arr, cseg_image_sizes_arr + data->cseg_image_size_count);
+	uint32_t cseg_image_sizes_arr[imdata->cseg_image_size_count];
+	memcpy(cseg_image_sizes_arr, arr+start, imdata->cseg_image_size_count * sizeof(uint32_t));
+	start += imdata->cseg_image_size_count * sizeof(uint32_t);
+	imdata->cseg_image_sizes = new std::vector<uint32_t>(cseg_image_sizes_arr, cseg_image_sizes_arr + imdata->cseg_image_size_count);
 
-	for(std::vector<uint32_t>::iterator i = data->sseg_image_sizes->begin();
-			i < data->sseg_image_sizes->end(); ++i){
+	for(std::vector<uint32_t>::iterator i = imdata->sseg_image_sizes->begin();
+			i < imdata->sseg_image_sizes->end(); ++i){
 		unsigned char sseg_image_arr[*i];
 		memcpy(sseg_image_arr, arr+start, *i);
 		start += *i; 
-		data->sseg_image_data->push_back(new std::vector<unsigned char>(sseg_image_arr, sseg_image_arr + *i));
+		imdata->sseg_image_data->push_back(new std::vector<unsigned char>(sseg_image_arr, sseg_image_arr + *i));
 	}
 
-	for(std::vector<uint32_t>::iterator i = data->cseg_image_sizes->begin();
-			i < data->cseg_image_sizes->end(); ++i){
+	for(std::vector<uint32_t>::iterator i = imdata->cseg_image_sizes->begin();
+			i < imdata->cseg_image_sizes->end(); ++i){
 		unsigned char cseg_image_arr[*i];
 		memcpy(cseg_image_arr, arr+start, *i);
 		start += *i; 
-		data->cseg_image_data->push_back(new std::vector<unsigned char>(cseg_image_arr, cseg_image_arr + *i));
+		imdata->cseg_image_data->push_back(new std::vector<unsigned char>(cseg_image_arr, cseg_image_arr + *i));
 	}
 }
 
-void unpackMessageData(imgdata_t *data, zmq::message_t *msg){
-	expandData(data, (unsigned char*)msg->data());
+void unpackMessageData(imgdata_t *imdata, zmq::message_t *msg){
+	expandData(imdata, (unsigned char*)msg->data());
 }

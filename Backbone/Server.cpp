@@ -47,29 +47,29 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 		pubSocket.bind(port.c_str());
 	}
 
-	imgdata_t data;
+	imgdata_t imdata;
 	while(true){
 		zmq::message_t msg;
 		pullSocket.recv(&msg);
 		
-		unpackMessageData(&data, &msg);
-		if(img_update(&data)){
+		unpackMessageData(&imdata, &msg);
+		if(img_update(&imdata)){
 			if(send){
 				for(zmq::socket_t *sock : pushsockets){	
-					zmq::message_t sendmsg(messageSizeNeeded(&data));
-					packMessageData(&sendmsg, &data);
+					zmq::message_t sendmsg(messageSizeNeeded(&imdata));
+					packMessageData(&sendmsg, &imdata);
 					sock->send(sendmsg);
 				}
 			}
 			if(pubPort){
 				pubSocket.send(msg);
 			}
-			if(data.verified){
-				img_delete(&data);	
+			if(imdata.verified){
+				img_delete(&imdata);	
 			}
 		}
 
-		clearIMGData(&data);
+		clearIMGData(&imdata);
 	}
 }
 
