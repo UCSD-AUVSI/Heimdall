@@ -1,8 +1,6 @@
 #ifndef ALGS_H
 #define ALGS_H
 
-#include "ImagePush/ImagePush.hpp"
-
 #include "ORGR/ORGR.hpp"
 
 #include "Saliency/Saliency.hpp"
