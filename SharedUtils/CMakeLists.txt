@@ -1,0 +1,9 @@
+set(sharedutils_source_files
+	SharedUtils.hpp
+	SharedUtils.cpp
+	)
+
+add_library(sharedutils ${sharedutils_source_files})
+
+target_link_libraries(sharedutils backbone)
+

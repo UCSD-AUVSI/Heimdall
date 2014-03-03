@@ -43,6 +43,7 @@ target_link_libraries(
 	dist
 	orgr
 	saliency
+	sharedutils
 	seg
 	ocr
 	shaperec

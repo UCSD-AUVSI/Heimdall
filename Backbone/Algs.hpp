@@ -3,6 +3,7 @@
 
 #include "ORGR/ORGR.hpp"
 
+#include "Saliency/SSaliency.hpp"
 #include "Saliency/Saliency.hpp"
 #include "GUISaliency/GUISaliency.hpp"
 

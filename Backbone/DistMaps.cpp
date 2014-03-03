@@ -14,7 +14,7 @@
 const std::map<std::string, std::vector<std::string>> selectMap =
 {
 	{"orgr", 		{"STUB_ORGR"}},
-	{"saliency", 	{"STUB_SALIENCY", "GUISAL"}},
+	{"saliency", 	{"SSALIENCY", "STUB_SALIENCY", "GUISAL"}},
 	{"seg",			{"BLOB", "GUIREC"}},
 	{"srec", 		{"TEMPLATE"}},
 	{"ocr", 		{"TESSERACT"}},
@@ -27,6 +27,7 @@ const std::map<std::string, alg_t> algStrMap =
 {
 	{"STUB_ORGR", 		STUB_ORGR},
 	{"STUB_SALIENCY", 	STUB_SALIENCY},
+	{"SSALIENCY",		SSALIENCY},
 	{"GUISAL",			GUISAL},
 	{"GUIREC",			GUIREC},
 	{"BLOB",			BLOB_SEG},
@@ -58,6 +59,7 @@ const std::map<alg_t, std::vector<zmqport_t>> distPortMap =
 {
 	{STUB_ORGR,		{IMAGES_PUSH, ORGR_PULL}},
 	{STUB_SALIENCY,	{ORGR_PUSH, SALIENCY_PULL}},
+	{SSALIENCY,	{ORGR_PUSH, SALIENCY_PULL}},
 	{GUISAL,		{ORGR_PUSH, SALIENCY_PULL}},
 	{GUIREC,		{SALIENCY_PUSH, TARGET_PULL}},
 	{BLOB_SEG,		{SALIENCY_PUSH, SEG_PULL}},
@@ -72,6 +74,7 @@ const std::map<alg_t, void (*)(imgdata_t *)> algFuncMap =
 {
 	{STUB_ORGR,		Stub_ORGRF :: execute},
 	{STUB_SALIENCY,	Stub_Saliency :: execute},
+	{SSALIENCY,	SSaliency :: execute},
 	{GUISAL,		GUISaliency :: execute},
 	{GUIREC,		GUIRec :: execute},	
 	{BLOB_SEG,  	BlobSeg :: execute},

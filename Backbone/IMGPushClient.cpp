@@ -49,6 +49,7 @@ void IMGPushClient :: work(){
 		cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
 		data.image_data->push_back(newarr);
 		
+		/*
 		newarr = new std::vector<unsigned char>();
 		cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_GRAYSCALE), *newarr);
 		data.sseg_image_data->push_back(newarr);
@@ -58,6 +59,7 @@ void IMGPushClient :: work(){
 		cv::imencode(".jpg", cv::imread(image), *newarr);
 		data.sseg_image_data->push_back(newarr);
 		data.cseg_image_data->push_back(newarr);
+		*/
 		
 		zmq::message_t msg(messageSizeNeeded(&data));
 		packMessageData(&msg, &data);

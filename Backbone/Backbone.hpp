@@ -30,6 +30,7 @@ enum alg_t{
 	STUB_ORGR,
 
 	//Saliency
+	SSALIENCY,
 	STUB_SALIENCY,
 	GUISAL,
 
