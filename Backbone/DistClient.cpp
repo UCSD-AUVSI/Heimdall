@@ -31,9 +31,9 @@ void DistClient :: run(){
 void DistClient :: work(){
 	zmq::context_t context(1);
 
-	zmq::socket_t pullsocket(context, ZMQ_PULL);
+	zmq::socket_t pull_socket(context, ZMQ_PULL);
 	std::string addr = "tcp://" + server_addr + ":" + std::to_string(portList[0]); //Always pulling from one port
-	pullsocket.connect(addr.c_str());
+	pull_socket.connect(addr.c_str());
 
 	std::list<zmq::socket_t*> pushsockets;
 
@@ -47,20 +47,18 @@ void DistClient :: work(){
 
 	imgdata_t data;
 	while(true){
-		zmq::message_t msg;
-		pullsocket.recv(&msg);
+		zmq::message_t *msg = new zmq::message_t();
+		pull_socket.recv(msg);
 
-		unpackMessageData(&data, &msg);
+		unpackMessageData(&data, msg);
 
-		cout << "Rev" << endl;
 		func(&data);
 		
 		for(zmq::socket_t *sock : pushsockets){	
 			while(data.image_data->size() > 0){
-				cout << "Sending" << endl;
-				zmq::message_t sendmsg(messageSizeNeeded(&data));
-				packMessageData(&sendmsg, &data);
-				sock->send(sendmsg);
+				zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&data));
+				packMessageData(sendmsg, &data);
+				sock->send(*sendmsg);
 				data.image_data->back()->clear();
 				data.image_data->pop_back();
 				data.cropid++;
@@ -68,6 +66,7 @@ void DistClient :: work(){
 		}
 
 		clearIMGData(&data);
+		delete msg;
 	}
 }
 

@@ -7,7 +7,8 @@
 #include "Backbone/Backbone.hpp"
 
 struct imgdata_t{
-	int id, cropid = 0;
+	uint32_t id, cropid = 0;
+	bool initialized = false;
 
 	// image_data vector guaranteed to have only one row when packed/unpacked
 	std::vector<std::vector<unsigned char>*> *image_data = 0;
@@ -15,12 +16,11 @@ struct imgdata_t{
 	std::vector<std::vector<unsigned char>*> *cseg_image_data = 0;
 	
 	//Do not use these, only for packing/unpacking/internal ops
-	int image_data_size = 0;
+	uint32_t image_data_size = 0;
 	std::vector<uint32_t> *sseg_image_sizes = 0;
 	std::vector<uint32_t> *cseg_image_sizes = 0;
-	int sseg_image_size_count = 0;
-	int cseg_image_size_count = 0;
-	bool initialized = false;
+	uint32_t sseg_image_size_count = 0;
+	uint32_t cseg_image_size_count = 0;
 
 	// TODO: Change this to a algclass_t:boolean mapping
 	// so that we can arbitrarily add/remove algs

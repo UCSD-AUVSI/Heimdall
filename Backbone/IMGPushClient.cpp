@@ -39,36 +39,34 @@ void IMGPushClient :: work(){
 	std::string addr = "tcp://" + server_addr + ":" + std::to_string(IMAGES_PULL);
 	pushsocket.connect(addr.c_str());
 
-	int count = 0;
-	while(count == 0){
-		imgdata_t data;
-		data.id = count++;
+	int sendcount = 0;
+	while(sendcount == 0){
+		imgdata_t imdata;
+		imdata.id = sendcount++;
+		initEmptyIMGData(&imdata);
 		
-		initEmptyIMGData(&data);
 		std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
 		cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
-		data.image_data->push_back(newarr);
+		imdata.image_data->push_back(newarr);
 		
 		/*
 		newarr = new std::vector<unsigned char>();
 		cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_GRAYSCALE), *newarr);
-		data.sseg_image_data->push_back(newarr);
-		data.cseg_image_data->push_back(newarr);
+		imdata.sseg_image_data->push_back(newarr);
 		
 		newarr = new std::vector<unsigned char>();
 		cv::imencode(".jpg", cv::imread(image), *newarr);
-		data.sseg_image_data->push_back(newarr);
-		data.cseg_image_data->push_back(newarr);
+		imdata.cseg_image_data->push_back(newarr);
 		*/
-		
-		zmq::message_t msg(messageSizeNeeded(&data));
-		packMessageData(&msg, &data);
+
+		zmq::message_t msg(messageSizeNeeded(&imdata));
+		packMessageData(&msg, &imdata);
 
 		cout << "Sending " << msg.size() << " bytes" << endl;
 
 		pushsocket.send(msg);
 		
-		clearIMGData(&data);
+		clearIMGData(&imdata);
 		
 		std::chrono::milliseconds dura(5000);
 		std::this_thread::sleep_for(dura);

@@ -23,7 +23,7 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 	bool send = pushPorts[0]?1:0;
 
 	//Initialize the sockets
-	zmq::socket_t pullSocket(context, ZMQ_PULL);
+	zmq::socket_t pull_socket(context, ZMQ_PULL);
 	zmq::socket_t pubSocket(context, ZMQ_PUB);
 
 	std::vector<zmq::socket_t*> pushsockets;
@@ -35,7 +35,7 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 
 	//Setup the sockets
 	std::string port = "tcp://*:" + std::to_string(pullPort);
-	pullSocket.bind(port.c_str());
+	pull_socket.bind(port.c_str());
 	if(send){
 		for(int i = 0; i < pushPorts.size(); i++){
 			port = "tcp://*:" + std::to_string(pushPorts[i]);
@@ -49,20 +49,21 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 
 	imgdata_t imdata;
 	while(true){
-		zmq::message_t msg;
-		pullSocket.recv(&msg);
-		cout << pullPort << " Received" << endl;	
-		unpackMessageData(&imdata, &msg);
+		zmq::message_t *msg = new zmq::message_t();
+		pull_socket.recv(msg);
+		
+		unpackMessageData(&imdata, msg);
+	
 		if(img_update(&imdata)){
 			if(send){
 				for(zmq::socket_t *sock : pushsockets){	
-					zmq::message_t sendmsg(messageSizeNeeded(&imdata));
-					packMessageData(&sendmsg, &imdata);
-					sock->send(sendmsg);
+					zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
+					packMessageData(sendmsg, &imdata);
+					sock->send(*sendmsg);
 				}
 			}
 			if(pubPort){
-				pubSocket.send(msg);
+				pubSocket.send(*msg);
 			}
 			if(imdata.verified){
 				img_delete(&imdata);	
@@ -70,6 +71,7 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 		}
 
 		clearIMGData(&imdata);
+		delete msg;
 	}
 }
 
