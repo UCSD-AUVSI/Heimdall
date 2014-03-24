@@ -2,7 +2,7 @@
 #define ____SALIENCY_MODULE_CSBD_H_______
 
 
-#include "Saliency/saliency_module_template.hpp"
+#include "saliency_module_template.hpp"
 
 
 

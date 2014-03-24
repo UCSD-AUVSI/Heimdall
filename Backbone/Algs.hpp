@@ -8,6 +8,7 @@
 #include "GUISaliency/GUISaliency.hpp"
 
 #include "Recognition/Segmentation/BlobSeg.hpp"
+#include "Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.hpp"
 #include "Recognition/ShapeRec/TemplateSRec.hpp"
 #include "Recognition/OCR/TessOCR.hpp"
 #include "GUIRec/GUIRec.hpp"

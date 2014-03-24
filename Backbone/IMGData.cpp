@@ -16,6 +16,7 @@ void setDone(imgdata_t *data, alg_t alg){
 		case GUISAL: 			data->saliencyDone = true;										break;
 		case GUIREC:			data->segDone = true; data ->sDone = true; data->cDone = true; 	break;
 		case BLOB_SEG: 			data->segDone = true; 											break;
+		case SKYNET_SEG: 		data->segDone = true; 											break;
 		case TEMPLATE_SREC: 	data->sDone = true;												break;
 		case TESS_OCR: 			data->cDone = true;												break;
 		case STUB_VERIF: 		data->verified = true;											break;

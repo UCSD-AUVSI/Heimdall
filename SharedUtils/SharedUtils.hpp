@@ -2,36 +2,72 @@
 #define ____SHARED_UTILS_H____
 
 
+#include <exception>
 #include <string>
-#include <opencv/cv.h>
-#include <opencv/highgui.h>
+#include <sstream>
+#include <assert.h>
+#include <vector>
 
 
-std::string GetCoolString();
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+#define CV_WAIT_KEY_OPTIONAL 0
 
 
-void ConvertMat_UsingSettings(cv::Mat & source_mat, cv::Mat & destination_mat, int preprocess_CV_conversion_type, bool const*const which_channels_to_keep, bool delete_unwanted_channels);
 
-std::string GetNameOfCVColorSpace(int CV_colorspace_conversion_type);
+class OutputMessageHandler
+{
+protected:
+    //choose this at compile time; for final release builds, use 0 or 1
+    unsigned char AcceptableOutputLevel;
 
-#define COLORSPACE_CONVERSIONTYPE_KEEPRGB -1234567
+    //junk stream where unwanted text goes to die
+    std::ostream unprinted_output_stops_here;
+
+public:
+    void SetAcceptableOutputLevel(unsigned char newlevel) {AcceptableOutputLevel = newlevel;}
+
+    OutputMessageHandler();
+    OutputMessageHandler(const OutputMessageHandler & copyFrom);
+    OutputMessageHandler& operator= (const OutputMessageHandler &copyFrom);
+
+    //get a stream to write the output to
+    //the message handler will decide if it wants to print at that level
+    //
+    std::ostream& Level0(); //you can use this for runtime errors, or just use std::cout
+    std::ostream& Level1(); //interesting stuff that doesn't fill much space in the console
+    std::ostream& Level2(); //more debugging stuff, that takes up more space in the console
+    std::ostream& Level3(); //testing debug stuff that may fill up a ton of space in the console
+};
+std::ostream& operator<< (std::ostream& stream, const OutputMessageHandler& msg);
+
+extern OutputMessageHandler consoleOutput;
 
 
-cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, float max_acceptable_fractional_difference=1.00001f);
-cv::Scalar Average_Several_CVColors(std::vector<cv::Scalar>* input_colors);
-
-double GetLengthOfCVScalar(cv::Scalar input);
-
-int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,
-                            double* returned_area_of_largest=nullptr,
-                            double* returned_total_area=nullptr);
 
 
-//----------------------------------------------------------------------
+class myexception : public std::exception
+{
+public:
+
+    std::string my_string;
+
+    virtual const char* what() const throw()
+    {
+        return my_string.c_str();
+    }
+
+    myexception() : std::exception() {}
+    myexception(std::string MY_STRING) : std::exception(), my_string(MY_STRING) {}
+};
+
+
 
 int RoundDoubleToInteger(double num);
 double ModulusD(double num, double divisor);
-
 
 double GetMeanAngle(std::vector<double> & the_angles);
 
@@ -52,17 +88,20 @@ inline std::string to_sstring(const T& t)
 	return ss.str();
 }
 
-//this should have already been defined on Windows machines
+
+
 #ifndef __stricmp
 
 #ifndef WIN32
 #include <strings.h>
 #define __stricmp(x,y) strcasecmp(x,y)
 #else
+#pragma message("building for Windows")
 #define __stricmp(x,y) _stricmp(x,y)
 #endif
 
 #endif
+
 
 
 std::string get_chars_before_delim(const std::string & thestr, char delim);

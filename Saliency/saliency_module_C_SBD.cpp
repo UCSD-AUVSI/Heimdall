@@ -4,15 +4,16 @@
  * @author Eric Lo, Jason Bunk
  */
 
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/features2d/features2d.hpp"
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/features2d/features2d.hpp>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include "saliency_module_C_SBD.hpp"
 #include "SharedUtils/SharedUtils.hpp"
-#include "Saliency/saliency_module_C_SBD.hpp"
+#include "SharedUtils/SharedUtils_OpenCV.hpp"
 
 
 std::vector<cv::Mat>& SaliencyModule_C_SBD::do_saliency(cv::Mat input_image)
@@ -34,7 +35,7 @@ std::vector<cv::Mat>& SaliencyModule_C_SBD::do_saliency(cv::Mat input_image)
             std::string filename = output_folder_to_save_crops + std::string("/zsal_") + to_istring(write_output_to_folder_name_incrementer) + std::string("_roi_") + to_istring(img_num) + std::string(".jpg");
             cv::imwrite(filename.c_str(), *rciter);
 
-            std::cout << std::endl << filename << std::endl << std::endl;
+            consoleOutput.Level1() << std::endl << filename << std::endl << std::endl;
 
             img_num++;
         }
@@ -138,7 +139,7 @@ if(input_image.cols < 20 || input_image.rows < 20)
 //-------------------------------------------------------
      if(write_output_to_folder)
      {
-    std::cout << std::string("z_saliency") << to_istring(write_output_to_folder_name_incrementer) << std::string("_roi_")
+    consoleOutput.Level1() << std::string("z_saliency") << to_istring(write_output_to_folder_name_incrementer) << std::string("_roi_")
         << to_istring(i) << std::string("  size: ") << keypoints[i].size << std::endl;
      }
 //-------------------------------------------------------
