@@ -118,9 +118,10 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     {
         chosenShapeBlob = *(roundishBlobs->begin());
         chosenShapeBlob_Mask = getShapeFromBlob(*(roundishBlobs->begin()), converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING);
-
-        (*returned_color_of_blob) = cv::mean(colorImg, chosenShapeBlob_Mask);
     }
+
+    if(returned_color_of_blob != nullptr)
+        (*returned_color_of_blob) = cv::mean(colorImg, chosenShapeBlob_Mask);
 
 
 

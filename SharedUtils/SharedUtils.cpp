@@ -23,8 +23,8 @@ OutputMessageHandler& OutputMessageHandler::operator= (const OutputMessageHandle
 }
 
 OutputMessageHandler::OutputMessageHandler() :
-    //choose this at compile time... for release builds, use 0 or 1
-    AcceptableOutputLevel(3),
+    //you can choose this at compile time... for release builds, use 0 or 1
+    AcceptableOutputLevel(1),
     unprinted_output_stops_here(nullptr)
 {}
 

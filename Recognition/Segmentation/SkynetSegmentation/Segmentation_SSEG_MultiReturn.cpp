@@ -69,15 +69,12 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
                 returned_shape_segmentations->push_back(foundshape_filled_binary);
                 returned_shape_colors->push_back(returned_blob_color);
 
-
-//=======================================================================
-                consoleOutput.Level0() << std::string("----color found by SSEG (rbegin): ")
-                << to_sstring((*returned_shape_colors->rbegin())[0]) << std::string(",")
-                << to_sstring((*returned_shape_colors->rbegin())[1]) << std::string(",")
-                << to_sstring((*returned_shape_colors->rbegin())[2]) << std::string(",")
-                << to_sstring((*returned_shape_colors->rbegin())[3]) << std::string(",")
-                 << std::endl;
-//=======================================================================
+                consoleOutput.Level3() << std::string("--color found by SSEG setting: ")
+                    << to_sstring((*returned_shape_colors->rbegin())[0]) << std::string(",")
+                    << to_sstring((*returned_shape_colors->rbegin())[1]) << std::string(",")
+                    << to_sstring((*returned_shape_colors->rbegin())[2]) << std::string(",")
+                    << to_sstring((*returned_shape_colors->rbegin())[3]) << std::string(",")
+                     << std::endl;
             }
 
 //=======================================================================

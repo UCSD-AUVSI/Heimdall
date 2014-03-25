@@ -35,7 +35,7 @@ enum alg_t{
 	GUISAL,
 
 	//Segmentation
-	BLOB_SEG,
+	STUB_SEG,
 	SKYNET_SEG,
 	GUIREC,
 
@@ -43,7 +43,7 @@ enum alg_t{
 	TEMPLATE_SREC,
 
 	//OCR
-	TESS_OCR,
+	STUB_OCR,
 
 	//Verification
 	STUB_VERIF

@@ -7,10 +7,10 @@
 #include "Saliency/Saliency.hpp"
 #include "GUISaliency/GUISaliency.hpp"
 
-#include "Recognition/Segmentation/BlobSeg.hpp"
+#include "Recognition/Segmentation/StubSeg.hpp"
 #include "Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.hpp"
 #include "Recognition/ShapeRec/TemplateSRec.hpp"
-#include "Recognition/OCR/TessOCR.hpp"
+#include "Recognition/OCR/StubOCR.hpp"
 #include "GUIRec/GUIRec.hpp"
 
 #include "Verification/Verif.hpp"

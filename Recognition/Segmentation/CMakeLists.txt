@@ -1,6 +1,6 @@
 set(seg_source_files
-	BlobSeg.hpp
-	BlobSeg.cpp
+	StubSeg.hpp
+	StubSeg.cpp
 	)
 
 add_subdirectory(SkynetSegmentation)

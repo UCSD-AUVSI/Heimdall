@@ -15,9 +15,9 @@ const std::map<std::string, std::vector<std::string>> selectMap =
 {
 	{"orgr", 		{"STUB_ORGR"}},
 	{"saliency", 	{"SSALIENCY", "STUB_SALIENCY", "GUISAL"}},
-	{"seg",			{"SKYNET_SEG", "BLOB", "GUIREC"}},
+	{"seg",			{"SKYNET_SEG", "STUB_SEG", "GUIREC"}},
 	{"srec", 		{"TEMPLATE"}},
-	{"ocr", 		{"TESSERACT"}},
+	{"ocr", 		{"STUB_OCR"}},
 	{"verif", 		{"STUB_VERIF"}}
 };
 
@@ -30,10 +30,10 @@ const std::map<std::string, alg_t> algStrMap =
 	{"SSALIENCY",		SSALIENCY},
 	{"GUISAL",			GUISAL},
 	{"GUIREC",			GUIREC},
-	{"BLOB",			BLOB_SEG},
+	{"STUB_SEG",		STUB_SEG},
 	{"SKYNET_SEG",		SKYNET_SEG},
 	{"TEMPLATE",		TEMPLATE_SREC},
-	{"TESSERACT", 		TESS_OCR},
+	{"STUB_OCR", 		STUB_OCR},
 	{"STUB_VERIF", 		STUB_VERIF},
 	{"NONE",			NONE}
 };
@@ -63,10 +63,10 @@ const std::map<alg_t, std::vector<zmqport_t>> distPortMap =
 	{SSALIENCY,		{ORGR_PUSH, SALIENCY_PULL}},
 	{GUISAL,		{ORGR_PUSH, SALIENCY_PULL}},
 	{GUIREC,		{SALIENCY_PUSH, TARGET_PULL}},
-	{BLOB_SEG,		{SALIENCY_PUSH, SEG_PULL}},
+	{STUB_SEG,		{SALIENCY_PUSH, SEG_PULL}},
 	{SKYNET_SEG,	{SALIENCY_PUSH, SEG_PULL}},
 	{TEMPLATE_SREC,	{SSEG_PUSH, TARGET_PULL}},
-	{TESS_OCR,		{CSEG_PUSH, TARGET_PULL}},
+	{STUB_OCR,		{CSEG_PUSH, TARGET_PULL}},
 	{STUB_VERIF,	{TARGET_PUSH, VERIFIED_PULL}},
 	{NONE,			{}}
 };
@@ -79,10 +79,10 @@ const std::map<alg_t, void (*)(imgdata_t *)> algFuncMap =
 	{SSALIENCY,	SSaliency :: execute},
 	{GUISAL,		GUISaliency :: execute},
 	{GUIREC,		GUIRec :: execute},	
-	{BLOB_SEG,  	BlobSeg :: execute},
+	{STUB_SEG,  	StubSeg :: execute},
 	{SKYNET_SEG,  	SkynetSeg :: execute},
 	{TEMPLATE_SREC, TemplateSRec :: execute},
-	{TESS_OCR, 		TessOCR :: execute},
+	{STUB_OCR, 		StubOCR :: execute},
 	{STUB_VERIF,	Stub_Verify :: execute},
 	{NONE,			0}
 };
