@@ -18,6 +18,10 @@ Segmentation_SSEG_MultiReturn::Segmentation_SSEG_MultiReturn()
 {
     my_segmenter_singleimage_algorithm = new Skynet::Segmenter_SingleImageReturn();
 }
+Segmentation_SSEG_MultiReturn::~Segmentation_SSEG_MultiReturn()
+{
+    if(my_segmenter_singleimage_algorithm != nullptr){delete my_segmenter_singleimage_algorithm;}
+}
 
 
 void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,

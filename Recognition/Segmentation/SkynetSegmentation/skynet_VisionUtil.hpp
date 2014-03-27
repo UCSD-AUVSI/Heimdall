@@ -2,6 +2,7 @@
 #pragma once
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include "SharedUtils/SharedUtils.hpp"
 
 
 namespace Skynet {
@@ -35,13 +36,67 @@ namespace Skynet {
 	template<typename T> class MRef
 	{
 	public:
-		MRef(T o) { obj = new T(o); }
-		MRef(T *o) { obj = o; }
-
 		T o() { return *obj; } // returns raw object (not pointer to object)
 		T* obj; // pointer to object
-	protected:
-		~MRef() { delete obj; }
+
+
+        MRef() : obj(nullptr) {}
+		MRef(T o)
+		{
+            std::cout << "Skynet::MRef created from object of type " << get_typeid_name_of_class(obj) << std::endl;
+            obj = new T(o);
+        }
+		MRef(T *o)
+		{
+            if(o != nullptr) {
+            std::cout << "Skynet::MRef created from pointer to type " << get_typeid_name_of_class(obj) << std::endl;
+            }
+            obj = o;
+        }
+        //copy constructor
+        MRef(MRef & copySource)
+        {
+            obj = copySource.obj;
+            copySource.obj = nullptr; //don't let it delete it, now that I have it
+        }
+        //copy constructor, where copySource needs to be const
+        MRef(const MRef & copySource)
+        {
+            std::cout << "Skynet::MRef created from object of type " << get_typeid_name_of_class(obj) << std::endl;
+            //copySource is about to delete its obj, so we need to copy it so our pointer doesn't point to garbage data
+            obj = new T(*copySource.obj);
+        }
+
+        //assignment operator
+        MRef & operator=(const MRef &rhs)
+        {
+            if(this != &rhs) // Same object?
+            {
+                if(obj != nullptr && obj != rhs.obj){
+                    std::cout << "Skynet::MRef: obj deleted (assignment operator from class) type " << get_typeid_name_of_class(obj) << std::endl;
+                    delete obj;
+                }
+                obj = rhs.obj;
+            }
+            return *this;
+        }
+        //assignment operator
+        MRef & operator=(T *o)
+        {
+            if(obj != nullptr && obj != o){
+                std::cout << "Skynet::MRef says: obj deleted (assignment operator from ptr) type " << get_typeid_name_of_class(obj) << std::endl;
+                delete obj;
+            }
+            obj = o;
+            return *this;
+        }
+		~MRef()
+		{
+            if(obj != nullptr) {
+                std::cout << "Skynet::MRef says: obj deleted (destructor), type " << get_typeid_name_of_class(obj) << std::endl;
+                delete obj;
+            }
+        }
 	};
 
 	// cache statistics easily. subclass this and override updateStatistics

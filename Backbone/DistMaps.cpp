@@ -17,7 +17,7 @@ const std::map<std::string, std::vector<std::string>> selectMap =
 	{"saliency", 	{"SSALIENCY", "STUB_SALIENCY", "GUISAL"}},
 	{"seg",			{"SKYNET_SEG", "STUB_SEG", "GUIREC"}},
 	{"srec", 		{"TEMPLATE"}},
-	{"ocr", 		{"STUB_OCR"}},
+	{"ocr", 		{"STUB_OCR", "TESS_OCR"}},
 	{"verif", 		{"STUB_VERIF"}}
 };
 
@@ -34,6 +34,7 @@ const std::map<std::string, alg_t> algStrMap =
 	{"SKYNET_SEG",		SKYNET_SEG},
 	{"TEMPLATE",		TEMPLATE_SREC},
 	{"STUB_OCR", 		STUB_OCR},
+	{"TESS_OCR", 		TESS_OCR},
 	{"STUB_VERIF", 		STUB_VERIF},
 	{"NONE",			NONE}
 };
@@ -67,6 +68,7 @@ const std::map<alg_t, std::vector<zmqport_t>> distPortMap =
 	{SKYNET_SEG,	{SALIENCY_PUSH, SEG_PULL}},
 	{TEMPLATE_SREC,	{SSEG_PUSH, TARGET_PULL}},
 	{STUB_OCR,		{CSEG_PUSH, TARGET_PULL}},
+	{TESS_OCR,		{CSEG_PUSH, TARGET_PULL}},
 	{STUB_VERIF,	{TARGET_PUSH, VERIFIED_PULL}},
 	{NONE,			{}}
 };
@@ -83,6 +85,7 @@ const std::map<alg_t, void (*)(imgdata_t *)> algFuncMap =
 	{SKYNET_SEG,  	SkynetSeg :: execute},
 	{TEMPLATE_SREC, TemplateSRec :: execute},
 	{STUB_OCR, 		StubOCR :: execute},
+	{TESS_OCR, 		TessOCR :: execute},
 	{STUB_VERIF,	Stub_Verify :: execute},
 	{NONE,			0}
 };

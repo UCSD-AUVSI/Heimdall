@@ -12,8 +12,18 @@ Segmentation_SSEG_and_CSEG_and_Merger::Segmentation_SSEG_and_CSEG_and_Merger()
 {
     my_sseg_module = new Segmentation_SSEG_MultiReturn();
     my_cseg_module = new Segmentation_CSEG_MultiReturn();
-    my_merger_module = new Segmentation_CSEG_SSEG_Merger();
 	SetupDefaultSettings();
+}
+Segmentation_SSEG_and_CSEG_and_Merger::~Segmentation_SSEG_and_CSEG_and_Merger()
+{
+    if(my_sseg_module   != nullptr){delete my_sseg_module;}
+    if(my_cseg_module   != nullptr){delete my_cseg_module;}
+
+    if(my_test_results_vec.empty() == false) {
+        for(int bbb=0; bbb<my_test_results_vec.size(); bbb++) {
+            delete my_test_results_vec[bbb];
+        }
+    }
 }
 
 
@@ -31,7 +41,7 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
     std::string* correct_shape_name/*=nullptr*/,
     const char* correct_ocr_character/*=nullptr*/)
 {
-    if(my_sseg_module==nullptr || my_cseg_module==nullptr || my_merger_module==nullptr)
+    if(my_sseg_module==nullptr || my_cseg_module==nullptr)
     {
         consoleOutput.Level0() << "Error: here was a problem with Segmentation_SSEG_and_CSEG_and_Merger having null ptrs!" << std::endl;
         return;
@@ -73,16 +83,25 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
                                     correct_ocr_character*/);
 
 
-        my_merger_module->DoModule(cropped_target_image,
+        Segmentation_CSEG_SSEG_Merger::DoModule(cropped_target_image,
                                     returned_SSEGs,
                                     returned_SSEG_colors,
                                     returned_CSEGs,
                                     returned_CSEG_colors
                                     );
-
-
-
-        if(save_images_and_results && name_of_target_image != nullptr && folder_path_of_output_saved_images != nullptr)
+		
+		
+		
+		if(returned_SSEGs->empty() == false && returned_SSEGs->begin()->type() != CV_8U) {
+			consoleOutput.Level0() << "WARNING: SEGMENTATION'S SSEGS AREN'T IN \'CV_8U\' FORMAT" << std::endl;
+		}
+		if(returned_CSEGs->empty() == false && returned_CSEGs->begin()->type() != CV_8U) {
+			consoleOutput.Level0() << "WARNING: SEGMENTATION'S CSEGS AREN'T IN \'CV_8U\' FORMAT" << std::endl;
+		}
+		
+		
+		
+		if(save_images_and_results && name_of_target_image != nullptr && folder_path_of_output_saved_images != nullptr)
         {
             if(returned_SSEGs->empty()==false)
             {

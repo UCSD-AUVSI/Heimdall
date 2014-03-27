@@ -3,6 +3,8 @@ set(ocr_source_files
 	StubOCR.cpp
 	)
 
+add_subdirectory(TesseractOCR)
+
 add_library(ocr ${ocr_source_files})
 
-target_link_libraries(ocr backbone)
+target_link_libraries(ocr tess_ocr backbone)

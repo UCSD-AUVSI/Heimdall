@@ -56,9 +56,9 @@ void DistClient :: work(){
 		
 		for(zmq::socket_t *sock : pushsockets){	
 			while(data.image_data->size() > 0){
-				zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&data));
-				packMessageData(sendmsg, &data);
-				sock->send(*sendmsg);
+				zmq::message_t sendmsg = zmq::message_t(messageSizeNeeded(&data));
+				packMessageData(&sendmsg, &data);
+				sock->send(sendmsg);
 				data.image_data->back()->clear();
 				data.image_data->pop_back();
 				data.cropid++;

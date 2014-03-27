@@ -16,6 +16,10 @@ Segmenter_SingleImageReturn::Segmenter_SingleImageReturn(void)
 {
 	segmenter = new HistogramSegmenter();
 }
+Segmenter_SingleImageReturn::~Segmenter_SingleImageReturn()
+{
+    if(segmenter != nullptr){delete segmenter;}
+}
 
 
 cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
@@ -55,28 +59,31 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
         converted_mat.copyTo(*returned_mat_preprocessed);
 
 
-	std::vector<ColorBlob*> * blobList = segmenter->findBlobs(converted_mat, returned_mat_of_binned_histogram);
+	std::vector<ColorBlob*> blobList = segmenter->findBlobs(converted_mat, returned_mat_of_binned_histogram);
 
 
 	ClearBlobsOfTinyNoiseSpeckles(blobList, 64); //any specks smaller than 8x8 pixels will be eliminated
 
 
-	std::vector<ColorBlob*> * largeBlobs = getLargeBlobs(blobList, converted_mat.size());
+	std::vector<ColorBlob*> largeBlobs = getLargeBlobs(blobList, converted_mat.size());
 
 
-	std::vector<ColorBlob*> * interiorBlobs = getInteriorBlobs(largeBlobs, attempt_settings.HistSeg_PERCENT_TOUCHING_EDGES_ACCEPTABLE);
+	std::vector<ColorBlob*> interiorBlobs = getInteriorBlobs(largeBlobs, attempt_settings.HistSeg_PERCENT_TOUCHING_EDGES_ACCEPTABLE);
 
 
     //0.1 seems to work well as a cutoff circularity
     //note that the returned results are sorted by circularity (descending; most circular first)
     //
-    std::vector<ColorBlob*>* roundishBlobs = getRoundishBlobs_ByCircularity(interiorBlobs, 0.1f);
-//consoleOutput.Level2() << std::string("num roundish blobs: ") << to_istring(roundishBlobs->size()) << std::endl;
+    std::vector<ColorBlob*> roundishBlobs = getRoundishBlobs_ByCircularity(interiorBlobs, 0.1f);
+//consoleOutput.Level2() << std::string("num roundish blobs: ") << to_istring(roundishBlobs.size()) << std::endl;
 
 
 
-    if(roundishBlobs->empty())
+    if(roundishBlobs.empty())
+    {
+		DeletePointersInVectorAndClearIt<ColorBlob*>(blobList);
         return cv::Mat();
+	}
 
 
     //Almost done! Get ready for the last step, in case it needs to be done.
@@ -91,9 +98,9 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
         std::vector<cv::Mat> all_blob_masks;
         std::vector<cv::Scalar> colors_of_blobs;
 
-        for(int i=0; i<roundishBlobs->size(); i++)
+        for(int i=0; i<roundishBlobs.size(); i++)
         {
-            all_blob_masks.push_back(getShapeFromBlob((*roundishBlobs)[i], converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING));
+            all_blob_masks.push_back(getShapeFromBlob(roundishBlobs[i], converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING));
 
             //calculate each blob's color by averaging the colors in the blob's region in the
             //                  original RGB image (colorImg; before colorspace conversion)
@@ -103,21 +110,24 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
         //set this for "eliminateBlobsTooCloseToInputColor"
         Skynet::COLOR_DISTANCE_THRESHOLD = attempt_settings.HistSeg_COLOR_DISTANCE_TO_PREVIOUSLYFOUND_THRESHOLD;
 
-        std::vector<ColorBlob*>* final_acceptable_blobs =
-            eliminateBlobsTooCloseToInputColor(roundishBlobs, &all_blob_masks, &colors_of_blobs, input_color_of_previously_found_shapeblob);
+        std::vector<ColorBlob*> final_acceptable_blobs =
+            eliminateBlobsTooCloseToInputColor(roundishBlobs, all_blob_masks, colors_of_blobs, input_color_of_previously_found_shapeblob);
 
 
-        if(final_acceptable_blobs->empty())
+        if(final_acceptable_blobs.empty())
+        {
+			DeletePointersInVectorAndClearIt<ColorBlob*>(blobList);
             return cv::Mat();
+		}
 
-        chosenShapeBlob = *(final_acceptable_blobs->begin());
-        chosenShapeBlob_Mask = *all_blob_masks.begin(); //this list was passed to "eliminateBobs..." because it trimmed this list too,
+        chosenShapeBlob = *(final_acceptable_blobs.begin());
+        chosenShapeBlob_Mask = *(all_blob_masks.begin()); //this list was passed to "eliminateBobs..." because it trimmed this list too,
                                                     //so its beginning still corresponds to the beginning of "final_acceptable_blobs"
     }
     else
     {
-        chosenShapeBlob = *(roundishBlobs->begin());
-        chosenShapeBlob_Mask = getShapeFromBlob(*(roundishBlobs->begin()), converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING);
+        chosenShapeBlob = *(roundishBlobs.begin());
+        chosenShapeBlob_Mask = getShapeFromBlob(*(roundishBlobs.begin()), converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING);
     }
 
     if(returned_color_of_blob != nullptr)
@@ -157,16 +167,17 @@ consoleOutput.Level3() << std::string("===============fraction of pixels that we
 	//if (filename != nullptr)
 	//	saveBlobsToFalseColorImage(interiorBlobs, std::string("blob_e_interior"));
 
+	DeletePointersInVectorAndClearIt<ColorBlob*>(blobList);
 	return chosenShapeBlob_Mask;
 }
 
 
 #define FOUR_PI_FOR_CIRC 12.566370614359173f
 
-std::vector<ColorBlob*> *
-Segmenter_SingleImageReturn::getRoundishBlobs_ByCircularity(std::vector<ColorBlob*> * blobList, float cutoff_circularity)
+std::vector<ColorBlob*>
+Segmenter_SingleImageReturn::getRoundishBlobs_ByCircularity(std::vector<ColorBlob*>& blobList, float cutoff_circularity)
 {
-    std::vector<ColorBlob*> * circularBlobs = new std::vector<ColorBlob *>();
+    std::vector<ColorBlob*> circularBlobs;
     float circularity = 0.0f;
 
     std::vector<ColorBlobCircularitySorter> circularity_sorter;
@@ -175,7 +186,7 @@ Segmenter_SingleImageReturn::getRoundishBlobs_ByCircularity(std::vector<ColorBlo
 int blobcounter = 0;
 #endif
 
-	for(std::vector<ColorBlob*>::iterator bliter = blobList->begin(); bliter != blobList->end(); bliter++)
+	for(std::vector<ColorBlob*>::iterator bliter = blobList.begin(); bliter != blobList.end(); bliter++)
 	{
         circularity = (*bliter)->CalculateCircularity();
 
@@ -201,7 +212,7 @@ consoleOutput.Level3() << std::string("blob") << to_istring(blobcounter) << std:
 
         for(std::vector<ColorBlobCircularitySorter>::iterator iter = circularity_sorter.begin(); iter != circularity_sorter.end(); iter++)
         {
-            circularBlobs->push_back(iter->thisblob);
+            circularBlobs.push_back(iter->thisblob);
         }
     }
 
@@ -209,52 +220,52 @@ consoleOutput.Level3() << std::string("blob") << to_istring(blobcounter) << std:
 }
 
 
-std::vector<ColorBlob *> *
-Segmenter_SingleImageReturn::getLargeBlobs(std::vector<ColorBlob *> * blobList, cv::Size imgSize)
+std::vector<ColorBlob *>
+Segmenter_SingleImageReturn::getLargeBlobs(std::vector<ColorBlob*>& blobList, cv::Size imgSize)
 {
 	float imgArea = (float)imgSize.width * imgSize.height;
 	float minimumBlobSize = ((float)(imgArea))*MINIMUM_BLOB_SIZE_THRESHOLD;
 
-	std::vector<ColorBlob*> * bigBlobs = new std::vector<ColorBlob *>();
+	std::vector<ColorBlob*> bigBlobs;
 	//for each (ColorBlob * blob in blobList)
-	for(std::vector<ColorBlob*>::iterator bliter = blobList->begin(); bliter != blobList->end(); bliter++)
+	for(std::vector<ColorBlob*>::iterator bliter = blobList.begin(); bliter != blobList.end(); bliter++)
 	{
 		if((*bliter)->area() > minimumBlobSize)
-			bigBlobs->push_back(*bliter);
+			bigBlobs.push_back(*bliter);
     }
 	return bigBlobs;
 }
 
 
-std::vector<ColorBlob*> *
-Segmenter_SingleImageReturn::getInteriorBlobs(std::vector<ColorBlob *> * blobList, float acceptable_fraction_of_blobs_pixels_that_touch_edge)
+std::vector<ColorBlob*>
+Segmenter_SingleImageReturn::getInteriorBlobs(std::vector<ColorBlob*>& blobList, float acceptable_fraction_of_blobs_pixels_that_touch_edge)
 {
-	std::vector<ColorBlob*>* interiorBlobs = new std::vector<ColorBlob *>();
+	std::vector<ColorBlob*> interiorBlobs;
 	//for each (ColorBlob * blob in blobList)
-	for(std::vector<ColorBlob*>::iterator bliter = blobList->begin(); bliter != blobList->end(); bliter++)
+	for(std::vector<ColorBlob*>::iterator bliter = blobList.begin(); bliter != blobList.end(); bliter++)
 	{
 		if ((*bliter)->isInterior(acceptable_fraction_of_blobs_pixels_that_touch_edge))
-			interiorBlobs->push_back(*bliter);
+			interiorBlobs.push_back(*bliter);
     }
 	return interiorBlobs;
 }
 
 
-std::vector<ColorBlob*>*
-Segmenter_SingleImageReturn::eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>* blobList,
-                                                                std::vector<cv::Mat>* masks_of_blobList,
-                                                                std::vector<cv::Scalar>* colors_of_bloblists,
+std::vector<ColorBlob*>
+Segmenter_SingleImageReturn::eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>& blobList,
+                                                                std::vector<cv::Mat>& masks_of_blobList,
+                                                                std::vector<cv::Scalar>& colors_of_bloblists,
                                                                 cv::Scalar* color_to_eliminate)
 {
     //start by copying from blobList, then we'll literally eliminate them from the new list (instead of adding one-by-one to the new list)
-    std::vector<ColorBlob*>* acceptable_blobs = new std::vector<ColorBlob*>(*blobList);
+    std::vector<ColorBlob*> acceptable_blobs(blobList);
 
 
-    std::vector<ColorBlob*>::iterator cbiter = acceptable_blobs->begin();
-    std::vector<cv::Mat>::iterator miter = masks_of_blobList->begin();
-    std::vector<cv::Scalar>::iterator sciter = colors_of_bloblists->begin();
+    std::vector<ColorBlob*>::iterator cbiter = acceptable_blobs.begin();
+    std::vector<cv::Mat>::iterator miter = masks_of_blobList.begin();
+    std::vector<cv::Scalar>::iterator sciter = colors_of_bloblists.begin();
 
-    for(; cbiter != acceptable_blobs->end(); )
+    for(; cbiter != acceptable_blobs.end(); )
     {
         if(Skynet::calcColorDistance(*sciter, *color_to_eliminate) <= (0.99f * Skynet::COLOR_DISTANCE_THRESHOLD))
         {
@@ -265,9 +276,9 @@ Segmenter_SingleImageReturn::eliminateBlobsTooCloseToInputColor(std::vector<Colo
             << to_sstring((*sciter)[3]) << std::string(",")
              << std::endl;
 
-            cbiter = acceptable_blobs->erase(cbiter);
-            miter = masks_of_blobList->erase(miter);
-            sciter = colors_of_bloblists->erase(sciter);
+            cbiter = acceptable_blobs.erase(cbiter);
+            miter = masks_of_blobList.erase(miter);
+            sciter = colors_of_bloblists.erase(sciter);
         }
         else
         {
@@ -288,9 +299,9 @@ Segmenter_SingleImageReturn::eliminateBlobsTooCloseToInputColor(std::vector<Colo
 }
 
 
-void Segmenter_SingleImageReturn::ClearBlobsOfTinyNoiseSpeckles(std::vector<ColorBlob*>* blobList, int minimum_num_pixels_in_speck)
+void Segmenter_SingleImageReturn::ClearBlobsOfTinyNoiseSpeckles(std::vector<ColorBlob*>& blobList, int minimum_num_pixels_in_speck)
 {
-	for(std::vector<ColorBlob*>::iterator iter = blobList->begin(); iter != blobList->end(); iter++)
+	for(std::vector<ColorBlob*>::iterator iter = blobList.begin(); iter != blobList.end(); iter++)
 	{
         (*iter)->EliminateTinyNoiseSpeckles(minimum_num_pixels_in_speck);
     }
@@ -298,13 +309,13 @@ void Segmenter_SingleImageReturn::ClearBlobsOfTinyNoiseSpeckles(std::vector<Colo
 
 
 ColorBlob *
-Segmenter_SingleImageReturn::getBiggestBlob(std::vector<ColorBlob *> * blobList)
+Segmenter_SingleImageReturn::getBiggestBlob(std::vector<ColorBlob*>& blobList)
 {
-	if(blobList->empty())
+	if(blobList.empty())
 		return nullptr;
 
-	ColorBlob* blob = *(blobList->begin());
-	for(std::vector<ColorBlob*>::iterator candidate_iter = blobList->begin(); candidate_iter != blobList->end(); candidate_iter++)
+	ColorBlob* blob = *(blobList.begin());
+	for(std::vector<ColorBlob*>::iterator candidate_iter = blobList.begin(); candidate_iter != blobList.end(); candidate_iter++)
 		if ((*candidate_iter)->area() > blob->area())
 			blob = (*candidate_iter);
 	return blob;
@@ -335,13 +346,13 @@ Segmenter_SingleImageReturn::getShapeFromBlob(ColorBlob * blob, cv::Size imgSize
 int blobs_saved_counter_globalll = 0;
 
 void
-Segmenter_SingleImageReturn::saveBlobsToFalseColorImage(std::vector<ColorBlob*>* blobList, std::string filename)//, cv::Size bsize)
+Segmenter_SingleImageReturn::saveBlobsToFalseColorImage(std::vector<ColorBlob*>& blobList, std::string filename)//, cv::Size bsize)
 {
 	//cv::Mat outputImg = cv::Mat(bsize, CV_8UC3);
 	//outputImg.setTo(0);
 	//int index = 0;
-	//for each (ColorBlob ^ blob in blobList)
-	for(std::vector<ColorBlob*>::iterator iter = blobList->begin(); iter != blobList->end(); iter++)
+	//for each (ColorBlob in blobList)
+	for(std::vector<ColorBlob*>::iterator iter = blobList.begin(); iter != blobList.end(); iter++)
 	{
         saveImage(*((*iter)->GetMyMaskEvenThoughItIsPrivate()), filename + to_istring(++blobs_saved_counter_globalll) + std::string(".bmp"));
 

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <assert.h>
 #include <vector>
+#include <typeinfo>
 
 
 
@@ -46,6 +47,18 @@ std::ostream& operator<< (std::ostream& stream, const OutputMessageHandler& msg)
 
 extern OutputMessageHandler consoleOutput;
 
+
+
+template <class ptrToType>
+void DeletePointersInVectorAndClearIt(std::vector<ptrToType> & t)
+{
+	typename std::vector<ptrToType>::iterator myiter = t.begin();
+	
+	for(; myiter != t.end(); myiter++) {
+		delete (*myiter);
+	}
+	t.clear();
+}
 
 
 
@@ -113,6 +126,17 @@ std::string get_extension_from_filename(const std::string & filename);
 std::string eliminate_extension_from_filename(std::string & filename);
 
 bool filename_extension_is_image_type(const std::string & filename_extension);
+
+
+
+//For debugging; get the name of what the object is; e.g. "myClass" or "std::vector<int>"
+std::string demangle_typeid_name(const char* name);
+
+template <class T>
+std::string get_typeid_name_of_class(const T& t) {
+
+    return demangle_typeid_name(typeid(t).name());
+}
 
 
 

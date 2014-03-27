@@ -22,28 +22,29 @@ namespace Skynet {
 	{
 	public:
 		HistogramSegmenter(void);
+		~HistogramSegmenter();
 
-		virtual std::vector<ColorBlob *> * findBlobs(cv::Mat colorImg, cv::Mat* returned_binned_mat) override;
+		virtual std::vector<ColorBlob*> findBlobs(cv::Mat colorImg, cv::Mat* returned_binned_mat) override;
 		virtual cv::Mat secondSegmentation(PixelColor color) override;
 	private:
 		cv::Mat reduceColorsWithBinning();
-		std::vector<ColorBlob *> * findBlobWithHistogram(cv::Mat* returned_binned_mat);
+		std::vector<ColorBlob*> findBlobWithHistogram(cv::Mat* returned_binned_mat);
 		void setImageWithPreprocessing(cv::Mat colorImg);
 
-		std::vector<MRef<PixelColor> *> * biggestColorsInHistogram(cv::MatND hist, int numColors, int channels_of_src_img);
+		std::vector<PixelColor> biggestColorsInHistogram(cv::MatND hist, int numColors, int channels_of_src_img);
 		PixelColor getAndRemoveBiggestColorInHistogram(cv::MatND hist, int channels_of_src_img);
 		void getBiggestIndexInHist(cv::MatND hist, int idxOfMax[3]);
 		void zeroOutBinAtIndex(cv::MatND hist, int index[3], int channels_of_src_img);
-		std::vector<MRef<PixelColor> *> * mergeCloseColors(std::vector<MRef<PixelColor> *> * colors);
+		std::vector<PixelColor> mergeCloseColors(std::vector<PixelColor>& colors);
 		PixelColor convertBinToColor(int idxOfBiggest[3]);
-		cv::Mat redrawImageWithColors(cv::Mat& input, std::vector<MRef<PixelColor> *> * validColors);
-		PixelColor convertToValidColor(PixelColor inputColor, std::vector<MRef<PixelColor> *> * validColors);
-		std::vector<ColorBlob *> * segmentImageIntoBlobsWithColors(cv::Mat& input, std::vector<MRef<PixelColor> *> * validColors);
-		std::vector<ColorBlob *> * makeBlobsWithColors(std::vector<MRef<PixelColor> *> * colors);
-		void drawImageIntoBlobs(cv::Mat& input, std::vector<ColorBlob *> * blobs);
-		void drawPixelIntoBlobs(cv::Point pt, PixelColor pixelColor, std::vector<ColorBlob *> * blobs);
+		cv::Mat redrawImageWithColors(cv::Mat& input, std::vector<PixelColor>& validColors);
+		PixelColor convertToValidColor(PixelColor inputColor, std::vector<PixelColor>& validColors);
+		std::vector<ColorBlob*> segmentImageIntoBlobsWithColors(cv::Mat& input, std::vector<PixelColor>& validColors);
+		std::vector<ColorBlob*> makeBlobsWithColors(std::vector<PixelColor>& colors);
+		void drawImageIntoBlobs(cv::Mat& input, std::vector<ColorBlob*>& blobs);
+		void drawPixelIntoBlobs(cv::Point pt, PixelColor pixelColor, std::vector<ColorBlob*>& blobs);
 
-		MRef<cv::Mat> * mImg;
+		cv::Mat mImg;
 		//int numBins;
 		float binsToRGBRatio;
 	};

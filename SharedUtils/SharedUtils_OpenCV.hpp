@@ -25,3 +25,5 @@ int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,
                             double* returned_total_area=nullptr);
 
 void saveImage(cv::Mat& img, std::string filename);
+
+void Rotate_CV_Mat(cv::Mat& src, double angle, cv::Mat& dst);

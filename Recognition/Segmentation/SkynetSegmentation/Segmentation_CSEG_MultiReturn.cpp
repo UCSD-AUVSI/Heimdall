@@ -11,6 +11,10 @@ Segmentation_CSEG_MultiReturn::Segmentation_CSEG_MultiReturn()
 {
     my_segmenter_singleimage_algorithm = new Skynet::Segmenter_SingleImageReturn();
 }
+Segmentation_CSEG_MultiReturn::~Segmentation_CSEG_MultiReturn()
+{
+    if(my_segmenter_singleimage_algorithm != nullptr){delete my_segmenter_singleimage_algorithm;}
+}
 
 
 void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
@@ -98,7 +102,8 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
         }
         avg_input_sseg.setTo(0);
         cv::drawContours(avg_input_sseg, *contours_in_avg, -1, cv::Scalar(255), CV_FILLED, 8);
-
+        delete contours_in_avg;
+        contours_in_avg = nullptr;
 
 
         cv::Rect RectToCropTo = cv::boundingRect(all_points_in_all_contours);

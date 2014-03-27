@@ -27,19 +27,22 @@
 using namespace Skynet;
 
 
-HistogramSegmenter::HistogramSegmenter(void) : mImg(nullptr)
+HistogramSegmenter::HistogramSegmenter(void)
 {
 	//numBins = NUM_BINS;
 	//binsToRGBRatio = (float) (numBins / MAX_RGB_COLOR_VALUE);
 }
+HistogramSegmenter::~HistogramSegmenter()
+{
+}
 
 
-std::vector<ColorBlob *> *
+std::vector<ColorBlob*>
 HistogramSegmenter::findBlobs(cv::Mat colorImg, cv::Mat* returned_binned_mat)
 {
     binsToRGBRatio = static_cast<float>(NUM_BINS) / MAX_RGB_COLOR_VALUE;
 	setImageWithPreprocessing(colorImg);
-	std::vector<ColorBlob *> * blobList = findBlobWithHistogram(returned_binned_mat);
+	std::vector<ColorBlob*> blobList = findBlobWithHistogram(returned_binned_mat);
 	return blobList;
 }
 
@@ -63,7 +66,7 @@ HistogramSegmenter::setImageWithPreprocessing(cv::Mat colorImg)
 	default: //case 3:
 		{
 			if (colorImg.type() != CV_32FC3)
-				colorImg.convertTo(colorImg, CV_32FC3);
+				colorImg.convertTo(colorImg, CV_32FC3); //valgrind doesn't like this (570KB"definitely lost" AND 1.26MB"possibly lost")
 		}
 		break;
 	}
@@ -72,7 +75,7 @@ HistogramSegmenter::setImageWithPreprocessing(cv::Mat colorImg)
 	//cv::GaussianBlur(colorImg, colorImg, cv::Size(3,3), 0);
 	cv::blur(colorImg, colorImg, cv::Size(2,2));
 
-	mImg = new MRef<cv::Mat>(new cv::Mat(colorImg));
+	mImg = cv::Mat(colorImg);
 }
 
 
@@ -80,7 +83,7 @@ cv::Mat
 HistogramSegmenter::reduceColorsWithBinning()
 {
 	throw myexception("Don't use this! I just made it to prototype something");
-	cv::Mat binnedImage = (*(mImg->obj)) * binsToRGBRatio;
+	cv::Mat binnedImage = (mImg * binsToRGBRatio);
 	binnedImage.convertTo(binnedImage, CV_32SC3);
 	binnedImage.convertTo(binnedImage, CV_32FC3);
 	binnedImage /= binsToRGBRatio;
@@ -89,14 +92,14 @@ HistogramSegmenter::reduceColorsWithBinning()
 }
 
 
-std::vector<ColorBlob *> *
+std::vector<ColorBlob*>
 HistogramSegmenter::findBlobWithHistogram(cv::Mat* returned_binned_mat)
 {
-	cv::Mat input = *(mImg->obj);
+	cv::Mat input(mImg);
 
 	cv::MatND hist = calcHistogramOfImage(input, NUM_BINS);
-	std::vector<MRef<PixelColor> *> * validColors = biggestColorsInHistogram(hist, NUM_VALID_COLORS, input.channels());
-	std::vector<ColorBlob *> * blobList = segmentImageIntoBlobsWithColors(input, validColors);
+	std::vector<PixelColor> validColors = biggestColorsInHistogram(hist, NUM_VALID_COLORS, input.channels());
+	std::vector<ColorBlob*> blobList = segmentImageIntoBlobsWithColors(input, validColors);
 
 	if(returned_binned_mat != nullptr)
 	{
@@ -105,15 +108,15 @@ HistogramSegmenter::findBlobWithHistogram(cv::Mat* returned_binned_mat)
 
 	return blobList;
 }
-std::vector<MRef<PixelColor> *> *
+std::vector<PixelColor>
 HistogramSegmenter::biggestColorsInHistogram(cv::MatND hist, int numColors, int channels_of_src_img)
 {
-	std::vector<MRef<PixelColor> *> * colors = new std::vector<MRef<PixelColor> *>(numColors, nullptr);
+	std::vector<PixelColor> colors(numColors);
 	for (int i = 0; i < numColors; ++i)
 	{
 		PixelColor biggestRemainingColor = getAndRemoveBiggestColorInHistogram(hist, channels_of_src_img);
 
-		(*colors)[i] = new MRef<PixelColor>(biggestRemainingColor);
+		colors[i] = PixelColor(biggestRemainingColor);
 	}
 	colors = mergeCloseColors(colors);
 	return colors;
@@ -160,25 +163,25 @@ HistogramSegmenter::zeroOutBinAtIndex(cv::MatND hist, int index[3], int channels
 	}
 }
 
-std::vector<MRef<PixelColor> *> *
-HistogramSegmenter::mergeCloseColors(std::vector<MRef<PixelColor> *> * colors)
+std::vector<PixelColor>
+HistogramSegmenter::mergeCloseColors(std::vector<PixelColor>& colors)
 {
-	std::vector<MRef<PixelColor> *> * newColors = new std::vector<MRef<PixelColor> *>();
+	std::vector<PixelColor> newColors;
 
-	for(std::vector<MRef<PixelColor> *>::iterator citer = colors->begin();
-        citer != colors->end(); citer++)
+	for(std::vector<PixelColor>::iterator citer = colors.begin();
+        citer != colors.end(); citer++)
 	{
 		bool foundMatch = false;
 
-        for(std::vector<MRef<PixelColor> *>::iterator nciter = newColors->begin();
-            nciter != newColors->end(); nciter++)
+        for(std::vector<PixelColor>::iterator nciter = newColors.begin();
+            nciter != newColors.end(); nciter++)
         {
-			if (calcColorDistance((*citer)->o(), (*nciter)->o()) < MERGE_COLOR_DISTANCE)
+			if (calcColorDistance(*citer, *nciter) < MERGE_COLOR_DISTANCE)
 				foundMatch = true;
         }
 
-		if (!foundMatch)
-			newColors->push_back(*citer);
+		if(!foundMatch)
+			newColors.push_back(*citer); //MRef destructor crashes here
 	}
 	return newColors;
 }
@@ -193,7 +196,7 @@ HistogramSegmenter::convertBinToColor(int idxOfBiggest[3])
 }
 
 cv::Mat
-HistogramSegmenter::redrawImageWithColors(cv::Mat& input, std::vector<MRef<PixelColor> *> * validColors)
+HistogramSegmenter::redrawImageWithColors(cv::Mat& input, std::vector<PixelColor>& validColors)
 {
 	PixelColor inputColor;
 	PixelColor convertedColor;
@@ -234,16 +237,16 @@ HistogramSegmenter::redrawImageWithColors(cv::Mat& input, std::vector<MRef<Pixel
 }
 
 PixelColor
-HistogramSegmenter::convertToValidColor(PixelColor inputColor, std::vector<MRef<PixelColor> *> * validColors)
+HistogramSegmenter::convertToValidColor(PixelColor inputColor, std::vector<PixelColor>& validColors)
 {
 	PixelColor closestColor;
 	float bestDistance = COLOR_DISTANCE_THRESHOLD + 10.0f;
 
-	//for each (MRef<PixelColor> * mCandidate in validColors)
-	for(std::vector<MRef<PixelColor> *>::iterator vciter = validColors->begin();
-            vciter != validColors->end(); vciter++)
+	//for each (PixelColor mCandidate in validColors)
+	for(std::vector<PixelColor>::iterator vciter = validColors.begin();
+            vciter != validColors.end(); vciter++)
 	{
-		PixelColor candidate = *((*vciter)->obj);
+		PixelColor candidate = (*vciter);
 
 		//std::cout<<("candidate: " + candidate[0] + "," + candidate[1] + "," + candidate[2]);
 
@@ -262,33 +265,34 @@ HistogramSegmenter::convertToValidColor(PixelColor inputColor, std::vector<MRef<
 		return blackPixelColor();
 }
 
-std::vector<ColorBlob *> *
-HistogramSegmenter::segmentImageIntoBlobsWithColors(cv::Mat& input, std::vector<MRef<PixelColor> *> * validColors)
+std::vector<ColorBlob*>
+HistogramSegmenter::segmentImageIntoBlobsWithColors(cv::Mat& input, std::vector<PixelColor>& validColors)
 {
-	std::vector<ColorBlob *> * blobList = makeBlobsWithColors(validColors);
+	std::vector<ColorBlob*> blobList = makeBlobsWithColors(validColors);
 	drawImageIntoBlobs(input, blobList);
 
 	return blobList;
 }
 
-std::vector<ColorBlob *> *
-HistogramSegmenter::makeBlobsWithColors(std::vector<MRef<PixelColor> *> * colors)
+std::vector<ColorBlob*>
+HistogramSegmenter::makeBlobsWithColors(std::vector<PixelColor>& colors)
 {
-	std::vector<ColorBlob *> * blobs = new std::vector<ColorBlob *>();
+	std::vector<ColorBlob*> blobs;
 	int index = 1;
-	//for each (MRef<PixelColor> * mColor in colors)
-	for(std::vector<MRef<PixelColor> *>::iterator citer = colors->begin(); citer != colors->end(); citer++)
+	//for each (PixelColor mColor in colors)
+	for(std::vector<PixelColor>::iterator citer = colors.begin(); citer != colors.end(); citer++)
 	{
-		PixelColor color = (*citer)->o();
-		ColorBlob * blob = new ColorBlob(index++, mImg->o().size());
+		PixelColor color = (*citer);
+		//valgrind doesn't like this ("definitely lost")
+		ColorBlob * blob = new ColorBlob(index++, mImg.size());
 		blob->setBlobColor(color);
-		blobs->push_back(blob);
+		blobs.push_back(blob);
 	}
 	return blobs;
 }
 
 void
-HistogramSegmenter::drawImageIntoBlobs(cv::Mat& input, std::vector<ColorBlob *> * blobs)
+HistogramSegmenter::drawImageIntoBlobs(cv::Mat& input, std::vector<ColorBlob*>& blobs)
 {
 	PixelColor color_3channel;
 	Pixel2ChannelColor color2;
@@ -322,12 +326,12 @@ HistogramSegmenter::drawImageIntoBlobs(cv::Mat& input, std::vector<ColorBlob *> 
 }
 
 void
-HistogramSegmenter::drawPixelIntoBlobs(cv::Point pt, PixelColor pixelColor, std::vector<ColorBlob *> * blobs)
+HistogramSegmenter::drawPixelIntoBlobs(cv::Point pt, PixelColor pixelColor, std::vector<ColorBlob*>& blobs)
 {
 	ColorBlob * blob = nullptr;
 	float bestDistance = COLOR_DISTANCE_THRESHOLD + 10.0f;
 	//for each (ColorBlob * candidate in blobs)
-	for(std::vector<ColorBlob *>::iterator candidate_iter = blobs->begin(); candidate_iter != blobs->end(); candidate_iter++)
+	for(std::vector<ColorBlob *>::iterator candidate_iter = blobs.begin(); candidate_iter != blobs.end(); candidate_iter++)
 	{
 		float distance = calcColorDistance(pixelColor, (*candidate_iter)->getBlobColor());
 		bool candidateIsBetter = distance < bestDistance;
@@ -345,7 +349,7 @@ HistogramSegmenter::drawPixelIntoBlobs(cv::Point pt, PixelColor pixelColor, std:
 cv::Mat
 HistogramSegmenter::secondSegmentation(PixelColor color)
 {
-	cv::Mat input = *(mImg->obj);
+	cv::Mat input(mImg);
 	cv::Mat distanceFromShape;
 	cv::add(input, -color, distanceFromShape);
 	distanceFromShape = magnitude(distanceFromShape);

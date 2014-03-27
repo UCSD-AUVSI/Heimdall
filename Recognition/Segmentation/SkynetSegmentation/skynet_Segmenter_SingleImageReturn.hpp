@@ -18,7 +18,7 @@ namespace Skynet {
 	{
 	public:
 		Segmenter_SingleImageReturn(void);
-		~Segmenter_SingleImageReturn() {}
+		~Segmenter_SingleImageReturn();
 
 		cv::Mat findShape(cv::Mat colorImg,
                         const Segmenter_Module_Settings & attempt_settings,
@@ -30,25 +30,22 @@ namespace Skynet {
                         cv::Mat* returned_mat_preprocessed=nullptr);
 
 
-        static void saveBlobsToFalseColorImage(std::vector<ColorBlob*>* blobList, std::string filename);//, cv::Size bsize);
+        static void saveBlobsToFalseColorImage(std::vector<ColorBlob*>& blobList, std::string filename);//, cv::Size bsize);
 
 	private:
-		//!Segmenter_SingleImageReturn(void) {}
-		//~Segmenter_SingleImageReturn() { this->!Segmenter_SingleImageReturn(); }
+        std::vector<ColorBlob*> getRoundishBlobs_ByCircularity(std::vector<ColorBlob*>& blobList, float cutoff_circularity);
 
-        std::vector<ColorBlob*> * getRoundishBlobs_ByCircularity(std::vector<ColorBlob*> * blobList, float cutoff_circularity);
+		std::vector<ColorBlob*> getLargeBlobs(std::vector<ColorBlob*>& blobList, cv::Size imgSize);
+		std::vector<ColorBlob*> getInteriorBlobs(std::vector<ColorBlob*>& blobList, float acceptable_fraction_of_blobs_pixels_that_touch_edge);
 
-		std::vector<ColorBlob*> * getLargeBlobs(std::vector<ColorBlob*> * blobList, cv::Size imgSize);
-		std::vector<ColorBlob*> * getInteriorBlobs(std::vector<ColorBlob*> * blobList, float acceptable_fraction_of_blobs_pixels_that_touch_edge);
-
-		std::vector<ColorBlob*> * eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>* blobList,
-                                                                    std::vector<cv::Mat>* masks_of_blobList,
-                                                                    std::vector<cv::Scalar>* colors_of_blobList,
+		std::vector<ColorBlob*> eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>& blobList,
+                                                                    std::vector<cv::Mat>& masks_of_blobList,
+                                                                    std::vector<cv::Scalar>& colors_of_blobList,
                                                                     cv::Scalar* color_to_eliminate);
 
-        static void ClearBlobsOfTinyNoiseSpeckles(std::vector<ColorBlob*>* blobList, int minimum_num_pixels_in_speck);
+        static void ClearBlobsOfTinyNoiseSpeckles(std::vector<ColorBlob*>& blobList, int minimum_num_pixels_in_speck);
 
-		ColorBlob * getBiggestBlob(std::vector<ColorBlob *> * blobList);
+		ColorBlob * getBiggestBlob(std::vector<ColorBlob*>& blobList);
 		cv::Mat getShapeFromBlob(ColorBlob * blob, cv::Size imgSize, bool fill_in_blob);
 		Segmenter * segmenter;
 	};

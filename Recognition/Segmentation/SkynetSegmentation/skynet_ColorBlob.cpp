@@ -8,7 +8,8 @@ using namespace Skynet;
 
 
 
-ColorBlob::ColorBlob(BlobId bId, cv::Size sizeIn)
+ColorBlob::ColorBlob(BlobId bId, cv::Size sizeIn) :
+	stats(ColorBlobStatistics(this))
 {
 	id = bId;
 	size = new cv::Size();
@@ -18,8 +19,6 @@ ColorBlob::ColorBlob(BlobId bId, cv::Size sizeIn)
 	mask->setTo(0);
 	blobColor = NULL;
 	setBlobColor(blackPixelColor());
-
-	stats = new ColorBlobStatistics(this);
 
 #if 1
     saved_last_fraction_of_blobs_pixels_along_border = -1.0f;
@@ -40,8 +39,8 @@ ColorBlob::hasSameColor(ColorBlob * blob, const cv::Mat& img)
 	//calculateBlobColor(img);
 	//blob->calculateBlobColor(img);
 
-	PixelColor thisColor = stats->getMostCommonColor(img, area());//mostCommonColor(img);
-	PixelColor otherColor = blob->stats->getMostCommonColor(img, blob->area());//->mostCommonColor(img);
+	PixelColor thisColor = stats.getMostCommonColor(img, area());//mostCommonColor(img);
+	PixelColor otherColor = blob->stats.getMostCommonColor(img, blob->area());//->mostCommonColor(img);
 
 	float colorDistance = calcColorDistance(thisColor, otherColor);
 	return colorDistance <= MaxColorDistanceForMerge;
@@ -108,7 +107,7 @@ ColorBlob::expandToContainBlob(ColorBlob * blob, cv::Mat *blobIds)
 		blobIds->setTo(newId, *(blob->mask));
 	}
 
-	stats->invalidate();
+	stats.invalidate();
 }
 
 void
@@ -190,7 +189,7 @@ ColorBlob::addPoint(cv::Point pt, cv::Mat blobIds)
 	{
 		blobIds.at<BlobIdElement>(pt.y, pt.x)[0] = id;
 	}
-	stats->invalidate();
+	stats.invalidate();
 }
 
 
@@ -294,7 +293,8 @@ consoleOutput.Level3() << std::string("ColorBlob::isInterior() - fractionOnBorde
 cv::Mat
 ColorBlob::clonedMaskWithNoSmallBlobs(int minimum_num_pixels_in_speck)
 {
-	cv::Mat clonedMask = mask->clone();
+	cv::Mat clonedMask;
+	mask->copyTo(clonedMask);
 
 	CBlobResult blobs;
 	CBlob * currentBlob;
@@ -447,9 +447,9 @@ ColorBlobStatistics::getMostCommonColor(const cv::Mat& img, float area)
 	if (areaHasChangedSignificantly)
 	{
 		cachedArea = area;
-		mostCommonColor = new MRef<PixelColor>( new PixelColor(parent->mostCommonColor(img)));
+		mostCommonColor = PixelColor(parent->mostCommonColor(img));
 		setWasUpdated();
 	}
 
-	return *(mostCommonColor->obj);
+	return mostCommonColor;
 }

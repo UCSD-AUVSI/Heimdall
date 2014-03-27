@@ -28,7 +28,7 @@ namespace Skynet {
 		PixelColor getMostCommonColor(const cv::Mat& img, float area);
 	private:
 		ColorBlob * parent;
-		MRef<PixelColor> * mostCommonColor;
+		PixelColor mostCommonColor;
 		float cachedArea;
 
 		void updateStatistics() { throw myexception("Not implemented"); }
@@ -41,7 +41,7 @@ namespace Skynet {
 		~ColorBlob();
 		bool hasSameColor(ColorBlob * blob, const cv::Mat& img);
 		void expandToContainBlob(ColorBlob * blob, cv::Mat *blobIds);
-		void expandToContainBlob(ColorBlob * blob) {expandToContainBlob(blob, NULL);}
+		void expandToContainBlob(ColorBlob * blob) {expandToContainBlob(blob, nullptr);}
 		void calculateBlobColor(const cv::Mat& img);
 		void drawIntoImg(cv::Mat& img);
 		void drawIntoFalseColorImg(cv::Mat& img, FalseColor color);
@@ -73,7 +73,7 @@ namespace Skynet {
 	private:
 		cv::Size *size;
 		cv::Mat *mask;
-		ColorBlobStatistics * stats;
+		ColorBlobStatistics stats;
 
 		cv::Mat clonedMaskWithNoSmallBlobs(int minimum_num_pixels_in_speck);
 		PixelColor getARandomPixel(const cv::Mat& img);

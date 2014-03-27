@@ -28,6 +28,7 @@ public:
 
 //------
     Segmentation_SSEG_MultiReturn();
+    ~Segmentation_SSEG_MultiReturn();
 
 
 	void DoModule(cv::Mat cropped_target_image,

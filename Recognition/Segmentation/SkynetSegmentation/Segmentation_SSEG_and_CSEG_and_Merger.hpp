@@ -5,13 +5,9 @@
 #include <opencv/highgui.h>
 #include "test_data_results_segmentation.hpp"
 
-//#include "Segmentation_SSEG_MultiReturn.hpp"
-//#include "Segmentation_CSEG_MultiReturn.hpp"
-//#include "Segmentation_CSEG_SSEG_Merger.hpp"
 
 class Segmentation_SSEG_MultiReturn;
 class Segmentation_CSEG_MultiReturn;
-class Segmentation_CSEG_SSEG_Merger;
 class test_data_results_segmentation;
 
 
@@ -20,7 +16,6 @@ class Segmentation_SSEG_and_CSEG_and_Merger
 protected:
     Segmentation_SSEG_MultiReturn* my_sseg_module;
     Segmentation_CSEG_MultiReturn* my_cseg_module;
-    Segmentation_CSEG_SSEG_Merger* my_merger_module;
 
     void SetupDefaultSettings();
 
@@ -30,6 +25,7 @@ public:
 
 
     Segmentation_SSEG_and_CSEG_and_Merger();
+    ~Segmentation_SSEG_and_CSEG_and_Merger();
 
 
 	void DoModule(cv::Mat cropped_target_image,

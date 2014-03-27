@@ -138,6 +138,7 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 		memcpy(img_arr, arr + start, imdata->image_data_size);
 		start += imdata->image_data_size;
 
+		//valgrind doesn't like this ("definitely lost")
 		imdata->image_data->push_back(new std::vector<unsigned char>(img_arr, img_arr + imdata->image_data_size));
 		delete[] img_arr;
 	}

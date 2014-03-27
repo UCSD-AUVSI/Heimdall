@@ -11,6 +11,7 @@
 #include "Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.hpp"
 #include "Recognition/ShapeRec/TemplateSRec.hpp"
 #include "Recognition/OCR/StubOCR.hpp"
+#include "Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp"
 #include "GUIRec/GUIRec.hpp"
 
 #include "Verification/Verif.hpp"

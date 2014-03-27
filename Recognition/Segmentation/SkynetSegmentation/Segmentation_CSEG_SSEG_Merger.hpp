@@ -8,7 +8,7 @@
 class Segmentation_CSEG_SSEG_Merger
 {
 public:
-	void DoModule(cv::Mat cropped_target_image,
+	static void DoModule(cv::Mat cropped_target_image,
         std::vector<cv::Mat>* input_SSEGs,
         std::vector<cv::Scalar>* input_sseg_colors,
         std::vector<cv::Mat>* input_CSEGs,

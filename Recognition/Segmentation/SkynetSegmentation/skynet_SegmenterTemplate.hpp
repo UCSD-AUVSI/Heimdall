@@ -19,13 +19,13 @@ namespace Skynet {
 		{
 		}
 
-		virtual std::vector<ColorBlob *> * findBlobs(cv::Mat colorImg, cv::Mat* returned_binned_mat)
+		virtual std::vector<ColorBlob*> findBlobs(cv::Mat colorImg, cv::Mat* returned_binned_mat)
 		{
 			throw myexception("Tried to use Abstract Class - Use subclass instead");
-			return nullptr;
+			return std::vector<ColorBlob*>();
 		}
 
-		std::vector<ColorBlob *> * findBlobs(cv::Mat colorImg)
+		std::vector<ColorBlob*> findBlobs(cv::Mat colorImg)
 		{
 			return findBlobs(colorImg, nullptr);
 		}

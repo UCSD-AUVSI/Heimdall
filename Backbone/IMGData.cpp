@@ -19,6 +19,7 @@ void setDone(imgdata_t *data, alg_t alg){
 		case SKYNET_SEG: 		data->segDone = true; 											break;
 		case TEMPLATE_SREC: 	data->sDone = true;												break;
 		case STUB_OCR: 			data->cDone = true;												break;
+		case TESS_OCR:			data->cDone = true;												break;
 		case STUB_VERIF: 		data->verified = true;											break;
 	}	
 }
