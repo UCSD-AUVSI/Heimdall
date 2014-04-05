@@ -36,6 +36,10 @@ void img_print(imgdata_t* data){
 
 // TODO: Add consequences if imgdata_t is not initialized
 void initEmptyIMGData(imgdata_t *data){
+	
+	//in case previously initialized:
+	clearIMGData(data);
+	
 	data->image_data = new std::vector<std::vector<unsigned char>*>();
 	data->sseg_image_data = new std::vector<std::vector<unsigned char>*>();
 	data->cseg_image_data = new std::vector<std::vector<unsigned char>*>();
@@ -49,36 +53,47 @@ void clearIMGData(imgdata_t *data){
 		for(std::vector<std::vector<unsigned char>*>::iterator i = data->image_data->begin();
 				i < data->image_data->end(); ++i){
 			(*i)->clear();
+			delete (*i);
+			(*i) = nullptr;
 		}
 		data->image_data->clear();
 		delete data->image_data;
+		data->image_data = nullptr;
 	}
 
 	if(data->sseg_image_data){
 		for(std::vector<std::vector<unsigned char>*>::iterator i = data->sseg_image_data->begin();
 				i < data->sseg_image_data->end(); ++i){
 			(*i)->clear();
+			delete (*i);
+			(*i) = nullptr;
 		}
 		data->sseg_image_data->clear();
 		delete data->sseg_image_data;
+		data->sseg_image_data = nullptr;
 	}
 
 	if(data->cseg_image_data){
 		for(std::vector<std::vector<unsigned char>*>::iterator i = data->cseg_image_data->begin();
 				i < data->cseg_image_data->end(); ++i){
 			(*i)->clear();
+			delete (*i);
+			(*i) = nullptr;
 		}
 		data->cseg_image_data->clear();
 		delete data->cseg_image_data;
+		data->cseg_image_data = nullptr;
 	}
 
 	if(data->sseg_image_sizes){
 		data->sseg_image_sizes->clear();
 		delete data->sseg_image_sizes;
+		data->sseg_image_sizes = nullptr;
 	}
 
 	if(data->cseg_image_sizes){
 		data->cseg_image_sizes->clear();
 		delete data->cseg_image_sizes;
+		data->cseg_image_sizes = nullptr;
 	}
 }

@@ -57,9 +57,9 @@ void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t p
 		if(img_update(&imdata)){
 			if(send){
 				for(zmq::socket_t *sock : pushsockets){	
-					zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
-					packMessageData(sendmsg, &imdata);
-					sock->send(*sendmsg);
+					zmq::message_t sendmsg(messageSizeNeeded(&imdata));
+					packMessageData(&sendmsg, &imdata);
+					sock->send(sendmsg);
 				}
 			}
 			if(pubPort){

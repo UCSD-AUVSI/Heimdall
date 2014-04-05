@@ -6,7 +6,7 @@
 #include <opencv/highgui.h>
 #include "ocr_algorithm_template.hpp"
 
-#define BUILD_WITH_TESSERACT 0
+#define BUILD_WITH_TESSERACT 1
 
 #if BUILD_WITH_TESSERACT
 #include <tesseract/baseapi.h>

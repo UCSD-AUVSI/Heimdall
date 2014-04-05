@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-
 #include <zmq.hpp>
+#include <cstring>
 
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/IMGData.hpp"
@@ -36,6 +36,13 @@ int messageSizeNeeded(imgdata_t *imdata){
 	populateSizes(imdata);
 
 	int len = sizeof(imgdata_t);
+	
+	//the +1 in these is to make space for the null character \0 that terminates the string
+	len += strlen(imdata->shape.c_str()) + 1;
+	len += strlen(imdata->character.c_str()) + 1;
+	len += strlen(imdata->scolor.c_str()) + 1;
+	len += strlen(imdata->ccolor.c_str()) + 1;
+
 	len += imdata->image_data_size;
 	len += imdata->sseg_image_size_count * sizeof(uint32_t);
 	len += imdata->cseg_image_size_count * sizeof(uint32_t);
@@ -51,9 +58,18 @@ int messageSizeNeeded(imgdata_t *imdata){
 	return len;
 }
 
+void printMsgBytesInfo(zmq::message_t *msg){
+	cout << "printMsgBytesInfo - size of msg (bytes): " << msg->size() << endl;
+}
+
+void printStructBytesInfo(imgdata_t *imdata){
+	cout << "printStructBytesInfo - sizeof imgdata_t (bytes): " << sizeof(imgdata_t) << endl;
+	cout << "printStructBytesInfo - estimated size needed in this struct: " << messageSizeNeeded(imdata) << endl;
+}
+
 void printMsgBytes(zmq::message_t *msg){
-	unsigned char arr[msg->size()];
-	memcpy(arr, msg->data(), msg->size());
+	std::vector<unsigned char> arr(msg->size(),0);
+	memcpy(&arr[0], msg->data(), msg->size());
 
 	cout << "Printing Message (" << msg->size() << "): " << endl;
 	for(int i = 0; i < msg->size(); i++){
@@ -73,14 +89,59 @@ void printStructBytes(imgdata_t *imdata){
 	cout << endl;
 }
 
+#define MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(DATAMEMBER) \
+	memcpy(arr+start, &(imdata -> DATAMEMBER), sizeof(imdata -> DATAMEMBER)); \
+	start += sizeof(imdata -> DATAMEMBER);
+	
+#define MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(DATAMEMBER) \
+	memcpy(&(imdata -> DATAMEMBER), arr+start, sizeof(imdata -> DATAMEMBER)); \
+	start += sizeof(imdata -> DATAMEMBER);
+	
+
 unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	int start = 0;
 
 	*retlen = messageSizeNeeded(imdata);
 	unsigned char *arr = new unsigned char[*retlen];
 
-	memcpy(arr, imdata, sizeof(imgdata_t));
-	start += sizeof(imgdata_t);
+	//memcpy(arr, imdata, sizeof(imgdata_t));
+	//start += sizeof(imgdata_t);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(id);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(cropid);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(initialized);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(image_data_size);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(sseg_image_size_count);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(cseg_image_size_count);
+	
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(orgrDone);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(saliencyDone);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(segDone);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(sDone);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(cDone);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(verified);
+	
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(planelat);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(planelongt);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(planealt);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(planeheading);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(targetlat);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(targetlongt);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(targetorientation);
+		
+	
+	//the +1 in these is the null character \0 that terminates the string
+	memcpy(arr + start, imdata->shape.c_str(), strlen(imdata->shape.c_str()) + 1);
+	start += (strlen(imdata->shape.c_str()) + 1);
+	
+	memcpy(arr + start, imdata->character.c_str(), strlen(imdata->character.c_str()) + 1);
+	start += (strlen(imdata->character.c_str()) + 1);
+	
+	memcpy(arr + start, imdata->scolor.c_str(), strlen(imdata->scolor.c_str()) + 1);
+	start += (strlen(imdata->scolor.c_str()) + 1);
+	
+	memcpy(arr + start, imdata->ccolor.c_str(), strlen(imdata->ccolor.c_str()) + 1);
+	start += (strlen(imdata->ccolor.c_str()) + 1);
+	
 
 	if(imdata->image_data_size){
 		memcpy(arr + start, &(*(imdata->image_data->back()))[0], imdata->image_data_size);
@@ -125,8 +186,40 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 	}
 	int start = 0;
 
-	memcpy(imdata, arr, sizeof(imgdata_t));
-	start += sizeof(imgdata_t);
+	//memcpy(imdata, arr, sizeof(imgdata_t));
+	//start += sizeof(imgdata_t);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(id);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(cropid);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(initialized);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(image_data_size);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(sseg_image_size_count);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(cseg_image_size_count);
+	
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(orgrDone);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(saliencyDone);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(segDone);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(sDone);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(cDone);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(verified);
+	
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(planelat);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(planelongt);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(planealt);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(planeheading);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(targetlat);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(targetlongt);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(targetorientation);
+	
+	
+	//the +1 in these is the null character \0 that terminated the string
+	imdata->shape = std::string(reinterpret_cast<char*>(arr+start));
+	start += (imdata->shape.size() + 1);
+	imdata->character = std::string(reinterpret_cast<char*>(arr+start));
+	start += (imdata->character.size() + 1);
+	imdata->scolor = std::string(reinterpret_cast<char*>(arr+start));
+	start += (imdata->scolor.size() + 1);
+	imdata->ccolor = std::string(reinterpret_cast<char*>(arr+start));
+	start += (imdata->ccolor.size() + 1);
 
 	imdata->image_data = new std::vector<std::vector<unsigned char>*>();
 	imdata->sseg_image_data = new std::vector<std::vector<unsigned char>*>();

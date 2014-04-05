@@ -14,12 +14,7 @@ using std::endl;
 void Stub_Verify :: execute(imgdata_t *imdata){
 	cout << "Stub Verification" << endl;
 	
-	/*
-	//TODO: uncommenting this causes a crash!
-	//it's not a new phenomena, I reproduced the same crash in an older version, before SkynetSegmentation or TessOCR were added.
-	//the version tested (that also crashed here) had SSaliency,
-	//				it was the commit on March 3 with message "Modifies any array that touches an image..." 
-	
+
 	if(imdata->shape.empty())
 		cout << "no shape found!" << endl;
 	else
@@ -29,7 +24,6 @@ void Stub_Verify :: execute(imgdata_t *imdata){
 		cout << "no character found!" << endl;
 	else
 		cout << "character found: \'" << imdata->character << "\'" << endl;
-	*/
 	
 	
 	cv::startWindowThread();

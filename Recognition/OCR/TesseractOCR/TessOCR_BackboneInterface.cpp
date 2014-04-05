@@ -33,13 +33,13 @@ void TessOCR :: execute(imgdata_t *imdata) {
             //but we can only return 1 answer, the most confident one (the first one in the vector)
             imdata->character = global_TessOCR_module_instance->last_obtained_results.results.begin()->GetCharacterAsString();
 
-            consoleOutput.Level1() << "OCR found:" << std::endl;
+            consoleOutput.Level2() << "OCR found:" << std::endl;
             std::vector<OCR_Result>::iterator char_results_iter;
             for(char_results_iter = global_TessOCR_module_instance->last_obtained_results.results.begin();
                 char_results_iter != global_TessOCR_module_instance->last_obtained_results.results.end();
                 char_results_iter++)
             {
-                char_results_iter->PrintMe(&(consoleOutput.Level1()));
+                char_results_iter->PrintMe(&(consoleOutput.Level2()));
             }
         }
 	}
