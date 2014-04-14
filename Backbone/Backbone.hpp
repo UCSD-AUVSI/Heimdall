@@ -41,6 +41,7 @@ enum alg_t{
 
 	//Shape Recognition
 	TEMPLATE_SREC,
+	POLYGON_SREC,
 
 	//OCR
 	STUB_OCR,
