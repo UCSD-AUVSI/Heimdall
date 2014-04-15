@@ -19,7 +19,8 @@ public:
 
 
 	void DoModule(std::vector<cv::Mat>* input_CSEGs,
-
+		
+		bool return_raw_tesseract_data=false,
         std::ostream* PRINT_TO_FILE_HERE=nullptr,
         std::string* folder_path_of_output_saved_images=nullptr,
 		bool save_images_and_results=false,
@@ -31,7 +32,8 @@ public:
 
 protected:
 	void Attempt_OCR_OnOneCSEG(cv::Mat input_CSEG,
-
+		
+		bool return_raw_tesseract_data=false,
 		bool save_images_and_results=false,
 		std::string* name_of_target_image=nullptr,
 		test_data_results_ocr* optional_results_info=nullptr,

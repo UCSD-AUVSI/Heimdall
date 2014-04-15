@@ -14,5 +14,5 @@ set(tess_ocr_source_files
 
 add_library(tess_ocr ${tess_ocr_source_files})
 
-target_link_libraries(tess_ocr tesseract lept ocr)
+target_link_libraries(tess_ocr tesseract lept sharedutils ocr)
 #target_link_libraries(tess_ocr ocr)

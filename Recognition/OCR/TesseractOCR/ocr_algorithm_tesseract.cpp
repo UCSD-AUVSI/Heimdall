@@ -70,7 +70,7 @@ bool OCRModuleAlgorithm_Tesseract::InitTesseract()
 }
 
 
-bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/)
+bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/, bool return_raw_tesseract_data/*=false*/)
 {
 	all_letter_guesses__internal_to_module.clear();
 	last_obtained_results.clear();
@@ -99,9 +99,10 @@ bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostrea
 	}
 
 
-
-	all_letter_guesses__internal_to_module.KeepOnlyTopFractionOfCharacters(fraction_of_top_characters_to_keep_before_tossing_the_rest);
-
+	
+	if(return_raw_tesseract_data == false) {
+		all_letter_guesses__internal_to_module.KeepOnlyTopFractionOfCharacters(fraction_of_top_characters_to_keep_before_tossing_the_rest);
+	}
 
 
 	if(PRINTHERE != nullptr)
@@ -114,8 +115,14 @@ bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostrea
 	}
 
 
-	last_obtained_results = all_letter_guesses__internal_to_module.GetTopNResults(max_num_characters_to_report, cutoff_confidence_of_final_result);
-
+	if(return_raw_tesseract_data == false) {
+		last_obtained_results = all_letter_guesses__internal_to_module.GetTopNResults(max_num_characters_to_report, cutoff_confidence_of_final_result);
+	}
+	else {
+		last_obtained_results = all_letter_guesses__internal_to_module;
+		last_obtained_results.EliminateCharactersBelowConfidenceLevel(1.0);
+	}
+	
     if(PRINTHERE != nullptr)
         (*PRINTHERE) << "------------------------------------- top few char results:" << std::endl;
 

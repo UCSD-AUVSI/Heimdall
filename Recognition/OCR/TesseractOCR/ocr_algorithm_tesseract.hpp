@@ -46,7 +46,7 @@ public:
 	//if the returned vector (in last_obtained_results) is empty, no character was found with the desired confidence
 	//the returned vector may have two letters if there were two close guesses found
 	//
-	virtual bool do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE=nullptr);
+	virtual bool do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE=nullptr, bool return_raw_tesseract_data=false);
 
 
 

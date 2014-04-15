@@ -17,6 +17,7 @@ TessOCR_Module_Main::TessOCR_Module_Main()
 
 void TessOCR_Module_Main::DoModule(std::vector<cv::Mat>* input_CSEGs,
 
+		bool return_raw_tesseract_data/*=false*/,
         std::ostream* PRINT_TO_FILE_HERE/*=nullptr*/,
         std::string* folder_path_of_output_saved_images/*=nullptr*/,
 		bool save_images_and_results/*=false*/,
@@ -34,36 +35,41 @@ void TessOCR_Module_Main::DoModule(std::vector<cv::Mat>* input_CSEGs,
         for(; CSEGs_iter != input_CSEGs->end(); CSEGs_iter++)
         {
             Attempt_OCR_OnOneCSEG(*CSEGs_iter,
+				return_raw_tesseract_data,
                 save_images_and_results,
                 name_of_target_image);
         }
+		
+		
+		if(return_raw_tesseract_data) {
+			last_obtained_results.SortByConfidence();
+		}
+		else {
+			last_obtained_results.EliminateDuplicates();
+			
+			if(last_obtained_results.empty() == false) {
+				last_obtained_results  =
+				last_obtained_results.GetTopNResults(
+					my_ocr_algorithm->max_num_characters_to_report,
+					my_ocr_algorithm->cutoff_confidence_of_final_result);
 
-        last_obtained_results.EliminateDuplicates();
+				last_obtained_results.SortByConfidence();
 
-
-        if(last_obtained_results.empty() == false)
-        {
-            last_obtained_results  =
-            last_obtained_results.GetTopNResults(
-                my_ocr_algorithm->max_num_characters_to_report,
-                my_ocr_algorithm->cutoff_confidence_of_final_result);
-
-            last_obtained_results.SortByConfidence();
-
-            if(PRINT_TO_FILE_HERE != nullptr)
-            {
-                (*PRINT_TO_FILE_HERE) << std::endl << "============== printing OCR final results:" << std::endl;
-                last_obtained_results.PrintMyResults(PRINT_TO_FILE_HERE);
-            }
-        }
-        UpdateResultsAttemptsData_ocr(PRINT_TO_FILE_HERE, optional_results_info, last_obtained_results, correct_ocr_character);
-        CheckValidityOfResults_ocr(PRINT_TO_FILE_HERE, optional_results_info, last_obtained_results, correct_ocr_character);
+				if(PRINT_TO_FILE_HERE != nullptr) {
+					(*PRINT_TO_FILE_HERE) << std::endl << "============== printing OCR final results:" << std::endl;
+					last_obtained_results.PrintMyResults(PRINT_TO_FILE_HERE);
+				}
+			}
+			UpdateResultsAttemptsData_ocr(PRINT_TO_FILE_HERE, optional_results_info, last_obtained_results, correct_ocr_character);
+			CheckValidityOfResults_ocr(PRINT_TO_FILE_HERE, optional_results_info, last_obtained_results, correct_ocr_character);
+		}
     }
 }
 
 
 void TessOCR_Module_Main::Attempt_OCR_OnOneCSEG(cv::Mat input_CSEG,
-
+	
+	bool return_raw_tesseract_data/*=false*/,
 	bool save_images_and_results/*=false*/,
 	std::string* name_of_target_image/*=nullptr*/,
 	test_data_results_ocr* optional_results_info/*=nullptr*/,
@@ -117,7 +123,7 @@ void TessOCR_Module_Main::Attempt_OCR_OnOneCSEG(cv::Mat input_CSEG,
 
 
 
-            my_ocr_algorithm->do_OCR(foundshape_CSEG_post_erosion, nullptr);
+            my_ocr_algorithm->do_OCR(foundshape_CSEG_post_erosion, nullptr, return_raw_tesseract_data);
 
 
 //================================================
