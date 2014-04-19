@@ -128,7 +128,7 @@ void ShapeRecModuleAlgorithm_SingleImage_Turning::CompareTargetContourToAllRefer
 
                 if(filename_extension_is_image_type(filename_extension))
                 {
-                    filename_full_path = (folder_containing_reference_images + std::string("/") + filename + filename_extension);
+                    filename_full_path = std::string(file.path);
 
                     cv::Mat ref_mat = cv::imread(filename_full_path, CV_LOAD_IMAGE_GRAYSCALE);
 

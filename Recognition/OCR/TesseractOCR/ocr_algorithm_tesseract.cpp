@@ -12,7 +12,7 @@
 
 
 
-bool OCRModuleAlgorithm_Tesseract::RotateAndRunOCR(cv::Mat matsrc, double angle_amount)
+bool OCRModuleAlgorithm_Tesseract::RotateAndRunOCR(cv::Mat matsrc, double angle_amount, bool return_empty_characters)
 {
 	if(tesseract_was_initialized == false)
 	{
@@ -44,6 +44,9 @@ bool OCRModuleAlgorithm_Tesseract::RotateAndRunOCR(cv::Mat matsrc, double angle_
 			return true;
 		}
 	}
+	
+	if(return_empty_characters)
+		all_letter_guesses__internal_to_module.PushBackNew(0.0, angle_amount, ' ');
 #endif
 
 	return false;
@@ -70,7 +73,7 @@ bool OCRModuleAlgorithm_Tesseract::InitTesseract()
 }
 
 
-bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/, bool return_raw_tesseract_data/*=false*/)
+bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/, bool return_raw_tesseract_data/*=false*/, bool return_empty_characters/*=false*/)
 {
 	all_letter_guesses__internal_to_module.clear();
 	last_obtained_results.clear();
@@ -94,7 +97,7 @@ bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostrea
 	double angle_delta = (360.0 / static_cast<double>(num_angles_to_check));
 	for(int bb=0; bb<num_angles_to_check; bb++)
 	{
-		RotateAndRunOCR(letter_binary_mat, angle_current);
+		RotateAndRunOCR(letter_binary_mat, angle_current, return_empty_characters);
 		angle_current += angle_delta;
 	}
 
@@ -105,28 +108,21 @@ bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostrea
 	}
 
 
-	if(PRINTHERE != nullptr)
-	{
+	if(PRINTHERE != nullptr) {
 		(*PRINTHERE) << "----------------------------------------------" << std::endl <<
 		"top guesses for this image:" << std::endl << "------------------------" << std::endl;
-
 		all_letter_guesses__internal_to_module.PrintMyResults(PRINTHERE);
 		(*PRINTHERE) << "------------------------" << std::endl;
 	}
 
 
-	if(return_raw_tesseract_data == false) {
-		last_obtained_results = all_letter_guesses__internal_to_module.GetTopNResults(max_num_characters_to_report, cutoff_confidence_of_final_result);
-	}
-	else {
-		last_obtained_results = all_letter_guesses__internal_to_module;
-		last_obtained_results.EliminateCharactersBelowConfidenceLevel(1.0);
-	}
+	last_obtained_results = all_letter_guesses__internal_to_module;
 	
-    if(PRINTHERE != nullptr)
+	
+    if(PRINTHERE != nullptr) {
         (*PRINTHERE) << "------------------------------------- top few char results:" << std::endl;
-
-    last_obtained_results.PrintMyResults(PRINTHERE);
+		last_obtained_results.PrintMyResults(PRINTHERE);
+	}
 
 
 	return (last_obtained_results.empty() == false);

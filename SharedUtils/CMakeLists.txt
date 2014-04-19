@@ -1,4 +1,6 @@
 set(sharedutils_source_files
+	cvplot.cpp
+	cvplot.h
 	SharedUtils.hpp
 	SharedUtils.cpp
 	SharedUtils_OpenCV.hpp

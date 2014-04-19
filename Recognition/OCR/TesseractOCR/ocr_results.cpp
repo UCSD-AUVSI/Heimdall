@@ -32,19 +32,61 @@ void OCR_Result::PrintMe(std::ostream* PRINTHERE)
 }
 
 
-void OCR_ResultsContainer::EliminateDuplicates()
+OCR_Result OCR_ResultsContainer::GetResultFromLetter(char letter_known_to_be_in_results)
+{
+	std::vector<OCR_Result>::iterator iter = results.begin();
+	for(; iter != results.end(); iter++) {
+		if(iter->character == letter_known_to_be_in_results) {
+			return *iter; //return the first found; if sorted by confidence, that'll probably be the one you want
+		}
+	}
+	return OCR_Result();
+}
+
+bool OCR_ResultsContainer::ContainsLetter(char what_letter)
+{
+	std::vector<OCR_Result>::iterator iter = results.begin();
+	for(; iter != results.end(); iter++) {
+		if(iter->character == what_letter) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void OCR_ResultsContainer::EliminateDuplicates_BySavingHighestConfidence()
+{
+	SortByConfidence();
+	
+	std::map<char, bool> ocr_characters_map;
+	std::vector<OCR_Result>::iterator results_iter = results.begin();
+	
+	while(results_iter != results.end())
+	{
+		if(ocr_characters_map.find(results_iter->character) == ocr_characters_map.end())
+		{
+			ocr_characters_map[results_iter->character] = true;
+			results_iter++;
+		}
+		else
+		{
+			results_iter = results.erase(results_iter);
+		}
+	}
+}
+
+void OCR_ResultsContainer::EliminateDuplicates_ByAveraging()
 {
 //merges duplicate letter results (from one saliency crop) from different CSEGs
-
+//note: crucially, this averages the confidences of the top results...
+//which means a letter that appears only a few times with high confidence is preferred
 
     std::map<char, OCR_duplicate_eliminator>                    ocr_characters_map;
     std::map<char, OCR_duplicate_eliminator>::iterator          ocr_characters_iter;
 
 
 
-    std::vector<OCR_Result>::iterator    ocr_iter    = results.begin();
-
-
+    std::vector<OCR_Result>::iterator ocr_iter = results.begin();
 
     for(; ocr_iter != results.end(); ocr_iter++)
     {
@@ -186,6 +228,8 @@ std::vector<OCR_Result> OCR_ResultsContainer::GetTopNResults(int max_num_results
 
 
     //second: eliminate duplicates
+    //since the list has been sorted by confidence,
+    //	only the highest-confidence instance of a letter will be kept
     for(std::vector<OCR_Result>::iterator riter = returned_results.begin(); riter != returned_results.end();)
     {
         if(checkmap.empty())

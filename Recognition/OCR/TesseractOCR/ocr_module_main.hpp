@@ -16,30 +16,28 @@ public:
 
 
     TessOCR_Module_Main();
+    
+    
+    void RotateAndGetLetterCandidates(std::vector<cv::Mat>* input_CSEGs,
+								bool return_empty_characters=false);
 
-
-	void DoModule(std::vector<cv::Mat>* input_CSEGs,
-		
-		bool return_raw_tesseract_data=false,
-        std::ostream* PRINT_TO_FILE_HERE=nullptr,
-        std::string* folder_path_of_output_saved_images=nullptr,
-		bool save_images_and_results=false,
-		std::string* name_of_target_image=nullptr,
-		test_data_results_ocr* optional_results_info=nullptr,
-		std::string* correct_shape_name=nullptr,
-		const char* correct_ocr_character=nullptr);
+	void SiftThroughCandidates(int max_num_reported_letters, double cutoff_confidence=-99.0);
+	
+	std::string GetBestCandidate();
 
 
 protected:
 	void Attempt_OCR_OnOneCSEG(cv::Mat input_CSEG,
 		
 		bool return_raw_tesseract_data=false,
+		bool return_empty_characters=false);/*,
+		
 		bool save_images_and_results=false,
 		std::string* name_of_target_image=nullptr,
 		test_data_results_ocr* optional_results_info=nullptr,
 		std::string* correct_shape_name=nullptr,
 		const char* correct_ocr_character=nullptr,
-		int test_number=-1);
+		int test_number=-1);*/
 };
 
 #endif

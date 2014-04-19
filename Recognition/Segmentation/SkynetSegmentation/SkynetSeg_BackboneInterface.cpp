@@ -4,24 +4,14 @@
 #include "SkynetSeg_BackboneInterface.hpp"
 #include "Segmentation_SSEG_and_CSEG_and_Merger.hpp"
 #include "SharedUtils/SharedUtils.hpp"
-#include <unistd.h>//for sleep()
+#include "SharedUtils/SharedUtils_OpenCV.hpp" //for saveImage
 
-// /*extern*/ Segmentation_SSEG_and_CSEG_and_Merger* global_SkynetSegmentation_module_instance = new Segmentation_SSEG_and_CSEG_and_Merger();
-/*extern*/ bool skynetseg_is_currently_running = false;
-static volatile bool skynetseg_volatile_is_currently_running = false;
+
+int number_of_crops_saved = 0;
 
 
 void SkynetSeg :: execute(imgdata_t *imdata)
 {
-    while(skynetseg_is_currently_running || skynetseg_volatile_is_currently_running)
-    {
-        sleep(100);
-        std::cout << "waiting for SkynetSeg..." << std::endl;
-    }
-    skynetseg_is_currently_running = true;
-    skynetseg_volatile_is_currently_running = true;
-
-
 	std::cout << "SkynetSeg" << std::endl;
 
 	if(imdata->image_data->empty() == false)
@@ -37,9 +27,15 @@ void SkynetSeg :: execute(imgdata_t *imdata)
 		std::vector<cv::Scalar> returned_CSEG_colors;
 
 		//these two are optional; they tell the module where to save photos, and what name to assign this crop
-		std::string folder_to_save_SSEGs_and_CSEGs("./");
-		std::string name_of_input_crop(to_istring(rand()));
-		bool save_ssegs_and_csegs = false;
+		std::string folder_to_save_SSEGs_and_CSEGs("../../output_images");
+		std::string name_of_input_crop(to_istring(++number_of_crops_saved));
+		bool save_ssegs_and_csegs = check_if_directory_exists(folder_to_save_SSEGs_and_CSEGs);
+		
+		
+		if(save_ssegs_and_csegs) {
+			saveImage(cropped_input_image,
+				folder_to_save_SSEGs_and_CSEGs + std::string("/crop__") + name_of_input_crop + std::string(".jpg"));
+		}
 
 
 		SkynetSegmentation_module_instance.DoModule(cropped_input_image,
@@ -114,6 +110,4 @@ void SkynetSeg :: execute(imgdata_t *imdata)
 		std::cout << "SkynetSeg module wasn't given a crop from saliency!" << std::endl;
 
 	setDone(imdata, SKYNET_SEG);
-	skynetseg_is_currently_running = false;
-	skynetseg_volatile_is_currently_running = false;
 }

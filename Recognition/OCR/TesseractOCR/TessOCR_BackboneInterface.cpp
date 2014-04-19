@@ -24,15 +24,15 @@ void TessOCR :: execute(imgdata_t *imdata) {
             given_CSEGs.push_back(cv::imdecode(**cseg_iter, CV_LOAD_IMAGE_ANYDEPTH));
         }
 
-        global_TessOCR_module_instance->my_ocr_algorithm->max_num_characters_to_report = 3;
-		global_TessOCR_module_instance->DoModule(&given_CSEGs);
 
+		global_TessOCR_module_instance->RotateAndGetLetterCandidates(&given_CSEGs);
+		global_TessOCR_module_instance->SiftThroughCandidates(4);
+		imdata->character = global_TessOCR_module_instance->GetBestCandidate();
+		
+
+		//print top 4 results
         if(global_TessOCR_module_instance->last_obtained_results.empty() == false)
         {
-            //the above module_instance returns up to 3 characters...
-            //but we can only return 1 answer, the most confident one (the first one in the vector)
-            imdata->character = global_TessOCR_module_instance->last_obtained_results.results.begin()->GetCharacterAsString();
-
             consoleOutput.Level2() << "OCR found:" << std::endl;
             std::vector<OCR_Result>::iterator char_results_iter;
             for(char_results_iter = global_TessOCR_module_instance->last_obtained_results.results.begin();

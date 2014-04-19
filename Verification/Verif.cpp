@@ -14,6 +14,8 @@ using std::endl;
 void Stub_Verify :: execute(imgdata_t *imdata){
 	cout << "Stub Verification" << endl;
 	
+	bool allow_pausing_while_showing_images = true;
+	
 
 	if(imdata->shape.empty())
 		cout << "no shape found!" << endl;
@@ -31,19 +33,19 @@ void Stub_Verify :: execute(imgdata_t *imdata){
 	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
 			i < imdata->image_data->end(); ++i){
 		cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
-		cv::waitKey(0);
+		if(allow_pausing_while_showing_images){cv::waitKey(0);}
 	}
 
 	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
 			i < imdata->sseg_image_data->end(); ++i){
 		cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
-		cv::waitKey(0);
+		if(allow_pausing_while_showing_images){cv::waitKey(0);}
 	}
 
 	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
 			i < imdata->cseg_image_data->end(); ++i){
 		cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
-		cv::waitKey(0);
+		if(allow_pausing_while_showing_images){cv::waitKey(0);}
 	}
 	cv::destroyWindow("Image");
 

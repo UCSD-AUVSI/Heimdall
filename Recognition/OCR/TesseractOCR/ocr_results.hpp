@@ -27,7 +27,8 @@ public:
 
 	static bool SortByConfidence(const OCR_Result &lhs, const OCR_Result &rhs) {return (lhs.confidence > rhs.confidence);}
 	static bool SortByCharacter(const OCR_Result &lhs, const OCR_Result &rhs) {return (lhs.character > rhs.character);}
-
+	static bool SortByAngle(const OCR_Result &lhs, const OCR_Result &rhs) {return (lhs.relative_angle_of_character_to_source_image > rhs.relative_angle_of_character_to_source_image);}
+	
     std::string GetCharacterAsString();
 	void PrintMe(std::ostream* PRINTHERE);
 };
@@ -62,17 +63,22 @@ public:
 	bool empty() {return results.empty();}
     size_t size() {return results.size();}
     OCR_Result& operator[] (int x) {return results[x];}
+    
+    OCR_Result GetResultFromLetter(char letter_known_to_be_in_results);
+    bool ContainsLetter(char what_letter);
 
 	void PushBackNew(double CONFIDENCE, double ANGLE, char CHARACTER)
 	{
 		results.push_back(OCR_Result(CONFIDENCE,ANGLE,CHARACTER));
 	}
 
-	void EliminateDuplicates();
+	void EliminateDuplicates_ByAveraging();
+	void EliminateDuplicates_BySavingHighestConfidence();
 
     //descending order
 	void SortByConfidence() {std::sort(results.begin(), results.end(), OCR_Result::SortByConfidence);}
 	void SortByCharacter() {std::sort(results.begin(), results.end(), OCR_Result::SortByCharacter);}
+	void SortByAngle() {std::sort(results.begin(), results.end(), OCR_Result::SortByAngle);}
 
 	void EliminateCharactersBelowConfidenceLevel(double minimum_confidence);
 

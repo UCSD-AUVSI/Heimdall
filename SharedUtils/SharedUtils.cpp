@@ -5,8 +5,10 @@
  */
 
 #include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include <math.h>
 #include <iostream>
+#include <fstream>
 
 
 //-------------------------------------
@@ -136,6 +138,32 @@ std::string get_extension_from_filename(const std::string & filename)
 std::string eliminate_extension_from_filename(std::string & filename)
 {
     return trim_chars_after_delim(filename, '.', true);
+}
+
+
+bool check_if_file_exists(const std::string & filename)
+{
+	std::ifstream myfile(filename);
+	if(myfile.is_open() && myfile.good()) {
+		myfile.close();
+		return true;
+	}
+	return false;
+}
+
+
+bool check_if_directory_exists(const std::string & dir_name)
+{
+	return check_if_file_exists(dir_name);
+/*	tinydir_dir dir;
+	tinydir_open(&dir, dir_name.c_str());
+	if(dir.has_next)
+	{
+		tinydir_close(&dir);
+		return true;
+	}
+	tinydir_close(&dir);
+	return false;*/
 }
 
 

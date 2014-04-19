@@ -31,22 +31,20 @@ public:
 
 
 	int num_angles_to_check;
-	double percent_difference_of_total_confidence_of_top_two_characters_to_report_a_guess2;
 	double fraction_of_top_characters_to_keep_before_tossing_the_rest;
 
 
 
 	OCRModuleAlgorithm_Tesseract() :
 				num_angles_to_check(72),
-				percent_difference_of_total_confidence_of_top_two_characters_to_report_a_guess2(0.25),
 				fraction_of_top_characters_to_keep_before_tossing_the_rest(70.0 / 360.0)
 		{}
 
 
-	//if the returned vector (in last_obtained_results) is empty, no character was found with the desired confidence
-	//the returned vector may have two letters if there were two close guesses found
+	//"return_raw_tesseract_data" determines if the list of letters is chopped to the fraction above,
+	// or if all data at all angles is returned.
 	//
-	virtual bool do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE=nullptr, bool return_raw_tesseract_data=false);
+	virtual bool do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE=nullptr, bool return_raw_tesseract_data=false, bool return_empty_characters=false);
 
 
 
@@ -54,7 +52,7 @@ protected:
 
 	bool InitTesseract();
 
-	bool RotateAndRunOCR(cv::Mat matsrc, double angle_amount);
+	bool RotateAndRunOCR(cv::Mat matsrc, double angle_amount, bool return_empty_characters);
 };
 
 

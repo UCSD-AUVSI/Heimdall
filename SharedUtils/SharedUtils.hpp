@@ -100,7 +100,13 @@ inline std::string to_sstring(const T& t)
 	ss << (t);
 	return ss.str();
 }
-
+inline std::string char_to_string(const char & input)
+{
+	char tempstr[2];
+	tempstr[0] = input;
+	tempstr[1] = 0;
+	return std::string(tempstr);
+}
 
 
 #ifndef __stricmp
@@ -126,6 +132,9 @@ std::string get_extension_from_filename(const std::string & filename);
 std::string eliminate_extension_from_filename(std::string & filename);
 
 bool filename_extension_is_image_type(const std::string & filename_extension);
+
+bool check_if_file_exists(const std::string & filename);
+bool check_if_directory_exists(const std::string & dir_name);
 
 
 
