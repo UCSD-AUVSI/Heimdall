@@ -46,6 +46,7 @@ enum alg_t{
 	//OCR
 	STUB_OCR,
 	TESS_OCR,
+	GOCR_OCR,
 
 	//Verification
 	STUB_VERIF

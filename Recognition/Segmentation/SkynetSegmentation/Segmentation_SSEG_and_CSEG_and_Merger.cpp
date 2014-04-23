@@ -106,12 +106,12 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
             if(returned_SSEGs->empty()==false)
             {
                 saveImage(*returned_SSEGs->begin(),
-                    (*folder_path_of_output_saved_images) + std::string("/SSEG__") + (*name_of_target_image) + std::string(".jpg"));
+                    (*folder_path_of_output_saved_images) + std::string("/") + (*name_of_target_image) + std::string("__SSEG.png"));
             }
             if(returned_CSEGs->empty()==false)
             {
                 saveImage(*returned_CSEGs->begin(),
-                    (*folder_path_of_output_saved_images) + std::string("/CSEG__") + (*name_of_target_image) + std::string(".jpg"));
+                    (*folder_path_of_output_saved_images) + std::string("/") + (*name_of_target_image) + std::string("__CSEG.png"));
             }
         }
     }

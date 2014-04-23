@@ -86,7 +86,7 @@ void CheckValidityOfResults_shaperec	(std::ostream* PRINTHERE, test_data_results
 {
     if(results_to_check.empty())
     {
-        consoleOutput.Level2() << "no good guesses of a shape name!";
+        consoleOutput.Level3() << "no good guesses of a shape name!";
 
         if(correct_shape_name != nullptr && correct_shape_name->empty())
         {
@@ -104,7 +104,7 @@ void CheckValidityOfResults_shaperec	(std::ostream* PRINTHERE, test_data_results
     }
     else if(results_to_check.size() == 1)
     {
-        consoleOutput.Level2() << "one good guess found:  ";
+        consoleOutput.Level3() << "one good guess found:  ";
 
 #if DO_MAYBE_PRINTS
         if(PRINTHERE != nullptr)
@@ -134,10 +134,10 @@ void CheckValidityOfResults_shaperec	(std::ostream* PRINTHERE, test_data_results
 #if DO_MAYBE_PRINTS
         if(PRINTHERE != nullptr)
         {
-            consoleOutput.Level2() << "two good, close guesses found:" << std::endl;
-            consoleOutput.Level2() << "1st guess:\t";
+            consoleOutput.Level3() << "two good, close guesses found:" << std::endl;
+            consoleOutput.Level3() << "1st guess:\t";
             results_to_check.results[0].PrintMe(PRINTHERE);
-            consoleOutput.Level2() << "2nd guess:\t";
+            consoleOutput.Level3() << "2nd guess:\t";
             results_to_check.results[1].PrintMe(PRINTHERE);
         }
 #endif

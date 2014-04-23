@@ -40,8 +40,9 @@ public:
     //
     std::ostream& Level0(); //you can use this for runtime errors, or just use std::cout
     std::ostream& Level1(); //interesting stuff that doesn't fill much space in the console
-    std::ostream& Level2(); //more debugging stuff, that takes up more space in the console
-    std::ostream& Level3(); //testing debug stuff that may fill up a ton of space in the console
+    std::ostream& Level2(); //gap level for stuff you may be currently testing
+    std::ostream& Level3(); //more debugging stuff, that takes up more space in the console
+    std::ostream& Level4(); //testing debug stuff that may fill up a ton of space in the console
 };
 std::ostream& operator<< (std::ostream& stream, const OutputMessageHandler& msg);
 

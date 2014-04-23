@@ -124,18 +124,18 @@
 
             if((area_of_largest_contour / total_area_of_all_contours) < 0.85)
             {
-                consoleOutput.Level1() << std::endl << std::string("percent area of largest SSEG: ")
-                << to_sstring(area_of_largest_contour / total_area_of_all_contours) << std::endl << std::endl;
+                consoleOutput.Level3() << std::string("percent area of largest SSEG: ")
+                << to_sstring(area_of_largest_contour / total_area_of_all_contours) << std::endl;
 
-                consoleOutput.Level1() << std::endl << std::string("the merger module decided to toss an ugly looking SSEG!") << std::endl;
-                consoleOutput.Level2() << std::string("################################################################################") << std::endl;
+                consoleOutput.Level3() << std::endl << std::string("the merger module decided to toss an ugly looking SSEG!") << std::endl;
                 consoleOutput.Level3() << std::string("################################################################################") << std::endl;
+                consoleOutput.Level4() << std::string("################################################################################") << std::endl;
 
                 input_SSEGs->clear();
                 input_CSEGs->clear();
             }
             else
-                consoleOutput.Level2() << std::endl << std::string("percent area of largest SSEG: ")
+                consoleOutput.Level3() << std::endl << std::string("percent area of largest SSEG: ")
                 << to_sstring(area_of_largest_contour / total_area_of_all_contours) << std::endl << std::endl;
         }
     }
@@ -144,10 +144,10 @@
     {
         if(input_CSEGs->empty() && input_SSEGs->empty()==false)
         {
-            consoleOutput.Level1() << std::endl << std::string("the merger module decided to toss the SSEG because there was no CSEG!") << std::endl;
-            consoleOutput.Level2() << std::string("################################################################################") << std::endl;
+            consoleOutput.Level3() << std::endl << std::string("the merger module decided to toss the SSEG because there was no CSEG!") << std::endl;
             consoleOutput.Level3() << std::string("################################################################################") << std::endl;
             consoleOutput.Level3() << std::string("################################################################################") << std::endl;
+            consoleOutput.Level4() << std::string("################################################################################") << std::endl;
 
             input_SSEGs->clear();
             input_CSEGs->clear();

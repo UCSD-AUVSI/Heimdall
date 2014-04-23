@@ -13,6 +13,7 @@
 #include "Recognition/ShapeRec/PolygonShapeRec/Shaperec_BackboneInterface.hpp"
 #include "Recognition/OCR/StubOCR.hpp"
 #include "Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp"
+#include "Recognition/OCR/GOCR/GOCR_BackboneInterface.hpp"
 #include "GUIRec/GUIRec.hpp"
 
 #include "Verification/Verif.hpp"

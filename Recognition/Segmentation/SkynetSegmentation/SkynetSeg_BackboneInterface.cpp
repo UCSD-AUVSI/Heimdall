@@ -34,7 +34,7 @@ void SkynetSeg :: execute(imgdata_t *imdata)
 		
 		if(save_ssegs_and_csegs) {
 			saveImage(cropped_input_image,
-				folder_to_save_SSEGs_and_CSEGs + std::string("/crop__") + name_of_input_crop + std::string(".jpg"));
+				folder_to_save_SSEGs_and_CSEGs + std::string("/") + name_of_input_crop + std::string("__crop.jpg"));
 		}
 
 

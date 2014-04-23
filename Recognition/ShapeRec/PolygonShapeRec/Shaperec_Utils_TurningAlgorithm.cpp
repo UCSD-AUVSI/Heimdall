@@ -653,7 +653,7 @@ ComparisonReturnedTable::ComparisonReturnedTable(double aaa, double bbb, int ccc
 
 void ComparisonReturnedTable::PrintMe()
 {
-    consoleOutput.Level2() << " " << metric << " " << relative_angle_to_reference << " " << tr_ii << " " << tr_ff << " " << hht0_err << " " << sslope_err << std::endl;
+    consoleOutput.Level3() << " " << metric << " " << relative_angle_to_reference << " " << tr_ii << " " << tr_ff << " " << hht0_err << " " << sslope_err << std::endl;
 }
 
 

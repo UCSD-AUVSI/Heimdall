@@ -52,6 +52,12 @@ std::ostream& OutputMessageHandler::Level3()
 		return std::cout;
 	return unprinted_output_stops_here;
 }
+std::ostream& OutputMessageHandler::Level4()
+{
+	if(AcceptableOutputLevel >= 4)
+		return std::cout;
+	return unprinted_output_stops_here;
+}
 //-------------------------------------
 
 

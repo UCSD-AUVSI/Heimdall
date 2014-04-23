@@ -140,7 +140,7 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
             single_total_error_value /= static_cast<double>(input_mats->size());
 
 //============================================
-            consoleOutput.Level3() << std::string("calculating average mat...unnormed err: ") << to_sstring(single_total_error_value);
+            consoleOutput.Level4() << std::string("calculating average mat...unnormed err: ") << to_sstring(single_total_error_value);
 //============================================
 
 
@@ -157,7 +157,7 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
 
 
 //============================================
-            consoleOutput.Level3() << std::string(", 1st normed err: ") << to_sstring(single_total_error_value);
+            consoleOutput.Level4() << std::string(", 1st normed err: ") << to_sstring(single_total_error_value);
 //============================================
 
 
@@ -168,8 +168,8 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
 
 
 //============================================
-            consoleOutput.Level3() << std::string(", final ");
-            consoleOutput.Level2() << std::string("normed err: ") << to_sstring(single_total_error_value) << std::endl;
+            consoleOutput.Level4() << std::string(", final ");
+            consoleOutput.Level3() << std::string("normed err: ") << to_sstring(single_total_error_value) << std::endl;
 //============================================
 
 

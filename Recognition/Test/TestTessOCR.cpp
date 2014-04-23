@@ -1,6 +1,7 @@
 #include "Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp"
-#include "Recognition/OCR/TesseractOCR/ocr_module_main.hpp"
+#include "Recognition/OCR/OCRUtils/ocr_module_main.hpp"
 #include "Recognition/OCR/TesseractOCR/ocr_algorithm_tesseract.hpp"
+#include "Recognition/OCR/GOCR/ocr_algorithm_gocr.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "SharedUtils/cvplot.h"
@@ -15,10 +16,15 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 	std::string folder_path_str(argv[1]);
-	assert(global_TessOCR_module_instance != nullptr);
+	
+	consoleOutput.SetAcceptableOutputLevel(2); //should enable GOCR printing
 	
 	int num_files_found = 0;
 	bool found_at_least_one_CSEG = false;
+	
+	AnyOCR_Module_Main my_AnyOCR_module_instance;
+	//my_AnyOCR_module_instance.my_ocr_algorithm = new OCRModuleAlgorithm_Tesseract();
+	my_AnyOCR_module_instance.my_ocr_algorithm = new OCRModuleAlgorithm_GOCR();
 	
 	
 tinydir_dir dir;
@@ -50,52 +56,53 @@ while(dir.has_next)
 				cv::imshow("Display Image", *given_CSEGs.rbegin());
 				
 				
-				global_TessOCR_module_instance->RotateAndGetLetterCandidates(&given_CSEGs);//, true);
-				OCR_ResultsContainer saved_results_at_all_angles = global_TessOCR_module_instance->last_obtained_results;
+				my_AnyOCR_module_instance.RotateAndGetLetterCandidates(&given_CSEGs, true);
+				OCR_ResultsContainer saved_results_at_all_angles = my_AnyOCR_module_instance.last_obtained_results;
 				saved_results_at_all_angles.SortByConfidence();
-				global_TessOCR_module_instance->SiftThroughCandidates(4);
+				my_AnyOCR_module_instance.SiftThroughCandidates(4);
 				
 				
-				if(global_TessOCR_module_instance->last_obtained_results.size() != 1) {
+				if(my_AnyOCR_module_instance.last_obtained_results.size() != 1) {
 					std::cout << "warning, OCR didn't successfully find ONE (and only one) good letter, should probably retry" << std::endl;
 				}
 				
 				
-				if(global_TessOCR_module_instance->last_obtained_results.empty() == false)
+				if(my_AnyOCR_module_instance.last_obtained_results.empty() == false)
 				{
-					//global_TessOCR_module_instance->last_obtained_results.SortByAngle();
+					//my_AnyOCR_module_instance.last_obtained_results.SortByAngle();
 					
-					std::cout << "OCR found (" << to_istring(global_TessOCR_module_instance->last_obtained_results.size()) << " GOOD letters): " << std::endl;
-					std::cout << "OCR reported its best guess to be: " << global_TessOCR_module_instance->GetBestCandidate() << std::endl;
+					std::cout << "OCR found (" << to_istring(my_AnyOCR_module_instance.last_obtained_results.size()) << " GOOD letters): " << std::endl;
+					std::cout << "================================ OCR's best guess: " << my_AnyOCR_module_instance.GetBestCandidate() << std::endl;
 					
 					
 					//collect data for plotting
 					std::map<char, std::vector<unsigned char>> character_plots;
 					std::string all_plotted_chars;
-					int letter_vec_iter_pos = -1;
-					int angle_iter_pos = -1;
-					int max_angle_iter_pos = saved_results_at_all_angles.size() / 2;
-					int delta_angle_of_step = RoundDoubleToInteger(360.0 / static_cast<double>(max_angle_iter_pos));
+					int max_angle_iter_pos = (saved_results_at_all_angles.size() / 2);
+					double delta_angle_of_step = (360.0 / static_cast<double>(max_angle_iter_pos));
+					int angle_iter = 0;
 					
 					std::vector<OCR_Result>::iterator char_results_iter;
 					for(char_results_iter = saved_results_at_all_angles.results.begin();
 						char_results_iter != saved_results_at_all_angles.results.end();
 						char_results_iter++)
 					{
-						letter_vec_iter_pos++;
-						angle_iter_pos = (letter_vec_iter_pos / 2); // (0/2) == 0, (1/2) == 0, (2/2) == 1, (3/2) == 1, ...
-						
-						if(character_plots.find(char_results_iter->character) == character_plots.end())
+						if(char_results_iter->character != ' ')
 						{
-							character_plots[char_results_iter->character] = std::vector<unsigned char>(max_angle_iter_pos, 0);
-							all_plotted_chars.push_back(char_results_iter->character);
-							
-							if(global_TessOCR_module_instance->last_obtained_results.ContainsLetter(char_results_iter->character)) {
-								//char_results_iter->PrintMe(&(std::cout));
-								global_TessOCR_module_instance->last_obtained_results.GetResultFromLetter(char_results_iter->character).PrintMe(&std::cout);
+							if(character_plots.find(char_results_iter->character) == character_plots.end())
+							{
+								character_plots[char_results_iter->character] = std::vector<unsigned char>(max_angle_iter_pos,0);
+								all_plotted_chars.push_back(char_results_iter->character);
+								
+								if(my_AnyOCR_module_instance.last_obtained_results.ContainsLetter(char_results_iter->character)) {
+									//char_results_iter->PrintMe(&(std::cout));
+									my_AnyOCR_module_instance.last_obtained_results.GetResultFromLetter(char_results_iter->character).PrintMe(&std::cout);
+								}
 							}
+							
+							angle_iter = RoundDoubleToInteger(char_results_iter->relative_angle_of_character_to_source_image / delta_angle_of_step);
+							character_plots[char_results_iter->character][angle_iter]++;
 						}
-						character_plots[char_results_iter->character][angle_iter_pos]++;
 					}
 					
 					
@@ -104,7 +111,7 @@ while(dir.has_next)
 					std::map<char, std::vector<unsigned char>>::iterator letter_plot_iter = character_plots.begin();
 					for(; letter_plot_iter != character_plots.end(); letter_plot_iter++)
 					{
-						if(global_TessOCR_module_instance->last_obtained_results.ContainsLetter(letter_plot_iter->first))
+						if(my_AnyOCR_module_instance.last_obtained_results.ContainsLetter(letter_plot_iter->first))
 						{
 							//step argument can be "delta_angle_of_step" if (360 / delta_angle) is a whole number
 							CvPlot::plot(all_plotted_chars, &(letter_plot_iter->second[0]), letter_plot_iter->second.size(), 1, plotcol_i);
@@ -113,6 +120,7 @@ while(dir.has_next)
 							plotcol_i++;
 						}
 					}
+					
 					
 					cv::waitKey(0);
 					CvPlot::clear(all_plotted_chars);

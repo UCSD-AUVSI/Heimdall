@@ -17,7 +17,7 @@ const std::map<std::string, std::vector<std::string>> selectMap =
 	{"saliency", 	{"SSALIENCY", "STUB_SALIENCY", "GUISAL"}},
 	{"seg",			{"SKYNET_SEG", "STUB_SEG", "GUIREC"}},
 	{"srec", 		{"POLYGON_SREC", "TEMPLATE_SREC"}},
-	{"ocr", 		{"TESS_OCR", "STUB_OCR"}},
+	{"ocr", 		{"TESS_OCR", "GOCR_OCR", "STUB_OCR"}},
 	{"verif", 		{"STUB_VERIF"}}
 };
 
@@ -36,6 +36,7 @@ const std::map<std::string, alg_t> algStrMap =
 	{"POLYGON_SREC",	POLYGON_SREC},
 	{"STUB_OCR", 		STUB_OCR},
 	{"TESS_OCR", 		TESS_OCR},
+	{"GOCR_OCR", 		GOCR_OCR},
 	{"STUB_VERIF", 		STUB_VERIF},
 	{"NONE",			NONE}
 };
@@ -71,6 +72,7 @@ const std::map<alg_t, std::vector<zmqport_t>> distPortMap =
 	{POLYGON_SREC,	{SSEG_PUSH, TARGET_PULL}},
 	{STUB_OCR,		{CSEG_PUSH, TARGET_PULL}},
 	{TESS_OCR,		{CSEG_PUSH, TARGET_PULL}},
+	{GOCR_OCR,		{CSEG_PUSH, TARGET_PULL}},
 	{STUB_VERIF,	{TARGET_PUSH, VERIFIED_PULL}},
 	{NONE,			{}}
 };
@@ -89,6 +91,7 @@ const std::map<alg_t, void (*)(imgdata_t *)> algFuncMap =
 	{POLYGON_SREC,	PolygonShapeRec :: execute},
 	{STUB_OCR, 		StubOCR :: execute},
 	{TESS_OCR, 		TessOCR :: execute},
+	{GOCR_OCR, 		GOCRBackboneInterface :: execute},
 	{STUB_VERIF,	Stub_Verify :: execute},
 	{NONE,			0}
 };

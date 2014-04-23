@@ -36,7 +36,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
         consoleOutput.Level0() << "WARNING: Segmenter_SingleImageReturn::findShape() given an empty cv::Mat (with zero pixels)!" << std::endl;
         return colorImg;
     }
-    //consoleOutput.Level2() << std::string("---- beginning segmentation from: ") << name_of_process_calling_this_function << std::endl;
+    //consoleOutput.Level3() << std::string("---- beginning segmentation from: ") << name_of_process_calling_this_function << std::endl;
 
     cv::Mat converted_mat;
     ConvertMat_UsingSettings(colorImg, converted_mat,
@@ -75,7 +75,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     //note that the returned results are sorted by circularity (descending; most circular first)
     //
     std::vector<ColorBlob*> roundishBlobs = getRoundishBlobs_ByCircularity(interiorBlobs, 0.1f);
-//consoleOutput.Level2() << std::string("num roundish blobs: ") << to_istring(roundishBlobs.size()) << std::endl;
+//consoleOutput.Level3() << std::string("num roundish blobs: ") << to_istring(roundishBlobs.size()) << std::endl;
 
 
 

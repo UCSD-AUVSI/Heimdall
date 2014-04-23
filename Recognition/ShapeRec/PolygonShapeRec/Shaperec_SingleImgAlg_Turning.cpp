@@ -194,7 +194,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 
 	if(show_stuff_while_working)
 	{
-        consoleOutput.Level2() << "found " << TargContours.size() << " contours in the SSEG" << std::endl;
+        consoleOutput.Level3() << "found " << TargContours.size() << " contours in the SSEG" << std::endl;
 
 		cv::cvtColor(mat_for_display, mat_for_display, CV_GRAY2BGR);
 		mat_for_display = cv::Scalar(0);
@@ -207,7 +207,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 	double area_of_whole_image = static_cast<double>(mat_for_display.rows * mat_for_display.cols);
 
 	if(show_stuff_while_working)
-        consoleOutput.Level2() << "area of contour: " << area_of_contour << "    \tarea of whole image: " << area_of_whole_image << std::endl;
+        consoleOutput.Level3() << "area of contour: " << area_of_contour << "    \tarea of whole image: " << area_of_whole_image << std::endl;
 
 
 
@@ -279,7 +279,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 													min_absolute_confidence_threshold,
 													max_relative_confidence_threshold,
 													min_relative_confidence_threshold,
-													show_stuff_while_working ? (&consoleOutput.Level2()) : nullptr,
+													show_stuff_while_working ? (&consoleOutput.Level3()) : nullptr,
 													show_stuff_while_working,
 													show_stuff_while_working);
 

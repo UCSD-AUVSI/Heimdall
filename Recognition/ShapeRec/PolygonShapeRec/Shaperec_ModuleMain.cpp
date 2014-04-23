@@ -39,7 +39,7 @@ void ShapeRecModule_Main::DoModule(std::vector<cv::Mat>* input_SSEG_images,
 
     if(input_SSEG_images != nullptr && single_shape_namer_algorithm != nullptr)
     {
-        consoleOutput.Level2() << std::string("shaperec: number of input SSEGs:") << to_istring(input_SSEG_images->size()) << std::endl;
+        consoleOutput.Level3() << std::string("shaperec: number of input SSEGs:") << to_istring(input_SSEG_images->size()) << std::endl;
 
         if(input_SSEG_images->empty())
         {
@@ -48,7 +48,7 @@ void ShapeRecModule_Main::DoModule(std::vector<cv::Mat>* input_SSEG_images,
         }
 
 //-----------------------------------------------------------------------------------
-            UpdateResultsAttemptsData_shaperec(&consoleOutput.Level2(), optional_results_info, last_obtained_results, correct_shape_name);
+            UpdateResultsAttemptsData_shaperec(&consoleOutput.Level3(), optional_results_info, last_obtained_results, correct_shape_name);
 //-----------------------------------------------------------------------------------
 
 
@@ -81,7 +81,7 @@ void ShapeRecModule_Main::DoModule(std::vector<cv::Mat>* input_SSEG_images,
         //now, example contents: square
 
 //-----------------------------------------------------------------------------------
-        CheckValidityOfResults_shaperec(&consoleOutput.Level2(), optional_results_info, last_obtained_results, correct_shape_name);
+        CheckValidityOfResults_shaperec(&consoleOutput.Level3(), optional_results_info, last_obtained_results, correct_shape_name);
 //-----------------------------------------------------------------------------------
     }
     else

@@ -83,20 +83,20 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
 
 //=======================================================================
             if(test_number >= 0)
-                UpdateResultsAttemptsData_SSEG(&consoleOutput.Level2(), (test_number < 0) ? nullptr : ((*optional_results_info_vec)[test_number]), I_was_given_a_real_character_and_shape_name_to_compare);
+                UpdateResultsAttemptsData_SSEG(&consoleOutput.Level3(), (test_number < 0) ? nullptr : ((*optional_results_info_vec)[test_number]), I_was_given_a_real_character_and_shape_name_to_compare);
 
-            UpdateResultsAttemptsData_SSEG(&consoleOutput.Level2(), all_segmentations_test_data_checker, I_was_given_a_real_character_and_shape_name_to_compare);
+            UpdateResultsAttemptsData_SSEG(&consoleOutput.Level3(), all_segmentations_test_data_checker, I_was_given_a_real_character_and_shape_name_to_compare);
 
 
             if(foundshape_filled_binary.empty() == false)
             {
                 if(test_number >= 0)
-                    CheckValidityOfResults_SSEG(&consoleOutput.Level2(), (test_number < 0) ? nullptr : ((*optional_results_info_vec)[test_number]),
+                    CheckValidityOfResults_SSEG(&consoleOutput.Level3(), (test_number < 0) ? nullptr : ((*optional_results_info_vec)[test_number]),
                                             foundshape_filled_binary.empty()==false,
                                             I_was_given_a_real_character_and_shape_name_to_compare,
                                             name_of_target_image);
 
-                CheckValidityOfResults_SSEG(&consoleOutput.Level2(), all_segmentations_test_data_checker,
+                CheckValidityOfResults_SSEG(&consoleOutput.Level3(), all_segmentations_test_data_checker,
                                         foundshape_filled_binary.empty()==false,
                                         I_was_given_a_real_character_and_shape_name_to_compare,
                                         name_of_target_image);
