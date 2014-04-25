@@ -10,7 +10,7 @@ using std::endl;
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 
-void GUISaliency :: execute(imgdata_t *data){
-	setDone(data, GUISAL);
+void GUISaliency :: execute(imgdata_t *data, std::string args){
+	setDone(data, SALIENCY);
 	cout << "GUI Saliency" << endl;
 }

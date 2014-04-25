@@ -6,7 +6,7 @@
 
 class SSaliency : AUVSI_Algorithm{
 	public:
-		static void execute(imgdata_t *data);
+		static void execute(imgdata_t *data, std::string args);
 };
 
 class SaliencyModule_C_SBD;

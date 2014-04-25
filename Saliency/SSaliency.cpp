@@ -16,8 +16,8 @@
 using std::cout;
 using std::endl;
 
-void SSaliency :: execute(imgdata_t *imdata){
-	setDone(imdata, SSALIENCY);
+void SSaliency :: execute(imgdata_t *imdata, std::string args){
+	setDone(imdata, SALIENCY);
 	cout << "SSaliency" << endl;
 	
 	if(global_SSaliency_module_instance == nullptr)

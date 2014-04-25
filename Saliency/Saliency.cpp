@@ -11,7 +11,7 @@
 using std::cout;
 using std::endl;
 
-void Stub_Saliency :: execute(imgdata_t *imdata){
-	setDone(imdata, STUB_SALIENCY);
+void Stub_Saliency :: execute(imgdata_t *imdata, std::string args){
+	setDone(imdata, SALIENCY);
 	cout << "Stub Saliency" << endl;
 }

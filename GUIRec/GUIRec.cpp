@@ -10,7 +10,9 @@ using std::endl;
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 
-void GUIRec :: execute(imgdata_t *data){
-	setDone(data, GUIREC);
+void GUIRec :: execute(imgdata_t *data, std::string args){
+	setDone(data, SEG);
+	setDone(data, SREC);
+	setDone(data, OCR);
 	cout << "GUI Recognition" << endl;
 }

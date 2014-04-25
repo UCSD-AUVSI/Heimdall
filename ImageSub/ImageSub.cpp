@@ -10,6 +10,6 @@ using std::endl;
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 
-void ImageSub :: execute(imgdata_t *data){
+void ImageSub :: execute(imgdata_t *data, std::string args){
 	cout << "ImageSub" << endl;
 }

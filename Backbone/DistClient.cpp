@@ -1,151 +1,222 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <list>
 
 #include <thread>
 #include <iostream>
+#include <iomanip>
 
 #include <zmq.hpp>
 
 #include "Backbone/Backbone.hpp"
+#include "Backbone/Maps.hpp"
+#include "Backbone/DistMaps.hpp"
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/IMGData.hpp"
-#include "Backbone/DistMaps.hpp"
 #include "Backbone/DistClient.hpp"
+#include "Backbone/PortHandling.hpp"
 
 using std::cout;
 using std::endl;
 
-DistClient :: DistClient(std::string addr, void (*workfunc)(imgdata_t*), std::vector<zmqport_t> ports){
-	func = workfunc;
-	portList = ports;
-	server_addr = addr;	
+DistClient :: DistClient(std::string addr, void (*workfunc)(imgdata_t*, std::string), AlgClass alg_class, std::string arguments){
+    func = workfunc;
+    alg = alg_class;
+    server_addr = addr;
+    args = arguments;
 }
 
 void DistClient :: run(){
-	std::thread workThr(&DistClient::work, this);
-	workThr.detach();	
+    std::thread workThr(&DistClient::work, this);
+    workThr.detach();   
 }
 
 void DistClient :: work(){
-	zmq::context_t context(1);
+    zmq::context_t context(1);
 
-	zmq::socket_t pull_socket(context, ZMQ_PULL);
-	std::string addr = "tcp://" + server_addr + ":" + std::to_string(portList[0]); //Always pulling from one port
-	pull_socket.connect(addr.c_str());
+    std::vector<int> pull_port_list = getDistPullPorts(alg);
+    std::vector<int> push_port_list = getDistPushPorts(alg);
 
-	std::list<zmq::socket_t*> pushsockets;
+    bool pull_needed = (pull_port_list.size() > 0);
 
-	for(int i = 1; i < portList.size(); i++){ //May push to multiple ports
-		//On heap, and while true, but should be freed when process exits anyway
-		zmq::socket_t *pushsocket = new zmq::socket_t(context, ZMQ_PUSH); 
-		addr = "tcp://" + server_addr + ":" + std::to_string(portList[i]);
-		pushsocket->connect(addr.c_str());
-		pushsockets.push_back(pushsocket);
-	}
+    //Initialize sockets
+    zmq::socket_t pull_socket(context, ZMQ_PULL);
+    zmq::socket_t push_socket(context, ZMQ_PUSH);
 
-	imgdata_t data;
-	while(true){
-		zmq::message_t *msg = new zmq::message_t();
-		pull_socket.recv(msg);
+    if(pull_needed){
+        //Connect pull socket
+        std::string port_str = "tcp://" + server_addr + ":" + std::to_string(pull_port_list.front());
+        pull_socket.connect(port_str.c_str());
+    }
 
-		unpackMessageData(&data, msg);
+    //Connect push socket
+    std::string port_str = "tcp://" + server_addr + ":" + std::to_string(push_port_list.front());
+    push_socket.connect(port_str.c_str());
 
-		func(&data);
-		
-		for(zmq::socket_t *sock : pushsockets){	
-			while(data.image_data->size() > 0){
-				zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&data));
-				packMessageData(sendmsg, &data);
-				sock->send(*sendmsg);
-				data.image_data->back()->clear();
-				data.image_data->pop_back();
-				data.cropid++;
-			}
-		}
+    while(true){
+        imgdata_t imdata;
+        initEmptyIMGData(&imdata);
+        if(pull_needed){
+            zmq::message_t *msg = new zmq::message_t();
+            pull_socket.recv(msg);
 
-		clearIMGData(&data);
-		delete msg;
-	}
+            unpackMessageData(&imdata, msg);
+            delete msg;
+        }
+
+        func(&imdata, args);
+
+        // Send one message per new image crop in imgdata
+        while(imdata.image_data->size() > 0){
+            // Need to allocate on heap, too large for stack
+            zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
+            packMessageData(sendmsg, &imdata);
+            push_socket.send(*sendmsg);
+            delete sendmsg;
+            
+            imdata.image_data->back()->clear();
+            imdata.image_data->pop_back();
+            imdata.cropid++;
+        }
+    }
 }
 
 void DistClient :: usage(){
-	cout << "Usage: ./DistClient [OPTION]..."  << endl;
-	cout << "Starts multiple clients running individual algorithms in separate threads.\n" << endl;
+    cout << "Usage: ./DistClient [OPTION]..."  << endl;
+    cout << "Starts multiple clients running individual algorithms in separate threads.\n" << endl;
 
-	cout << "Command Line Options: \n" << endl;
-	cout << "\t--server\t\tServer IP Address\n" << endl;
-	cout << "\tAlgorithm Options: \n" << endl;
+    cout << "Command Line Options: \n" << endl;
+    cout << "\t--server\t\tServer IP Address\n" << endl;
+    cout << "\tAlgorithm Options: \n" << endl;
 
-	for(auto& x: selectMap){
-		cout << "\t--" << x.first << endl;
-		for(std::string alg : x.second){
-			cout << "\t\t" << alg << endl;
-		}
-		cout << endl;
-	}
-	cout << endl;
+    for(auto& x: alg_choice_map){
+        cout << "\t--" << x.first << endl;
+        for(std::string alg : x.second){
+            cout << "\t\t" << alg << endl;
+        }
+        cout << endl;
+    }
+    cout << endl;
+    cout << "Arguments to the clients can be included in square brackets ([]) after the algorithm is specified" << endl;
+    cout << "E.g. --ocr TESS_OCR [--arguments value --arguments_2 value_2]" << endl << endl;
 }
 
 int main(int argc, char* argv[]){
-	int i = 1;
+    int i = 1;
 
-	std::string addr = "localhost"; //Default Server Address
+    std::string addr = "localhost"; //Default Server Address
 
-	std::string alg;
-	std::vector<std::string> alglist;
 
-	std::map<std::string, alg_t> local_algStrMap;
+    std::map<std::string, std::string> local_alg_map;
+    std::map<std::string, std::string> local_args_map;
 
-	for(auto& x: selectMap){
-		local_algStrMap.insert(std::pair<std::string, alg_t>(x.first, algStrMap.at(x.second[0])));
-	}
+    for(auto& x: alg_choice_map){
+        local_alg_map.insert(std::pair<std::string, std::string>(x.first, x.second[0]));
+        local_args_map.insert(std::pair<std::string, std::string>(x.first, ""));
+    }
 
-	for(int i = 1; i < argc; i++){
-		if(std::string(argv[i]) == "--server"){
-			if(++i >= argc){
-				DistClient::usage();
-				return -1;
-			}
-			addr = argv[i];
-		}
-		else{
-			try{
-				std::string algtype = std::string(argv[i]);
-				algtype = algtype.substr(2); //Strip off two dashes
+    // Process arguments
+    for(int i = 1; i < argc; i++){
+        // Display Help
+        if(std::string(argv[i]) == "--help"){
+            DistClient::usage();
+            return -1;
+        }
+        // Check for server
+        else if(std::string(argv[i]) == "--server"){
+            if(++i >= argc){
+                DistClient::usage();
+                return -1;
+            }
+            //TODO: Check if addr is a valid address
+            addr = argv[i];
+        }
+        // Check for user-specified algorithm choices
+        else{
+            // Get Algorithm Class
+            std::string alg_class = std::string(argv[i]).substr(2); //Strip off two dashes
 
-				alglist = selectMap.at(algtype);
+            std::vector<std::string> alg_list;
+            try{
+                alg_list = alg_choice_map.at(alg_class);
+            }   
+            catch(const std::out_of_range &oor){
+                DistClient :: usage();
+                return -1;
+            }
 
-				if(++i >= argc){
-					DistClient::usage();
-					return -1;
-				}
-				alg = std::string(argv[i]);
+            if(++i >= argc){
+                DistClient::usage();
+                return -1;
+            }
 
-				if(std::find(alglist.begin(), alglist.end(), alg) == alglist.end()){
-					DistClient :: usage();
-					return -1;
-				}
+            // Get Algorithm Implementation
+            std::string alg = std::string(argv[i]);
 
-				local_algStrMap[algtype] = algStrMap.at(alg);
-			}	
-			catch(const std::out_of_range &oor){
-				DistClient :: usage();
-				return -1;
-			}
-		}
-	}
+            if(std::find(alg_list.begin(), alg_list.end(), alg) == alg_list.end()){
+                DistClient :: usage();
+                return -1;
+            }
 
-	for(auto& x: local_algStrMap){
-		if(x.second != NONE){
-			DistClient* dc = new DistClient(addr, algFuncMap.at(x.second), distPortMap.at(x.second));
-			dc->run();	
-		}
-	}
+            // We now have an algorithm that is indeed one of the possible ones
+            // Put this in our local map
+            local_alg_map[alg_class] = alg;
 
-	cout << "Press any key to exit." << endl;
-	getchar();
+            // Check if next string in argument list is an argument for the DistClient
+            if(i + 1 < argc && std::string(argv[i+1]).front() == '[' && std::string(argv[i+1]).back() == ']'){
+                std::string arg_str(argv[i+1]);
+                // Cut off brackets
+                arg_str = arg_str.substr(1, arg_str.size()-2);
+                local_args_map[alg_class] = arg_str;
 
-	return 0;
+                i++;
+            }
+        }
+    }
+
+    DistClient* dc = 0;   
+    std::locale loc;
+
+    // Now spin off individual threads for each algorithm
+    for(auto& x: local_alg_map){
+        // User could specifically want to run no algorithm
+        // for a certain algorithm class
+        if(x.second != "NONE"){
+            // Print what algorithm has been chosen
+            std::string alg_class_str = x.first;
+            std::string alg_args = local_args_map[alg_class_str];
+
+            std::transform(alg_class_str.begin(), alg_class_str.end(), alg_class_str.begin(), toupper);
+            cout << "Algorithm for ";
+            cout << std::setfill('.') << std::setw(15) << std::left << alg_class_str;
+            cout << std::setfill(' ') << std::setw(15) << std::left << x.second << endl;
+            cout << "With arguments: " << alg_args << endl;
+
+            AlgClass alg_class;
+            try{
+                alg_class = alg_class_str_map.at(x.first);
+            }
+            catch(const std::out_of_range &oor){
+                // The perils of using strings for keys instead of stuff that will be caught at compile time
+                cout << "\nThere is an inconsistancy between alg_choice_map and alg_class_str_map in DistMaps.cpp. ";
+                cout << x.first << " is not in alg_class_str_map.\n" << endl;
+                return -1;
+            }
+
+            try{
+                dc = new DistClient(addr, alg_func_map.at(x.second), alg_class, alg_args);
+            }
+            catch(const std::out_of_range &oor){
+                cout << "\nAlgorithm " << x.second << " is not mapped correctly. Check DistMaps.cpp\n" << endl;
+                return -1;
+            }
+            dc->run();  
+        }
+    }
+    cout << endl;
+
+    cout << "Press any key to exit." << endl;
+    getchar();
+
+    return 0;
 }

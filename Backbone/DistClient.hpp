@@ -10,16 +10,16 @@
 
 class DistClient : public Client
 {
-	public:
-		DistClient(std::string addr, void (*workfunc)(imgdata_t*), std::vector<zmqport_t> portList);
-		void run();
-	    static void usage();
-	
-	private:
-		std::string server_addr;
-		void (*func)(imgdata_t*);
-		std::vector<zmqport_t> portList;
-		void work();
+    public:
+        DistClient(std::string addr, void (*workfunc)(imgdata_t*, std::string), AlgClass alg_class, std::string arguments);
+        void run();
+        static void usage();
+    
+    private:
+        std::string server_addr, args;
+        void (*func)(imgdata_t*, std::string);
+        AlgClass alg;
+        void work();
 };
 
 #endif

@@ -6,7 +6,7 @@
 
 class Stub_Verify : AUVSI_Algorithm {
 	public:
-		static void execute(imgdata_t *data);
+		static void execute(imgdata_t *data, std::string args);
 };
 
 #endif

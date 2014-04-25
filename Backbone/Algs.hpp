@@ -1,7 +1,9 @@
 #ifndef ALGS_H
 #define ALGS_H
 
-#include "ORGR/ORGR.hpp"
+#include "ImagePush/FilePush.hpp"
+
+#include "Orthorect/Orthorect.hpp"
 
 #include "Saliency/SSaliency.hpp"
 #include "Saliency/Saliency.hpp"

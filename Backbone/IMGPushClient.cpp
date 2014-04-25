@@ -8,9 +8,11 @@
 #include <zmq.hpp>
 
 #include "Backbone/Backbone.hpp"
+#include "Backbone/Maps.hpp"
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/IMGPushClient.hpp"
+#include "Backbone/PortHandling.hpp"
 
 #include "opencv2/opencv.hpp"
 
@@ -23,112 +25,112 @@ using std::endl;
  */
 
 IMGPushClient :: IMGPushClient(std::string addr, std::string imageloc){
-	server_addr = addr;
-	image = imageloc;
+    server_addr = addr;
+    image = imageloc;
 }
 
 void IMGPushClient :: run(){
-	std::thread workThr(&IMGPushClient::work, this);
-	workThr.detach();	
+    std::thread workThr(&IMGPushClient::work, this);
+    workThr.detach();   
 }
 
 void IMGPushClient :: work(){
-	zmq::context_t context(1);
+    zmq::context_t context(1);
 
-	zmq::socket_t pushsocket(context, ZMQ_PUSH);
-	std::string addr = "tcp://" + server_addr + ":" + std::to_string(IMAGES_PULL);
-	pushsocket.connect(addr.c_str());
+    zmq::socket_t pushsocket(context, ZMQ_PUSH);
+    std::string addr = "tcp://" + server_addr + ":" + std::to_string(getServerPullPorts(IMAGES).at(0));
+    pushsocket.connect(addr.c_str());
 
-	int sendcount = 0;
-	while(sendcount == 0){
-		imgdata_t imdata;
-		imdata.id = sendcount++;
-		initEmptyIMGData(&imdata);
-		
-		std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
-		cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
-		imdata.image_data->push_back(newarr);
-		
-		/*
-		newarr = new std::vector<unsigned char>();
-		cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_GRAYSCALE), *newarr);
-		imdata.sseg_image_data->push_back(newarr);
-		
-		newarr = new std::vector<unsigned char>();
-		cv::imencode(".jpg", cv::imread(image), *newarr);
-		imdata.cseg_image_data->push_back(newarr);
-		*/
+    int sendcount = 0;
+    while(sendcount == 0){
+        imgdata_t imdata;
+        imdata.id = sendcount++;
+        initEmptyIMGData(&imdata);
+        
+        std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
+        cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
+        imdata.image_data->push_back(newarr);
+        
+        newarr = new std::vector<unsigned char>();
+        cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_GRAYSCALE), *newarr);
+        imdata.sseg_image_data->push_back(newarr);
+        
+        newarr = new std::vector<unsigned char>();
+        cv::imencode(".jpg", cv::imread(image), *newarr);
+        imdata.cseg_image_data->push_back(newarr);
 
-		zmq::message_t msg(messageSizeNeeded(&imdata));
-		packMessageData(&msg, &imdata);
+        zmq::message_t msg(messageSizeNeeded(&imdata));
+        packMessageData(&msg, &imdata);
 
-		cout << "Sending " << msg.size() << " bytes" << endl;
+        cout << "Sending " << msg.size() << " bytes" << endl;
 
-		pushsocket.send(msg);
-		
-		clearIMGData(&imdata);
-		
-		std::chrono::milliseconds dura(5000);
-		std::this_thread::sleep_for(dura);
-	}
+        pushsocket.send(msg);
+        
+        clearIMGData(&imdata);
+        
+        std::chrono::milliseconds dura(5000);
+        std::this_thread::sleep_for(dura);
+    }
 }
 
 void IMGPushClient :: usage(){
-	cout << "Usage: ./IMGPushClient [OPTION]..."  << endl;
-	cout << "Starts a client that pushes images to the server every 1 second\n" << endl;
+    cout << "Usage: ./IMGPushClient [OPTION]..."  << endl;
+    cout << "Starts a client that pushes images to the server every 1 second\n" << endl;
 
-	cout << "Command Line Options: \n" << endl;
-	cout << "\t--server\tServer IP Address (default localhost)\n" << endl;
-	cout << "\t--image\t\tPath to image to push (default ./foo.jpg)\n" << endl;
+    cout << "Command Line Options: \n" << endl;
+    cout << "\t--server\tServer IP Address (default localhost)\n" << endl;
+    cout << "\t--image\t\tPath to image to push (default ./foo.jpg)\n" << endl;
 }
 
 int main(int argc, char* argv[]){
 
-	std::string addr = "localhost"; //Default Server Address
-	std::string image = "./foo.jpg"; //Default Image Location
+    std::string addr = "localhost"; //Default Server Address
+    std::string image = "./foo.jpg"; //Default Image Location
 
-	//Read in command line arguments
-	for(int i = 1; i < argc; i++){
-		std::string arg = std::string(argv[i]);	
-		if(arg == "--server"){
-			if(++i >= argc){
-				IMGPushClient::usage();
-				return -1;
-			}
-			addr = std::string(arg);
-		}
-		else if(arg == "--image"){
-			if(++i >= argc){
-				IMGPushClient::usage();
-				return -1;
-			}
-			image = std::string(argv[i]);
-		}
-		else{
-			IMGPushClient::usage();
-			return -1;
-		}
-	}
+    //Read in command line arguments
+    for(int i = 1; i < argc; i++){
+        std::string arg = std::string(argv[i]); 
+        if(arg == "--server"){
+            if(++i >= argc){
+                IMGPushClient::usage();
+                return -1;
+            }
+            addr = std::string(arg);
+        }
+        else if(arg == "--image"){
+            if(++i >= argc){
+                IMGPushClient::usage();
+                return -1;
+            }
+            image = std::string(argv[i]);
+        }
+        else{
+            IMGPushClient::usage();
+            return -1;
+        }
+    }
 
-	//Check if image exists
-	if(FILE *file = fopen(image.c_str(), "r")){
-		fclose(file);
-	}
-	else{
-		cout << "Image not found!" << endl;
-		IMGPushClient::usage();
-		return -1;
-	}
+    //Check if image exists
+    if(FILE *file = fopen(image.c_str(), "r")){
+        fclose(file);
+    }
+    else{
+        cout << "Image not found!" << endl;
+        IMGPushClient::usage();
+        return -1;
+    }
 
-	cout << "Running with following parameters: \n" << endl;
-	cout << "Server Address: " << addr << endl;
-	cout << "Image Location: " << image << endl;
+    cout << "Running with following parameters: \n" << endl;
+    cout << "Server Address: " << addr << endl;
+    cout << "Image Location: " << image << endl;
 
-	IMGPushClient* ipc = new IMGPushClient(addr, image);
-	ipc->run();
+    IMGPushClient* ipc = new IMGPushClient(addr, image);
+    ipc->run();
 
-	cout << "Press any key to exit. \n\n" << endl;
-	getchar();
+    cout << "Press any key to exit. \n\n" << endl;
+    getchar();
+    
+    delete ipc;
 
-	return 0;
+    return 0;
 }

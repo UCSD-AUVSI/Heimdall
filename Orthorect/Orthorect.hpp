@@ -1,10 +1,10 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef ORTHORECT_H
+#define ORTHORECT_H
 
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 
-class Display : AUVSI_Algorithm{
+class Stub_Orthorect : AUVSI_Algorithm {
 	public:
 		static void execute(imgdata_t *data, std::string args);
 };

@@ -11,7 +11,7 @@
 using std::cout;
 using std::endl;
 
-void Stub_Verify :: execute(imgdata_t *imdata){
+void Stub_Verify :: execute(imgdata_t *imdata, std::string args){
 	cv::startWindowThread();
 	cv::namedWindow("Image", CV_WINDOW_NORMAL);
 	for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
@@ -33,6 +33,6 @@ void Stub_Verify :: execute(imgdata_t *imdata){
 	}
 	cv::destroyWindow("Image");
 
-	setDone(imdata, STUB_VERIF);
+	setDone(imdata, VERIF);
 	cout << "Stub Verification" << endl << endl;
 }

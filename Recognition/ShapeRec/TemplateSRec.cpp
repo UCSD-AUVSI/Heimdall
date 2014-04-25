@@ -7,7 +7,7 @@ using std::endl;
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
 
-void TemplateSRec :: execute(imgdata_t *data){
-	setDone(data, TEMPLATE_SREC);
+void TemplateSRec :: execute(imgdata_t *data, std::string args){
+	setDone(data, SREC);
 	cout << "Template Shape Rec" << endl;	
 }

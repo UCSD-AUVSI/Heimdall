@@ -6,87 +6,93 @@
 #include <zmq.hpp>
 
 #include "Backbone/Backbone.hpp"
+#include "Backbone/Maps.hpp"
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/BackStore.hpp"
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
-#include "Backbone/ServerMaps.hpp"
+#include "Backbone/PortHandling.hpp"
 
 #include "opencv2/opencv.hpp"
 
 using std::cout;
 using std::endl;
 
-void setupPort(zmqport_t pullPort, std::vector<zmqport_t> pushPorts, zmqport_t pubPort){
-	zmq::context_t context(1);
+void startServerPort(std::vector<AlgClass> alg_class_list){
+    zmq::context_t context(1);
 
-	bool send = pushPorts[0]?1:0;
+    std::vector<int> pull_port_list = getServerPullPorts(alg_class_list);
+    std::vector<int> push_port_list = getServerPushPorts(alg_class_list);
+    std::vector<int> pub_port_list  = getServerPubPorts(alg_class_list);
 
-	//Initialize the sockets
-	zmq::socket_t pull_socket(context, ZMQ_PULL);
-	zmq::socket_t pubSocket(context, ZMQ_PUB);
+    bool push_msgs = (push_port_list.size() > 0);
+    bool pub_msgs = (pub_port_list.size() > 0);
 
-	std::vector<zmq::socket_t*> pushsockets;
-	for(int i = 0; i < pushPorts.size(); i++){ //May push to multiple ports
-		//On heap, and while true, but should be freed when process exits anyway
-		zmq::socket_t *pushsocket = new zmq::socket_t(context, ZMQ_PUSH); 
-		pushsockets.push_back(pushsocket);
-	}
+    //Initialize the sockets
+    zmq::socket_t pull_socket(context, ZMQ_PULL);
+    zmq::socket_t publish_socket(context, ZMQ_PUB);
 
-	//Setup the sockets
-	std::string port = "tcp://*:" + std::to_string(pullPort);
-	pull_socket.bind(port.c_str());
-	if(send){
-		for(int i = 0; i < pushPorts.size(); i++){
-			port = "tcp://*:" + std::to_string(pushPorts[i]);
-			pushsockets[i]->bind(port.c_str());
-		}
-	}
-	if(pubPort){
-		port = "tcp://*:" + std::to_string(pubPort);
-		pubSocket.bind(port.c_str());
-	}
+    std::vector<zmq::socket_t*> push_sockets;
+    for(int i = 0; i < push_port_list.size(); i++){ //May push to multiple ports
+        push_sockets.push_back(new zmq::socket_t(context, ZMQ_PUSH));
+    }
 
-	imgdata_t imdata;
-	while(true){
-		zmq::message_t *msg = new zmq::message_t();
-		pull_socket.recv(msg);
-		
-		unpackMessageData(&imdata, msg);
-	
-		if(img_update(&imdata)){
-			if(send){
-				for(zmq::socket_t *sock : pushsockets){	
-					zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
-					packMessageData(sendmsg, &imdata);
-					sock->send(*sendmsg);
-				}
-			}
-			if(pubPort){
-				pubSocket.send(*msg);
-			}
-			if(imdata.verified){
-				img_delete(&imdata);	
-			}
-		}
+    //Setup the sockets
+    std::string port_str = "tcp://*:" + std::to_string(pull_port_list.front());
+    pull_socket.bind(port_str.c_str());
 
-		clearIMGData(&imdata);
-		delete msg;
-	}
+    if(push_msgs){
+        int count = 0;
+        for(int port : push_port_list){
+            port_str = "tcp://*:" + std::to_string(port);
+            push_sockets[count++]->bind(port_str.c_str());
+        }
+    }
+
+    if(pub_msgs){
+        port_str = "tcp://*:" + std::to_string(pub_port_list.front());
+        publish_socket.bind(port_str.c_str());
+    }
+    
+    imgdata_t imdata;
+    while(true){
+        zmq::message_t *msg = new zmq::message_t();
+        pull_socket.recv(msg);
+
+        unpackMessageData(&imdata, msg);
+
+        if(img_update(&imdata)){
+            if(imdata.verified){
+                img_delete(&imdata);    
+            }
+            for(zmq::socket_t *sock : push_sockets){
+                zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
+                packMessageData(sendmsg, &imdata);
+                sock->send(*sendmsg);
+                delete sendmsg;
+            }
+            if(pub_msgs){
+                publish_socket.send(*msg);
+            }
+        }
+
+        clearIMGData(&imdata);
+        delete msg;
+    }
+
+    for(zmq::socket_t *sock : push_sockets){
+        delete sock;
+    }
 }
 
 int main(int argc, char* argv[]){
-	// TODO: Allow for multiple publish ports
-	for(int i = 0; i < NUM_SERVER_THREADS; i++){
-		std::thread newThread(setupPort, 
-				(serverPullPortMap.at(i))[0], 
-				serverPushPortMap.at(i), 
-				(serverPubPortMap.at(i))[0]);
-		newThread.detach();
-	}
+    for(auto& x: alg_class_dependency_map){
+        std::thread newThread(startServerPort, x.first);
+        newThread.detach();
+    }
 
-	cout << "Press any key to quit" << endl;
-	getchar();
+    cout << "Press any key to quit" << endl;
+    getchar();
 
-	return 0;
+    return 0;
 }

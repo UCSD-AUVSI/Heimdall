@@ -7,7 +7,7 @@ using std::endl;
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
 
-void TessOCR :: execute(imgdata_t *data){
-	setDone(data, TESS_OCR);
+void TessOCR :: execute(imgdata_t *data, std::string args){
+	setDone(data, OCR);
 	cout << "Tesseract OCR" << endl;
 }
