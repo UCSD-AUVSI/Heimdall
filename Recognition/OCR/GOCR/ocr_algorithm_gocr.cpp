@@ -27,7 +27,7 @@ void OCRModuleAlgorithm_GOCR::do_SiftThroughCandidates(OCR_ResultsContainer & gi
 	
 	std::map<char, int> char_appearances;
 	std::map<char, double> char_std_deviances;
-	std::map<char, double> char_std_deviances__doublebinned;
+	//std::map<char, double> char_std_deviances__doublebinned;
 	std::map<char, double> char_confidences;
 	std::map<char, double> char_angles;
 	
@@ -40,11 +40,21 @@ void OCRModuleAlgorithm_GOCR::do_SiftThroughCandidates(OCR_ResultsContainer & gi
 			{
 				char_appearances[riter->character] = 0;
 				
-				double letter_standard_deviance = 0.0;
-				char_angles[riter->character] = OCR_ResultsContainer::GetMeanAngle_FromOCRResults(given_results.results, riter->character, &letter_standard_deviance);
-				char_std_deviances[riter->character] = letter_standard_deviance;
-				
-				//char_std_deviances__doublebinned[riter->character] = OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults(given_results.results, riter->character);
+				if(letter_has_only_one_orientation(riter->character))
+				{
+					double letter_standard_deviance = 0.0;
+					char_angles[riter->character] = OCR_ResultsContainer::GetMeanAngle_FromOCRResults(given_results.results, riter->character, &letter_standard_deviance);
+					char_std_deviances[riter->character] = letter_standard_deviance;
+				}
+				else if(letter_has_two_orientations(riter->character))
+				{
+					char_std_deviances[riter->character] = 0.5 * OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults(given_results.results, riter->character);
+				}
+				else
+				{
+					//what to do here? don't bother calculating?
+					char_std_deviances[riter->character] = 1.0;
+				}
 			}
 			char_appearances[riter->character]++;
 		}
@@ -57,9 +67,10 @@ void OCRModuleAlgorithm_GOCR::do_SiftThroughCandidates(OCR_ResultsContainer & gi
 	std::map<char, int>::iterator miter = char_appearances.begin();
 	for(; miter != char_appearances.end(); miter++)
 	{
-		if(char_appearances[miter->first] >= 3)
+		if(char_appearances[miter->first] >= 5)
 		{
-			char_confidences[miter->first] = (static_cast<double>(char_appearances[miter->first]) / char_std_deviances[miter->first]);
+			double its_num_appearances = static_cast<double>(char_appearances[miter->first]);
+			char_confidences[miter->first] = (pow(its_num_appearances, 1.0) / pow(char_std_deviances[miter->first], 1.0));
 		}
 		else
 		{

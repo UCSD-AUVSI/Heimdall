@@ -8,6 +8,9 @@
 
 
 double AverageTwoAngles(double angle1, double angle2);
+bool letter_has_only_one_orientation(char letter);
+bool letter_has_two_orientations(char letter);
+bool letter_is_difficult_and_easily_mixed_up(char letter);
 
 
 class OCR_Result
@@ -44,6 +47,19 @@ public:
 	OCR_ResultFinal(double CONFIDENCE, double TOTAL_NET_CONFIDENCE, double ANGLE, char CHARACTER)
 			: OCR_Result(CONFIDENCE,ANGLE,CHARACTER), total_net_confidence(TOTAL_NET_CONFIDENCE) {}
 	OCR_ResultFinal(const OCR_ResultFinal &rhs) : OCR_Result(rhs), total_net_confidence(rhs.total_net_confidence) {}
+};
+
+
+class OCR_angle_sorter
+{
+public:
+	char the_letter;
+	double its_angle;
+	
+	OCR_angle_sorter() : the_letter(' '), its_angle(0.0) {}
+	OCR_angle_sorter(char THE_LETTER, double ITS_ANGLE) : the_letter(THE_LETTER), its_angle(ITS_ANGLE) {}
+	
+	static bool SortByAngle(const OCR_angle_sorter &lhs, const OCR_angle_sorter &rhs) {return (lhs.its_angle > rhs.its_angle);}
 };
 
 
@@ -107,10 +123,10 @@ public:
 	static double GetMeanConfidence(std::vector<OCR_Result> & theresults, char character);
 
 	static double GetMeanAngle_FromOCRResults(std::vector<OCR_Result> & theresults, char character, double* returned_standard_deviance=nullptr);
+	static double GetMeanAngle_From_OCR_angle_sorter(std::vector<OCR_angle_sorter> & thebin, double* returned_standard_deviance=nullptr);
 	
 	static double Get_DoubleBinned_StdDev_FromOCRResults(std::vector<OCR_Result> & theresults, char character);
 };
-
 
 
 class OCR_duplicate_eliminator

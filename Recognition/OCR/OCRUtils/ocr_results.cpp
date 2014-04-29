@@ -1,6 +1,6 @@
 /**
  * @file ocr_results.cpp
- * @brief Sets up OCR module results containers, to be used (returned by) any OCR module.
+ * @brief OCR utility functions; also sets up utility OCR results containers, to be used by any OCR module.
  * @author Jason Bunk
  */
 
@@ -8,6 +8,29 @@
 #include "SharedUtils/SharedUtils.hpp"
 #include <map>
 #include <math.h>
+
+
+std::string letters_with_only_one_orientation ("ABCDEFG  JKLM  PQR TUVW Y abcdefghijk mn pqr tuvw y  1234567 9");
+std::string letters_with_only_two_orientations(       "HI    N    S    X Z           l      s    x z        8 ");
+std::string letters_with_more_than_two_orients(              "O                         o           0");
+
+std::string letters_that_are_easily_mixed_up  (  "C     I   MNOP  S  VWX Z bcd  g    lmnopq s uvwx z01    6  9");
+
+bool letter_has_only_one_orientation(char letter)
+{
+	if(letter == ' '){return false;}
+	return (letters_with_only_one_orientation.find(letter) != letters_with_only_one_orientation.npos);
+}
+bool letter_has_two_orientations(char letter)
+{
+	if(letter == ' '){return false;}
+	return (letters_with_only_two_orientations.find(letter) != letters_with_only_two_orientations.npos);
+}
+bool letter_is_difficult_and_easily_mixed_up(char letter)
+{
+	if(letter == ' '){return false;}
+	return (letters_that_are_easily_mixed_up.find(letter) != letters_that_are_easily_mixed_up.npos);
+}
 
 
 std::string OCR_Result::GetCharacterAsString()
@@ -278,41 +301,129 @@ std::vector<OCR_Result> OCR_ResultsContainer::GetTopNResults(int max_num_results
 }
 
 
-/*static*/ double OCR_ResultsContainer::GetMeanAngle_FromOCRResults(std::vector<OCR_Result> & theresults, char character, double* returned_standard_deviance/*=nullptr*/)
+void Add_Componentwise_AngleVectors(std::vector<OCR_Result> & input_letters,
+													char whichletter,
+													double & returned_x,
+													double & returned_y,
+													int & returned_num_appearances)
 {
+	std::vector<OCR_Result>::iterator iter = input_letters.begin();
+	for(; iter != input_letters.end(); iter++)
+	{
+		if(iter->character == whichletter)
+		{
+			returned_x += cos(iter->relative_angle_of_character_to_source_image * 0.017453292519943296); //to radians
+			returned_y += sin(iter->relative_angle_of_character_to_source_image * 0.017453292519943296);
+			returned_num_appearances++;
+		}
+	}
+}
+
+			
+void Add_Componentwise_AngleVectors(std::vector<OCR_angle_sorter> & input_letters,
+													double & returned_x,
+													double & returned_y,
+													int & returned_num_appearances)
+{
+	std::vector<OCR_angle_sorter>::iterator iter = input_letters.begin();
+	for(; iter != input_letters.end(); iter++)
+	{
+		returned_x += cos(iter->its_angle * 0.017453292519943296); //to radians
+		returned_y += sin(iter->its_angle * 0.017453292519943296);
+		returned_num_appearances++;
+	}
+}
+
+
+double CalculateMeanAndStdDev(double & xx, double & yy, double num_appearances, double* returned_standard_deviance)
+{
+	if(returned_standard_deviance != nullptr || num_appearances < 1.5) {
+		(*returned_standard_deviance) = 2.0;
+	}
+	
 	//for the math behind this function, see:
 	//https://en.wikipedia.org/wiki/Directional_statistics
 	
-	double xx = 0.0;
-	double yy = 0.0;
-	int num_appearances = 0;
-
-	std::vector<OCR_Result>::iterator iter = theresults.begin();
-	for(; iter != theresults.end(); iter++)
-	{
-		if(iter->character == character)
-		{
-			xx += cos(iter->relative_angle_of_character_to_source_image * 0.017453292519943296); //to radians
-			yy += sin(iter->relative_angle_of_character_to_source_image * 0.017453292519943296);
-			num_appearances++;
-		}
-	}
-
 	if((fabs(xx)+fabs(yy)) < 0.000001)
 		return 0.0;
 	
 	if(returned_standard_deviance != nullptr) {
-		double mean_length_sq = pow(xx/static_cast<double>(num_appearances),2.0) + pow(yy/static_cast<double>(num_appearances),2.0);
+		double mean_length_sq = pow(xx/num_appearances,2.0) + pow(yy/num_appearances,2.0);
 		(*returned_standard_deviance) = sqrt(log(1.0/mean_length_sq));
 	}
 
 	return (atan2(yy,xx) * 57.295779513082321); //back to degrees
 }
 
+
+/*static*/ double OCR_ResultsContainer::GetMeanAngle_FromOCRResults(std::vector<OCR_Result> & theresults, char character, double* returned_standard_deviance/*=nullptr*/)
+{	
+	double xx = 0.0, yy = 0.0;
+	int num_appearances = 0;
+	Add_Componentwise_AngleVectors(theresults, character, xx, yy, num_appearances);
+	return CalculateMeanAndStdDev(xx, yy, static_cast<double>(num_appearances), returned_standard_deviance);
+}
+
+
+/*static*/ double OCR_ResultsContainer::GetMeanAngle_From_OCR_angle_sorter(std::vector<OCR_angle_sorter> & thebin, double* returned_standard_deviance/*=nullptr*/)
+{
+	double xx = 0.0, yy = 0.0;
+	int num_appearances = 0;
+	Add_Componentwise_AngleVectors(thebin, xx, yy, num_appearances);
+	return CalculateMeanAndStdDev(xx, yy, static_cast<double>(num_appearances), returned_standard_deviance);
+}
+
+
 /*static*/ double OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults(std::vector<OCR_Result> & theresults, char character)
 {
-	std::cout << "todo: OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults()" << std::endl;
-	return 0.0;
+	double bin_left_meanangle, bin_rght_meanangle;
+	double bin_left_stddev,  bin_rght_stddev;
+	
+	std::vector<double> saved_total_stddevs;
+	
+	std::vector<OCR_angle_sorter> bin_left;
+	std::vector<OCR_angle_sorter> bin_rght;
+	
+	std::vector<OCR_Result>::iterator iter = theresults.begin();
+	for(; iter != theresults.end(); iter++)
+	{
+		if(iter->character == character)
+		{
+			bin_left.push_back(OCR_angle_sorter(character, iter->relative_angle_of_character_to_source_image));
+		}
+	}
+	
+	while(bin_left.empty() == false)
+	{
+		bin_left_meanangle = GetMeanAngle_From_OCR_angle_sorter(bin_left, &bin_left_stddev);
+		bin_rght_meanangle = GetMeanAngle_From_OCR_angle_sorter(bin_left, &bin_rght_stddev);
+		
+		saved_total_stddevs.push_back(bin_left_meanangle + bin_rght_meanangle);
+		
+		
+		//--------------
+		std::cout << "leftbin tot_stddev: " << saved_total_stddevs.back() << ", \t";
+		for(std::vector<OCR_angle_sorter>::iterator biniter = bin_left.begin(); biniter != bin_left.end(); biniter++) {
+			std::cout << biniter->the_letter;
+		}
+		std::cout << std::endl;
+		//--------------
+		
+		
+		bin_rght.push_back(bin_left.back());
+		bin_left.pop_back();
+	}
+	
+	if(saved_total_stddevs.empty() == false) {
+		std::sort(saved_total_stddevs.begin(), saved_total_stddevs.end());
+		
+		//--------------
+		std::cout << "returned total stddev: " << saved_total_stddevs.front() << std::endl;
+		//--------------
+		
+		return saved_total_stddevs.front();
+	}
+	return 5.0;
 }
 
 
