@@ -7,12 +7,36 @@
 #include "Backbone/IMGData.hpp"
 #include "Backbone/Algs.hpp"
 #include "opencv2/opencv.hpp"
+#include "SharedUtils/SharedUtils.hpp"
 
 using std::cout;
 using std::endl;
 
+/*extern*/ std::fstream* outfile_verif_results = nullptr;
+/*extern*/ bool outfile_verif_results_has_been_opened = false;
+
 void Stub_Verify :: execute(imgdata_t *imdata){
 	cout << "Stub Verification" << endl;
+	
+	bool both_cseg_and_sseg_succeeded = (imdata->sseg_image_data->empty()==false && imdata->sseg_image_data->empty()==false);
+	bool save_output_file = false;
+	
+	if(outfile_verif_results == nullptr) {
+		if(outfile_verif_results_has_been_opened == false) {
+			outfile_verif_results = new std::fstream();
+			std::string output_folder("../../output_images");
+			save_output_file = (check_if_directory_exists(output_folder) && outfile_verif_results!=nullptr);
+			if(save_output_file) {
+				outfile_verif_results_has_been_opened = true;
+				outfile_verif_results->open(output_folder+std::string("/verif_results.txt"),
+						std::fstream::trunc | std::fstream::out); //clear the file of data (if it existed): we're about to rewrite it
+				save_output_file = (outfile_verif_results->is_open() && outfile_verif_results->good());
+			}
+		}
+	}
+	else {
+		save_output_file = (outfile_verif_results->is_open() && outfile_verif_results->good());
+	}
 
 	if(imdata->shape.empty())
 		cout << "no shape found!" << endl;
@@ -25,14 +49,22 @@ void Stub_Verify :: execute(imgdata_t *imdata){
 		cout << "character found: \'" << imdata->character << "\'" << endl;
 	
 	
-	bool pause_and_show_images = true;
-	bool pause_and_show_ONLY_IF_SSEG_and_CSEG_succeeded = true;
+	if(both_cseg_and_sseg_succeeded && save_output_file) {
+		cout << "==============================wrote results to file" << endl;
+		(*outfile_verif_results) << "--------------------------------" << endl;
+		(*outfile_verif_results) << "target #" << imdata->internal_num_of_saved_cseg_and_sseg << endl;
+		(*outfile_verif_results) << "shape: " << imdata->shape << endl;
+		(*outfile_verif_results) << "char:  " << imdata->character << endl;
+		(*outfile_verif_results) << std::flush;
+	}
 	
+	
+	bool pause_and_show_images = false;
+	bool pause_and_show_ONLY_IF_SSEG_and_CSEG_succeeded = true;
 	
 	if(pause_and_show_images)
 	{
-		if(pause_and_show_ONLY_IF_SSEG_and_CSEG_succeeded==false
-			|| (imdata->sseg_image_data->empty()==false && imdata->sseg_image_data->empty()==false))
+		if(pause_and_show_ONLY_IF_SSEG_and_CSEG_succeeded==false || both_cseg_and_sseg_succeeded)
 		{
 			cv::startWindowThread();
 			cv::namedWindow("Image", CV_WINDOW_NORMAL);

@@ -309,6 +309,12 @@ std::vector<OCR_Result> OCR_ResultsContainer::GetTopNResults(int max_num_results
 	return (atan2(yy,xx) * 57.295779513082321); //back to degrees
 }
 
+/*static*/ double OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults(std::vector<OCR_Result> & theresults, char character)
+{
+	std::cout << "todo: OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults()" << std::endl;
+	return 0.0;
+}
+
 
 double AverageTwoAngles(double angle1, double angle2)
 {

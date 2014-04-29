@@ -127,6 +127,8 @@ unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(targetlat);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(targetlongt);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(targetorientation);
+	
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(internal_num_of_saved_cseg_and_sseg);
 		
 	
 	//the +1 in these is the null character \0 that terminates the string
@@ -209,6 +211,8 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(targetlat);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(targetlongt);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(targetorientation);
+	
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(internal_num_of_saved_cseg_and_sseg);
 	
 	
 	//the +1 in these is the null character \0 that terminated the string

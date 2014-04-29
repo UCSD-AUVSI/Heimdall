@@ -27,6 +27,7 @@ void OCRModuleAlgorithm_GOCR::do_SiftThroughCandidates(OCR_ResultsContainer & gi
 	
 	std::map<char, int> char_appearances;
 	std::map<char, double> char_std_deviances;
+	std::map<char, double> char_std_deviances__doublebinned;
 	std::map<char, double> char_confidences;
 	std::map<char, double> char_angles;
 	
@@ -42,6 +43,8 @@ void OCRModuleAlgorithm_GOCR::do_SiftThroughCandidates(OCR_ResultsContainer & gi
 				double letter_standard_deviance = 0.0;
 				char_angles[riter->character] = OCR_ResultsContainer::GetMeanAngle_FromOCRResults(given_results.results, riter->character, &letter_standard_deviance);
 				char_std_deviances[riter->character] = letter_standard_deviance;
+				
+				//char_std_deviances__doublebinned[riter->character] = OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults(given_results.results, riter->character);
 			}
 			char_appearances[riter->character]++;
 		}

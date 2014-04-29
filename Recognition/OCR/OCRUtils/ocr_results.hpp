@@ -107,6 +107,8 @@ public:
 	static double GetMeanConfidence(std::vector<OCR_Result> & theresults, char character);
 
 	static double GetMeanAngle_FromOCRResults(std::vector<OCR_Result> & theresults, char character, double* returned_standard_deviance=nullptr);
+	
+	static double Get_DoubleBinned_StdDev_FromOCRResults(std::vector<OCR_Result> & theresults, char character);
 };
 
 

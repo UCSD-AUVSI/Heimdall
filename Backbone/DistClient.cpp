@@ -14,6 +14,8 @@
 #include "Backbone/DistMaps.hpp"
 #include "Backbone/DistClient.hpp"
 
+#include "Verification/Verif.hpp" //for closing the results text file
+
 using std::cout;
 using std::endl;
 
@@ -146,6 +148,12 @@ int main(int argc, char* argv[]){
 
 	cout << "Press any key to exit." << endl;
 	getchar();
+	
+	if(outfile_verif_results != nullptr) {
+		outfile_verif_results->close();
+		delete outfile_verif_results;
+		outfile_verif_results = nullptr;
+	}
 
 	return 0;
 }

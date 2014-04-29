@@ -26,6 +26,12 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
 	first->sDone 		|= second->sDone;
 	first->cDone 		|= second->cDone;
 	first->verified 	|= second->verified;
+	
+	if(first->shape.size() > second->shape.size()) {
+		second->shape = first->shape;
+	} else {
+		first->shape = second->shape;
+	}
 }
 
 // TODO: Currently, BackStore does not save image data properly
