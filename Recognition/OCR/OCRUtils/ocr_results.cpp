@@ -393,6 +393,8 @@ double CalculateMeanAndStdDev(double & xx, double & yy, double num_appearances, 
 		}
 	}
 	
+	std::sort(bin_left.begin(), bin_left.end(), OCR_angle_sorter::SortByAngle);
+	
 	while(bin_left.empty() == false)
 	{
 		bin_left_meanangle = GetMeanAngle_From_OCR_angle_sorter(bin_left, &bin_left_stddev);
