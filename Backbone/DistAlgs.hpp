@@ -3,6 +3,7 @@
 
 #include "ImagePush/stub_push.hpp"
 #include "ImagePush/FilePush/file_push.hpp"
+#include "ImagePush/FolderPush/folder_push.hpp"
 
 #include "Orthorect/stub_orthorect.hpp"
 

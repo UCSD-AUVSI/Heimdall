@@ -11,7 +11,7 @@
 using std::cout;
 using std::endl;
 
-const bool kShowImages = true;
+const bool kShowImages = false;
 const bool kShowIfSsegCsegSuccess = true;
 
 std::fstream* outfile_verif_results = nullptr;
@@ -53,7 +53,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     if(both_cseg_and_sseg_succeeded && save_output_file) {
 		cout << "==============================wrote results to file" << endl;
 		(*outfile_verif_results) << "--------------------------------" << endl;
-		(*outfile_verif_results) << "target #" << imdata->internal_num_of_saved_cseg_and_sseg << endl;
+		(*outfile_verif_results) << "target #" << imdata->id << endl;
 		(*outfile_verif_results) << "shape: " << imdata->shape << endl;
 		(*outfile_verif_results) << "char:  " << imdata->character << endl;
 		(*outfile_verif_results) << std::flush;

@@ -14,7 +14,7 @@
 //Mapping between classes of algorithms and actual implementations
 const std::map<std::string, std::vector<std::string>> alg_choice_map =
 {
-    {"images",      {"SINGLE_FILE_PUSH", "STUB_PUSH", "NONE"}},
+    {"images",      {"SINGLE_FILE_PUSH", "FOLDER_PUSH", "STUB_PUSH", "NONE"}},
     {"orthorect",   {"STUB_ORTHORECT", "NONE"}},
     {"saliency",    {"SSALIENCY", "STUB_SALIENCY", "GUISAL", "NONE"}},
     {"seg",         {"SKYNET_SEG", "STUB_SEG", "GUIREC", "NONE"}},
@@ -28,6 +28,7 @@ const std::map<std::string, void (*)(imgdata_t *, std::string)> alg_func_map =
 {
     {"STUB_PUSH",           StubPush :: execute},
     {"SINGLE_FILE_PUSH",    FilePush :: execute},
+    {"FOLDER_PUSH",         FolderPush :: execute},
 
     {"STUB_ORTHORECT",      StubOrthorect :: execute},
 

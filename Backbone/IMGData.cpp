@@ -49,6 +49,7 @@ void clearIMGData(imgdata_t *data){
         for(std::vector<std::vector<unsigned char>*>::iterator i = data->image_data->begin();
                 i < data->image_data->end(); ++i){
             (*i)->clear();
+            delete *i;
         }
         data->image_data->clear();
         delete data->image_data;
@@ -58,6 +59,7 @@ void clearIMGData(imgdata_t *data){
         for(std::vector<std::vector<unsigned char>*>::iterator i = data->sseg_image_data->begin();
                 i < data->sseg_image_data->end(); ++i){
             (*i)->clear();
+            delete *i;
         }
         data->sseg_image_data->clear();
         delete data->sseg_image_data;
@@ -67,6 +69,7 @@ void clearIMGData(imgdata_t *data){
         for(std::vector<std::vector<unsigned char>*>::iterator i = data->cseg_image_data->begin();
                 i < data->cseg_image_data->end(); ++i){
             (*i)->clear();
+            delete *i;
         }
         data->cseg_image_data->clear();
         delete data->cseg_image_data;

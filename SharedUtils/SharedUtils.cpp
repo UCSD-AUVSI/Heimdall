@@ -175,6 +175,22 @@ bool check_if_directory_exists(const std::string & dir_name)
 
 bool filename_extension_is_image_type(const std::string & filename_extension)
 {
+    /*
+    std::string possible_extensions[14] = {".bmp", ".dib", ".jpeg",
+        ".jpg", ".jpe", ".jp2", ".png", ".pbm", ".pgm", ".ppm", ".sr"
+            ".ras", "tiff", ".tif"};
+
+    std::string check_extension = filename_extension;
+    std::transform(check_extension.begin(), check_extension.end(),
+                    check_extension.begin(), ::tolower);
+    for(std::string extension : possible_extensions){
+        if(filename_extension == possible_extensions){
+            return true;
+        }
+    }
+    return false;
+    */
+
     return (
 
         !__stricmp(filename_extension.c_str(), ".bmp")

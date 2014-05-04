@@ -4,7 +4,8 @@ set(imagepush_source_files
 	)
 
 add_subdirectory(FilePush)
+add_subdirectory(FolderPush)
 
 add_library(imagepush ${imagepush_source_files})
 
-target_link_libraries(imagepush filepush backbone)
+target_link_libraries(imagepush filepush folderpush backbone)

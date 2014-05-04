@@ -16,7 +16,7 @@
 #include "Backbone/DistClient.hpp"
 #include "Backbone/PortHandling.hpp"
 
-#include "Verification/Verif.hpp" //for closing the results text file
+#include "Verification/DisplayVerif/display_verif.hpp" //for closing the results text file
 
 using std::cout;
 using std::endl;
