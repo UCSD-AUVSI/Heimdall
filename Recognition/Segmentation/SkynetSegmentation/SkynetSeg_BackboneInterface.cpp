@@ -28,7 +28,9 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
 
 		//these two are optional; they tell the module where to save photos, and what name to assign this crop
 		std::string folder_to_save_SSEGs_and_CSEGs("../../output_images");
-		std::string name_of_input_crop(to_istring(++number_of_crops_saved));
+		number_of_crops_saved++;
+		std::string name_of_input_crop(to_istring(number_of_crops_saved));
+		imdata->internal_num_of_saved_cseg_and_sseg = number_of_crops_saved;
 		bool save_ssegs_and_csegs = check_if_directory_exists(folder_to_save_SSEGs_and_CSEGs);
 		
 		

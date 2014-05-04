@@ -52,7 +52,18 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     Skynet::NUM_BINS = attempt_settings.HistSeg_NUM_BINS;
     Skynet::MINIMUM_BLOB_SIZE_THRESHOLD = attempt_settings.HistSeg_MINIMUM_BLOB_SIZE_THRESHOLD;
     //---------------------------------------------------------
-
+	
+	/*
+		TODO: (as of April 28, 2014)
+			-- is there still a bug in the shape-filling-in that fills in too much areas of white beyond the shape outline?
+				I haven't seen it in a while...
+				ColorBlob::drawFilledIntoFalseColorImg(cv::Mat& img, unsigned char color)
+			-- get rid of noise speckles (right now they've been reduced to 1-pixel in size, but aren't completely erased)
+			-- to ensure that you get the blob of the shape (and not of the letter, as occasionally happens),
+				compare the size of the minimum-bounding-convex-polygon and get the bigger one
+				(do this after eliminating noise, so speckles aren't included in the convex outline)
+	*/
+	
 
     cv::blur(converted_mat, converted_mat, cv::Size(attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS,attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS));
     if(returned_mat_preprocessed != nullptr)

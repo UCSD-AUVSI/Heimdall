@@ -1,2 +1,4 @@
 # Ignore tag file
 tags
+# Ignore everything in build folder except for the template shapes for shaperec
+build/*

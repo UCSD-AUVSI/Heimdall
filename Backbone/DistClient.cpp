@@ -16,6 +16,8 @@
 #include "Backbone/DistClient.hpp"
 #include "Backbone/PortHandling.hpp"
 
+#include "Verification/Verif.hpp" //for closing the results text file
+
 using std::cout;
 using std::endl;
 
@@ -256,6 +258,12 @@ int main(int argc, char* argv[]){
 
     cout << "Press any key to exit." << endl;
     getchar();
+
+	if(outfile_verif_results != nullptr) {
+		outfile_verif_results->close();
+		delete outfile_verif_results;
+		outfile_verif_results = nullptr;
+	}
 
     //std::chrono::milliseconds dura(60000);
     //std::this_thread::sleep_for(dura);

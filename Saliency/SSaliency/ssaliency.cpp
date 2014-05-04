@@ -8,6 +8,7 @@
 #include "ssaliency.hpp"
 #include "saliency_module_C_SBD.hpp"
 #include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/SharedUtils_OpenCV.hpp"
 
 
 /*extern*/ SaliencyModule_C_SBD* global_SSaliency_module_instance = nullptr; //declared in SSaliency.hpp
@@ -24,7 +25,31 @@ void SSaliency :: execute(imgdata_t *imdata, std::string args){
 		global_SSaliency_module_instance = new SaliencyModule_C_SBD();
 		
 		global_SSaliency_module_instance->write_output_to_folder = false;
-		global_SSaliency_module_instance->settings.push_back(SaliencySettings()); //defaults to CieLAB color space
+		
+		bool environment_is_desert = false;
+		
+		if(environment_is_desert) {
+			global_SSaliency_module_instance->settings.push_back(SaliencySettings());
+			global_SSaliency_module_instance->settings.rbegin()->Canny_low_threshold = 50;
+			global_SSaliency_module_instance->settings.rbegin()->Canny_high_threshold = 120;
+			global_SSaliency_module_instance->settings.rbegin()->ColorConvert_CV_color_space = CV_BGR2Luv;
+			
+			global_SSaliency_module_instance->settings.push_back(SaliencySettings());
+			global_SSaliency_module_instance->settings.rbegin()->Canny_low_threshold = 50;
+			global_SSaliency_module_instance->settings.rbegin()->Canny_high_threshold = 120;
+			global_SSaliency_module_instance->settings.rbegin()->ColorConvert_CV_color_space = CV_BGR2Lab;
+			
+			/*global_SSaliency_module_instance->settings.push_back(SaliencySettings());
+			global_SSaliency_module_instance->settings.rbegin()->Canny_low_threshold = 5;
+			global_SSaliency_module_instance->settings.rbegin()->Canny_high_threshold = 250;
+			global_SSaliency_module_instance->settings.rbegin()->ColorConvert_CV_color_space = COLORSPACE_CONVERSIONTYPE_KEEPRGB;
+			global_SSaliency_module_instance->settings.rbegin()->ColorConvert_desired_CV_color_channels[0] = true;
+			global_SSaliency_module_instance->settings.rbegin()->ColorConvert_desired_CV_color_channels[1] = true;
+			global_SSaliency_module_instance->settings.rbegin()->ColorConvert_desired_CV_color_channels[2] = true;*/
+		} else {
+			global_SSaliency_module_instance->settings.push_back(SaliencySettings());
+		}
+		
 		global_SSaliency_module_instance->output_folder_to_save_crops = std::string();
 		global_SSaliency_module_instance->write_ALL_output_not_just_the_crops = false;
 	}

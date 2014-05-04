@@ -23,9 +23,14 @@ int main(int argc, char** argv) {
 	bool found_at_least_one_CSEG = false;
 	
 	AnyOCR_Module_Main my_AnyOCR_module_instance;
-	//my_AnyOCR_module_instance.my_ocr_algorithm = new OCRModuleAlgorithm_Tesseract();
-	my_AnyOCR_module_instance.my_ocr_algorithm = new OCRModuleAlgorithm_GOCR();
 	
+	if(false) {
+		my_AnyOCR_module_instance.my_ocr_algorithm = new OCRModuleAlgorithm_Tesseract();
+		std::cout << "OCR Module in use is Tesseract" << std::endl;
+	} else {
+		my_AnyOCR_module_instance.my_ocr_algorithm = new OCRModuleAlgorithm_GOCR();
+		std::cout << "OCR Module in use is GOCR" << std::endl;
+	}
 	
 tinydir_dir dir;
 tinydir_open(&dir, folder_path_str.c_str());
