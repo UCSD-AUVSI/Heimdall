@@ -2,7 +2,7 @@
 \usepackage{xcolor, graphicx}
 \usepackage[hypcap]{caption}
 \pagestyle{headings}
-\title{NUAUVSI \\ \large A Breakdown of the 2014 Software System \\ (Working Draft)}
+\title{Heimdall \\ \large A Breakdown of the 2014 Software System \\ (Working Draft)}
 \author{UCSD AUVSI 2014}
 \date{\today}
 
@@ -22,9 +22,9 @@
 \section{Introduction}
 \subsection{Competition and Requirements}
 
-The 2014 UCSD AUVSI Software System, also known as NUAUVSI, is designed around the AUVSI Seafarer Chapter SUAS Competition. This competition is centered around the design and construction of Small Unmanned Aerial Systems (SUAS) and the use of these vehicles to image targets on the ground. The teams must then report certain characteristics of these targets to the judges. NUAUVSI is therefore designed to receive target imagery and analyze it using Computer Vision (CV) algorithms. The system can then output its results for the judges to view. 
+The 2014 UCSD AUVSI Software System, also known as Heimdall, is designed around the AUVSI Seafarer Chapter SUAS Competition. This competition is centered around the design and construction of Small Unmanned Aerial Systems (SUAS) and the use of these vehicles to image targets on the ground. The teams must then report certain characteristics of these targets to the judges. Heimdall is therefore designed to receive target imagery and analyze it using Computer Vision (CV) algorithms. The system can then output its results for the judges to view. 
 
-Each team at competition is given a limited amount of time (generally around 30 minutes) to obtain imagery and analyze it. This adds constraints and requirements to the software system. The imaging system flown by UCSD AUVSI is designed to take at least one high quality image per second. Over the total flight time, this can add up to hundreds of images. The software system must process images quickly enough to analyze every image received from the plane in the allotted time. In addition to this, the system must be robust and stable. Continuous processing of large amounts of imagery can quickly cause programs to crash, and in a time-sensitive situation this can be catastrophic. Finally, an emphasis is placed on autonomy of the software. The goal of NUAUVSI is to process received imagery and output the necessary information with as little human interaction as possible. This again ties back into the stability of the system: a reliable system requires less micromanaging. All of these requirements form the basis for the design of NUAUVSI.
+Each team at competition is given a limited amount of time (generally around 30 minutes) to obtain imagery and analyze it. This adds constraints and requirements to the software system. The imaging system flown by UCSD AUVSI is designed to take at least one high quality image per second. Over the total flight time, this can add up to hundreds of images. The software system must process images quickly enough to analyze every image received from the plane in the allotted time. In addition to this, the system must be robust and stable. Continuous processing of large amounts of imagery can quickly cause programs to crash, and in a time-sensitive situation this can be catastrophic. Finally, an emphasis is placed on autonomy of the software. The goal of Heimdall is to process received imagery and output the necessary information with as little human interaction as possible. This again ties back into the stability of the system: a reliable system requires less micromanaging. All of these requirements form the basis for the design of Heimdall.
 
 \subsection{Targets}
 
@@ -46,11 +46,11 @@ The targets that need to be analyzed are shapes made out of plywood, with minimu
 	\label{fig:example_target}
 \end{figure}
 
-Figure~\ref{fig:example_target} shows an example target taken from real target imagery during UCSD AUVSI's 2013 competition flight. The characteristics of this target are easily identifiable using human visual identification, but autonomous computer identification of the same target can be a significant challenge to overcome. In the following sections we will describe the design and implementation of the NUAUVSI system.
+Figure~\ref{fig:example_target} shows an example target taken from real target imagery during UCSD AUVSI's 2013 competition flight. The characteristics of this target are easily identifiable using human visual identification, but autonomous computer identification of the same target can be a significant challenge to overcome. In the following sections we will describe the design and implementation of the Heimdall system.
 
 \section{High-Level Overview}
 
-NUAUVSI is designed with several goals in mind: 
+Heimdall is designed with several goals in mind: 
  
 \begin{description}
 \item[Accuracy] Without accurate and reliable target characteristics, the basic goals of the competition would not be accomplished
@@ -68,7 +68,7 @@ The system we developed uses a distributed model to process imagery. This means 
 \item[-] Modular design naturally suits a model where different modules can run on different computers
 \item[-] A distributed system should be cross-platform in order to increase to number of computers that can aid in computation
 \end{itemize}
-NUAUVSI can logically be split into three separate portions: the Backbone, the CV, and the GUI.
+Heimdall can logically be split into three separate portions: the Backbone, the CV, and the GUI.
 
 \subsection{Backbone}
 
