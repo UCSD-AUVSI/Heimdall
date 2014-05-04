@@ -42,7 +42,6 @@ void initEmptyIMGData(imgdata_t *data){
 void clearIMGData(imgdata_t *data){
     if(data->initialized = false){
         cout << "Data not initialized before clear!" << endl;
-        initEmptyIMGData(data);
         return;
     }
 
@@ -82,4 +81,5 @@ void clearIMGData(imgdata_t *data){
         data->cseg_image_sizes->clear();
         delete data->cseg_image_sizes;
     }
+    data->initialized = false;
 }

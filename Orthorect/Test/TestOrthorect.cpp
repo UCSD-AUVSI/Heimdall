@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Orthorect/Orthorect.hpp"
+#include "Orthorect/stub_orthorect.hpp"
 
 using std::cout;
 using std::endl;

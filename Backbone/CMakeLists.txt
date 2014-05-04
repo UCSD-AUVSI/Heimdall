@@ -17,7 +17,7 @@ set(backbone_source_files
     Client.hpp
     )
 set(dist_source_files
-    Algs.hpp
+    DistAlgs.hpp
     DistClient.cpp
     DistClient.hpp
     DistMaps.hpp

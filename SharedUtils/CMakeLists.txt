@@ -1,6 +1,11 @@
 set(sharedutils_source_files
+	cvplot.cpp
+	cvplot.h
 	SharedUtils.hpp
 	SharedUtils.cpp
+	SharedUtils_OpenCV.hpp
+	SharedUtils_OpenCV.cpp
+	OS_FolderBrowser_tinydir.h
 	)
 
 add_library(sharedutils ${sharedutils_source_files})

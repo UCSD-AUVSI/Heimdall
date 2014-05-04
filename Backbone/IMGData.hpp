@@ -6,19 +6,23 @@
 
 #include "Backbone/Backbone.hpp"
 
+#ifndef uint32_t
+#include <stdint.h>
+#endif
+
 struct imgdata_t{
     uint32_t id, cropid = 0;
-    bool initialized = false;
 
     // image_data vector guaranteed to have only one row when packed/unpacked
-    std::vector<std::vector<unsigned char>*> *image_data = 0;
-    std::vector<std::vector<unsigned char>*> *sseg_image_data = 0;
-    std::vector<std::vector<unsigned char>*> *cseg_image_data = 0;
+    std::vector<std::vector<unsigned char>*> *image_data = nullptr;
+    std::vector<std::vector<unsigned char>*> *sseg_image_data = nullptr;
+    std::vector<std::vector<unsigned char>*> *cseg_image_data = nullptr;
     
     //Do not use these, only for packing/unpacking/internal ops
+    bool initialized = false;
     uint32_t image_data_size = 0;
-    std::vector<uint32_t> *sseg_image_sizes = 0;
-    std::vector<uint32_t> *cseg_image_sizes = 0;
+    std::vector<uint32_t> *sseg_image_sizes = nullptr;
+    std::vector<uint32_t> *cseg_image_sizes = nullptr;
     uint32_t sseg_image_size_count = 0;
     uint32_t cseg_image_size_count = 0;
 

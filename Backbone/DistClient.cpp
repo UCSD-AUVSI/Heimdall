@@ -73,11 +73,12 @@ void DistClient :: work(){
             packMessageData(sendmsg, &imdata);
             push_socket.send(*sendmsg);
             delete sendmsg;
-            
+
             imdata.image_data->back()->clear();
             imdata.image_data->pop_back();
             imdata.cropid++;
         }
+        clearIMGData(&imdata);
     }
 }
 
@@ -97,26 +98,64 @@ void DistClient :: usage(){
         cout << endl;
     }
     cout << endl;
+    cout << "\t--clear\n\t\tSet all algorithms to \"NONE\"" << endl;
+    cout << "\t--stubs\n\t\tSet all algorithms to use stubs" << endl;
+    cout << endl;
     cout << "Arguments to the clients can be included in square brackets ([]) after the algorithm is specified" << endl;
-    cout << "E.g. --ocr TESS_OCR [--arguments value --arguments_2 value_2]" << endl << endl;
+    cout << "E.g. --ocr TESS_OCR [\"--arguments value --arguments_2 value_2\"]" << endl << endl;
 }
 
 int main(int argc, char* argv[]){
     int i = 1;
 
-    std::string addr = "localhost"; //Default Server Address
+    std::string addr = "localhost"; //Default Server Address 
 
 
     std::map<std::string, std::string> local_alg_map;
     std::map<std::string, std::string> local_args_map;
 
+    bool clear_map = false, set_stub_map = false;
+    for(int i = 1; i < argc; i++){
+        if(std::string(argv[i]) == "--clear"){
+            clear_map = true;
+        }
+        else if(std::string(argv[i]) == "--stubs"){
+            set_stub_map = true;
+        }
+    }
+
     for(auto& x: alg_choice_map){
-        local_alg_map.insert(std::pair<std::string, std::string>(x.first, x.second[0]));
+        if(clear_map){
+            //Map is supposed to be clear, add "NONE" for every algorithm
+            local_alg_map.insert(std::pair<std::string, std::string>(x.first, "NONE"));
+        }
+        else if(set_stub_map){
+            //Find what the stub algorithm is for this alg class, and add it 
+            for(std::string alg_name : x.second){
+                if(alg_name.find("STUB") != std::string::npos){
+                    local_alg_map.insert(std::pair<std::string, std::string>(x.first, alg_name));
+                    break;
+                }
+            }
+            //If we couldn't find a stub algorithm, just set it to none
+            if(local_alg_map.find(x.first) == local_alg_map.end()){
+                local_alg_map.insert(std::pair<std::string, std::string>(x.first, "NONE"));
+            }
+        }
+        else{
+            local_alg_map.insert(std::pair<std::string, std::string>(x.first, x.second[0]));
+        }
+
         local_args_map.insert(std::pair<std::string, std::string>(x.first, ""));
     }
 
     // Process arguments
     for(int i = 1; i < argc; i++){
+        // We have already dealt with these cases
+        if(std::string(argv[i]) == "--clear" || std::string(argv[i]) == "--stubs"){
+            continue;
+        }
+
         // Display Help
         if(std::string(argv[i]) == "--help"){
             DistClient::usage();
@@ -181,7 +220,6 @@ int main(int argc, char* argv[]){
     for(auto& x: local_alg_map){
         // User could specifically want to run no algorithm
         // for a certain algorithm class
-        if(x.second != "NONE"){
             // Print what algorithm has been chosen
             std::string alg_class_str = x.first;
             std::string alg_args = local_args_map[alg_class_str];
@@ -192,6 +230,7 @@ int main(int argc, char* argv[]){
             cout << std::setfill(' ') << std::setw(15) << std::left << x.second << endl;
             cout << "With arguments: " << alg_args << endl;
 
+        if(x.second != "NONE"){
             AlgClass alg_class;
             try{
                 alg_class = alg_class_str_map.at(x.first);
@@ -217,6 +256,9 @@ int main(int argc, char* argv[]){
 
     cout << "Press any key to exit." << endl;
     getchar();
+
+    //std::chrono::milliseconds dura(60000);
+    //std::this_thread::sleep_for(dura);
 
     return 0;
 }

@@ -19,6 +19,15 @@ bool img_check(imgdata_t *data){
     return (data->sDone == data->cDone);
 }
 
+void saveLargerString(std::string &str1, std::string &str2){
+    if(str1.size() > str2.size()){
+        str2 = str1;
+    }
+    else{
+        str1 = str2;
+    }
+}
+   
 void orUpdate(imgdata_t *first, imgdata_t *second){
     first->orthorectDone    |= second->orthorectDone;
     first->saliencyDone     |= second->saliencyDone;
@@ -26,6 +35,11 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
     first->sDone            |= second->sDone;
     first->cDone            |= second->cDone;
     first->verified         |= second->verified;
+
+    saveLargerString(first->shape, second->shape);
+    saveLargerString(first->character, second->character);
+    saveLargerString(first->scolor, second->scolor);
+    saveLargerString(first->ccolor, second->ccolor);
 }
 
 // TODO: Currently, BackStore does not save image data properly
@@ -80,5 +94,5 @@ bool img_delete(imgdata_t *data){
     catch(const std::out_of_range& oor){
         return false;
     }
-    return store.erase(datakey)==1?true:false;
+    return (store.erase(datakey)==1);
 }

@@ -1,6 +1,6 @@
 set(orthorect_source_files
-	Orthorect.hpp
-	Orthorect.cpp
+	stub_orthorect.hpp
+	stub_orthorect.cpp
 	)
 
 add_library(orthorect ${orthorect_source_files})

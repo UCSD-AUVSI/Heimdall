@@ -1,8 +1,12 @@
 set(ocr_source_files
-	TessOCR.hpp
-	TessOCR.cpp
+	stub_ocr.hpp
+	stub_ocr.cpp
 	)
+
+add_subdirectory(TesseractOCR)
+add_subdirectory(GOCR)
+add_subdirectory(OCRUtils)
 
 add_library(ocr ${ocr_source_files})
 
-target_link_libraries(ocr backbone)
+target_link_libraries(ocr ocr_utils gocr_ocr tess_ocr backbone)

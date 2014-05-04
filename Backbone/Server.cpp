@@ -53,7 +53,7 @@ void startServerPort(std::vector<AlgClass> alg_class_list){
         port_str = "tcp://*:" + std::to_string(pub_port_list.front());
         publish_socket.bind(port_str.c_str());
     }
-    
+
     imgdata_t imdata;
     while(true){
         zmq::message_t *msg = new zmq::message_t();
@@ -63,7 +63,7 @@ void startServerPort(std::vector<AlgClass> alg_class_list){
 
         if(img_update(&imdata)){
             if(imdata.verified){
-                img_delete(&imdata);    
+ //               img_delete(&imdata);    
             }
             for(zmq::socket_t *sock : push_sockets){
                 zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
@@ -93,6 +93,9 @@ int main(int argc, char* argv[]){
 
     cout << "Press any key to quit" << endl;
     getchar();
+    
+    //std::chrono::milliseconds dura(60000);
+    //std::this_thread::sleep_for(dura);
 
     return 0;
 }

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Recognition/ShapeRec/TemplateSRec.hpp"
+#include "Recognition/ShapeRec/stub_srec.hpp"
 
 using std::cout;
 using std::endl;
