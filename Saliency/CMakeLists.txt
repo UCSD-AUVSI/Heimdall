@@ -7,4 +7,4 @@ add_subdirectory(SSaliency)
 
 add_library(saliency ${saliency_source_files})
 
-target_link_libraries(saliency ssaliency backbone)
+target_link_libraries(saliency ssaliency backbone ${OpenCV_LIBS})

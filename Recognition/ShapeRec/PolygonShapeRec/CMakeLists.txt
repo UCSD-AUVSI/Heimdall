@@ -18,4 +18,4 @@ add_library(polygon_shaperec ${polygon_shaperec_source_files})
 
 file(COPY shaperec_reference_shapes DESTINATION ${CMAKE_BINARY_DIR})
 
-target_link_libraries(polygon_shaperec shaperec)
+target_link_libraries(polygon_shaperec shaperec ${OpenCV_LIBS})

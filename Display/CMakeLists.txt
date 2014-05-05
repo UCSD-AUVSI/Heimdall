@@ -5,7 +5,7 @@ set(display_source_files
 
 add_library(display ${display_source_files})
 
-target_link_libraries(display backbone)
+target_link_libraries(display backbone ${OpenCV_LIBS})
 
 add_subdirectory(Test)
 

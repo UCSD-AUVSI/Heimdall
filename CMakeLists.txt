@@ -5,7 +5,7 @@ project(Heimdall)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 find_package(ZeroMQ REQUIRED)
-find_package(OpenCV)
+find_package(OpenCV REQUIRED)
 find_package(Qt5Widgets)
 
 # if on MAC then use clang++ with libc++

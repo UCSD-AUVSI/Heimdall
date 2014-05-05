@@ -9,4 +9,4 @@ add_subdirectory(OCRUtils)
 
 add_library(ocr ${ocr_source_files})
 
-target_link_libraries(ocr ocr_utils gocr_ocr tess_ocr backbone)
+target_link_libraries(ocr ocr_utils gocr_ocr tess_ocr backbone ${OpenCV_LIBS})

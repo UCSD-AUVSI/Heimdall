@@ -5,6 +5,6 @@ set(imagesub_source_files
 
 add_library(imagesub ${imagesub_source_files})
 
-target_link_libraries(imagesub backbone)
+target_link_libraries(imagesub backbone ${OpenCV_LIBS})
 
 add_subdirectory(Test)

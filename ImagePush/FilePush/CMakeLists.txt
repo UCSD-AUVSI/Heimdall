@@ -5,6 +5,6 @@ set(filepush_source_files
 
 add_library(filepush ${filepush_source_files})
 
-target_link_libraries(filepush imagepush)
+target_link_libraries(filepush imagepush ${OpenCV_LIBS})
 
 add_subdirectory(Test)

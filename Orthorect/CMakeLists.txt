@@ -5,6 +5,6 @@ set(orthorect_source_files
 
 add_library(orthorect ${orthorect_source_files})
 
-target_link_libraries(orthorect backbone)
+target_link_libraries(orthorect backbone ${OpenCV_LIBS})
 
 add_subdirectory(Test)

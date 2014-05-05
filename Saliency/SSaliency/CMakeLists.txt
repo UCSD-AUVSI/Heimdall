@@ -8,6 +8,6 @@ set(ssaliency_source_files
 
 add_library(ssaliency ${ssaliency_source_files})
 
-target_link_libraries(ssaliency saliency)
+target_link_libraries(ssaliency saliency ${OpenCV_LIBS})
 
 add_subdirectory(Test)

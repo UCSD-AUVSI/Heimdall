@@ -27,6 +27,8 @@ set(server_source_files
     Server.cpp
     )
 
+include_directories(${OpenCV_INCLUDE_DIRS})
+
 add_library(backbone ${backbone_source_files})
 add_library(dist ${dist_source_files})
 add_library(server ${server_source_files})
@@ -52,21 +54,17 @@ target_link_libraries(
     publish
     verification
     ${ZEROMQ_LIBRARIES}
+    ${OpenCV_LIBS}
     )
 target_link_libraries(
     zServer
     server
     backbone
     ${ZEROMQ_LIBRARIES}
+    ${OpenCV_LIBS}
     )
 
-if(OpenCV_FOUND)
-    include_directories(${OpenCV_INCLUDE_DIRS})
-    target_link_libraries(zDistClient ${OpenCV_LIBS})
-    target_link_libraries(zServer ${OpenCV_LIBS})
-endif(OpenCV_FOUND)
 if(Qt_FOUND)
     include_directories(${QT_USE_FILE})
     target_link_libraries(zDistClient ${QT_LIBRARIES})
 endif(Qt_FOUND)
-

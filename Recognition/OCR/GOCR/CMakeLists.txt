@@ -7,4 +7,4 @@ set(gocr_ocr_source_files
 
 add_library(gocr_ocr ${gocr_ocr_source_files})
 
-target_link_libraries(gocr_ocr ocr_utils sharedutils ocr)
+target_link_libraries(gocr_ocr ocr_utils sharedutils ocr ${OpenCV_LIBS})

@@ -36,4 +36,4 @@ set(skynet_seg_source_files
 
 add_library(skynet_seg ${skynet_seg_source_files})
 
-target_link_libraries(skynet_seg seg)
+target_link_libraries(skynet_seg seg ${OpenCV_LIBS})

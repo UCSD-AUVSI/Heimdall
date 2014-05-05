@@ -5,6 +5,6 @@ set(display_verif_source_files
 
 add_library(display_verif ${display_verif_source_files})
 
-target_link_libraries(display_verif verification)
+target_link_libraries(display_verif verification ${OpenCV_LIBS})
 
 add_subdirectory(Test)
