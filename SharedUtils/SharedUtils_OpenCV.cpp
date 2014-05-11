@@ -18,57 +18,57 @@
 
 void ConvertMat_UsingSettings(cv::Mat & source_mat, cv::Mat & destination_mat, int preprocess_CV_conversion_type, bool const*const which_channels_to_keep, bool delete_unwanted_channels)
 {
-if(preprocess_CV_conversion_type >= 0)
-{
-	cv::cvtColor(source_mat, destination_mat, preprocess_CV_conversion_type);
-	std::vector<cv::Mat> mat_channels(3);
-	cv::split(destination_mat, mat_channels);
+    if(preprocess_CV_conversion_type >= 0)
+    {
+        cv::cvtColor(source_mat, destination_mat, preprocess_CV_conversion_type);
+        std::vector<cv::Mat> mat_channels(3);
+        cv::split(destination_mat, mat_channels);
 
 
-	if(delete_unwanted_channels == false)
-	{
-		if(which_channels_to_keep[0] == false)
-			mat_channels[0] = cv::Scalar(0);
+        if(delete_unwanted_channels == false)
+        {
+            if(which_channels_to_keep[0] == false)
+                mat_channels[0] = cv::Scalar(0);
 
-		if(which_channels_to_keep[1] == false)
-			mat_channels[1] = cv::Scalar(0);
+            if(which_channels_to_keep[1] == false)
+                mat_channels[1] = cv::Scalar(0);
 
-		if(which_channels_to_keep[2] == false)
-			mat_channels[2] = cv::Scalar(0);
-	}
-	else
-	{
-		if(which_channels_to_keep[0] == false)
-		{
-			mat_channels.erase(mat_channels.begin());
+            if(which_channels_to_keep[2] == false)
+                mat_channels[2] = cv::Scalar(0);
+        }
+        else
+        {
+            if(which_channels_to_keep[0] == false)
+            {
+                mat_channels.erase(mat_channels.begin());
 
-			if(which_channels_to_keep[1] == false)
-			{
-				mat_channels.erase(mat_channels.begin());
-			}
-			else if(which_channels_to_keep[2] == false)
-			{
-				mat_channels.erase(mat_channels.begin() + 1);
-			}
-		}
-		else if(which_channels_to_keep[1] == false)
-		{
-			mat_channels.erase(mat_channels.begin() + 1);
+                if(which_channels_to_keep[1] == false)
+                {
+                    mat_channels.erase(mat_channels.begin());
+                }
+                else if(which_channels_to_keep[2] == false)
+                {
+                    mat_channels.erase(mat_channels.begin() + 1);
+                }
+            }
+            else if(which_channels_to_keep[1] == false)
+            {
+                mat_channels.erase(mat_channels.begin() + 1);
 
-			if(which_channels_to_keep[2] == false)
-				mat_channels.erase(mat_channels.begin() + 1);
-		}
-		else if(which_channels_to_keep[2] == false)
-			mat_channels.erase(mat_channels.begin() + 2);
-	}
+                if(which_channels_to_keep[2] == false)
+                    mat_channels.erase(mat_channels.begin() + 1);
+            }
+            else if(which_channels_to_keep[2] == false)
+                mat_channels.erase(mat_channels.begin() + 2);
+        }
 
 
-	cv::merge(mat_channels, destination_mat);
-}
-else if((&source_mat) != (&destination_mat)) //if source and destination are different mats (OpenCV can handle this case anyway)
-{
-	source_mat.copyTo(destination_mat);
-}
+        cv::merge(mat_channels, destination_mat);
+    }
+    else if((&source_mat) != (&destination_mat)) //if source and destination are different mats (OpenCV can handle this case anyway)
+    {
+        source_mat.copyTo(destination_mat);
+    }
 }
 
 
@@ -76,16 +76,16 @@ std::string GetNameOfCVColorSpace(int CV_colorspace_conversion_type)
 {
     switch(CV_colorspace_conversion_type)
     {
-    case CV_BGR2Lab:
-        return "CieLab";
-    case CV_BGR2Luv:
-        return "CieLuv";
-    case CV_BGR2HSV:
-        return "HSV";
-    case CV_BGR2HLS:
-        return "HLS";
-    case COLORSPACE_CONVERSIONTYPE_KEEPRGB:
-        return "RGB";
+        case CV_BGR2Lab:
+            return "CieLab";
+        case CV_BGR2Luv:
+            return "CieLuv";
+        case CV_BGR2HSV:
+            return "HSV";
+        case CV_BGR2HLS:
+            return "HLS";
+        case COLORSPACE_CONVERSIONTYPE_KEEPRGB:
+            return "RGB";
     }
 
     return to_istring(CV_colorspace_conversion_type);
@@ -139,9 +139,9 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
             double single_total_error_value = GetLengthOfCVScalar(total_error_value);
             single_total_error_value /= static_cast<double>(input_mats->size());
 
-//============================================
+            //============================================
             consoleOutput.Level4() << std::string("calculating average mat...unnormed err: ") << to_sstring(single_total_error_value);
-//============================================
+            //============================================
 
 
             double maxVal = 0.0;
@@ -152,13 +152,13 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
                 maxVal = 255.0;
 
             single_total_error_value /= maxVal; //if the input was a binary image, this is now the # of pixels that are wrong (error was 0 or 1)
-                                        //if it wasn't a binary image, this is now the total normalized error,
-                                        //                      where each pixel could have an error between 0 and 1
+            //if it wasn't a binary image, this is now the total normalized error,
+            //                      where each pixel could have an error between 0 and 1
 
 
-//============================================
+            //============================================
             consoleOutput.Level4() << std::string(", 1st normed err: ") << to_sstring(single_total_error_value);
-//============================================
+            //============================================
 
 
             //now normalize to the whole image... if it was binary, and 50% of pixels were wrong, this should become 0.5
@@ -167,10 +167,10 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
 
 
 
-//============================================
+            //============================================
             consoleOutput.Level4() << std::string(", final ");
             consoleOutput.Level3() << std::string("normed err: ") << to_sstring(single_total_error_value) << std::endl;
-//============================================
+            //============================================
 
 
 
@@ -220,42 +220,42 @@ double GetLengthOfCVScalar(cv::Scalar input)
 
 
 int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,
-                            double* returned_area_of_largest/*=nullptr*/,
-                            double* returned_total_area/*=nullptr*/)
+        double* returned_area_of_largest/*=nullptr*/,
+        double* returned_total_area/*=nullptr*/)
 {
-	if(contours.size() > 1)
-	{
-		std::map<int, double> areas;
-		int aaa=0; int contourssize=contours.size();
-		for(; aaa < contourssize; aaa++)
-		{
-			areas[aaa] = cv::contourArea(contours[aaa]);
+    if(contours.size() > 1)
+    {
+        std::map<int, double> areas;
+        int aaa=0; int contourssize=contours.size();
+        for(; aaa < contourssize; aaa++)
+        {
+            areas[aaa] = cv::contourArea(contours[aaa]);
 
-			if(returned_total_area != nullptr)
-			{
+            if(returned_total_area != nullptr)
+            {
                 (*returned_total_area) += areas[aaa];
-			}
-		}
-		int largest_contour=0;
-		double largest_contour_area=0.0;
-		for(aaa=0; aaa < contourssize; aaa++)
-		{
-			if(areas[aaa] > largest_contour_area)
-			{
-				largest_contour = aaa;
-				largest_contour_area = areas[aaa];
-			}
-		}
+            }
+        }
+        int largest_contour=0;
+        double largest_contour_area=0.0;
+        for(aaa=0; aaa < contourssize; aaa++)
+        {
+            if(areas[aaa] > largest_contour_area)
+            {
+                largest_contour = aaa;
+                largest_contour_area = areas[aaa];
+            }
+        }
 
-		if(returned_area_of_largest != nullptr)
+        if(returned_area_of_largest != nullptr)
             (*returned_area_of_largest) = largest_contour_area;
 
-		return largest_contour;
-	}
-	else if(contours.size() == 1)
-	{
-		if(contours.empty() == false && returned_area_of_largest != nullptr)
-			(*returned_area_of_largest) = cv::contourArea(contours[0]);
+        return largest_contour;
+    }
+    else if(contours.size() == 1)
+    {
+        if(contours.empty() == false && returned_area_of_largest != nullptr)
+            (*returned_area_of_largest) = cv::contourArea(contours[0]);
 
         if(returned_total_area != nullptr)
         {
@@ -264,46 +264,46 @@ int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,
             else
                 (*returned_total_area) = cv::contourArea(contours[0]);
         }
-		return 0; //first in the array
-	}
-	else
-	{
-		if(returned_area_of_largest != nullptr)
-			(*returned_area_of_largest) = 0.0;
+        return 0; //first in the array
+    }
+    else
+    {
+        if(returned_area_of_largest != nullptr)
+            (*returned_area_of_largest) = 0.0;
 
         if(returned_total_area != nullptr)
             (*returned_total_area) = 0.0;
 
-		return 0; //first in the array
-	}
+        return 0; //first in the array
+    }
 }
 
 void saveImage(cv::Mat& img, std::string filename)
 {
-	if(img.channels() == 2)
-	{
-		std::vector<cv::Mat> mat_2channels(2);
-		std::vector<cv::Mat> mat_3channels(3);
+    if(img.channels() == 2)
+    {
+        std::vector<cv::Mat> mat_2channels(2);
+        std::vector<cv::Mat> mat_3channels(3);
 
-		cv::Mat new_mat_to_write;
-		img.copyTo(new_mat_to_write);
+        cv::Mat new_mat_to_write;
+        img.copyTo(new_mat_to_write);
 
-		cv::split(new_mat_to_write, mat_2channels);
-		mat_3channels[0] = mat_2channels[0];
-		mat_3channels[1] = mat_2channels[1];
-		mat_3channels[2] = cv::Mat(img.rows, img.cols, CV_32FC1, cv::Scalar(0.0f));
-		cv::merge(mat_3channels, new_mat_to_write);
+        cv::split(new_mat_to_write, mat_2channels);
+        mat_3channels[0] = mat_2channels[0];
+        mat_3channels[1] = mat_2channels[1];
+        mat_3channels[2] = cv::Mat(img.rows, img.cols, CV_32FC1, cv::Scalar(0.0f));
+        cv::merge(mat_3channels, new_mat_to_write);
 
-		cv::imwrite(filename, new_mat_to_write);
-	}
-	else
-		cv::imwrite(filename, img);
+        cv::imwrite(filename, new_mat_to_write);
+    }
+    else
+        cv::imwrite(filename, img);
 }
 
 void Rotate_CV_Mat(cv::Mat& src, double angle, cv::Mat& dst)
 {
-	int len = std::max(src.cols, src.rows);
-	cv::Point2f pt(len/2., len/2.);
-	cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
-	cv::warpAffine(src, dst, r, cv::Size(len, len));
+    int len = std::max(src.cols, src.rows);
+    cv::Point2f pt(len/2., len/2.);
+    cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
+    cv::warpAffine(src, dst, r, cv::Size(len, len));
 }

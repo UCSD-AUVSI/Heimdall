@@ -17,11 +17,14 @@ using std::endl;
 
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
+#include "SharedUtils/exif.h"
 
-int FolderPush::sendcount = 0, FolderPush::delay = 5000;
+int FolderPush::sendcount = 0, FolderPush::delay = 100;
 
 bool FolderPush::send = true, FolderPush::pause = false,
      FolderPush::search_subfolders = false, FolderPush::first_send = true;
+
+const bool kUseEXIFForInfo = true;
 
 std::vector<std::string> * file_list = new std::vector<std::string>();
 
@@ -83,8 +86,8 @@ int FolderPush :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_d
 			num_files_found += FindAllImagesInDir(file.path, subdir_recursion_depth_limit - 1);
 		}
 		else {
-			num_files_found++;
 			if(filename_extension_is_image_type(get_extension_from_filename(std::string(file.name)))) {
+                num_files_found++;
                 file_list -> push_back(std::string(file.path));
 			}
 		}
@@ -97,6 +100,8 @@ int FolderPush :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_d
 void FolderPush :: execute(imgdata_t *imdata, std::string args){
     //Return immediately if not sending
     if(!FolderPush::send){
+        std::chrono::milliseconds dura(FolderPush::delay);
+        std::this_thread::sleep_for(dura);
         return;
     }
     
@@ -135,13 +140,42 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
     cout << "Image: " << image << endl;
 
     //Check if image exists
-    if(FILE *file = fopen(image.c_str(), "r")){
-        fclose(file);
+    if(FILE *file = fopen(image.c_str(), "rb")){
+        if(kUseEXIFForInfo){
+            cout << "Using EXIF for info" << endl;
+
+            fseek(file, 0, SEEK_END);
+            unsigned long fsize = ftell(file);
+            rewind(file);
+            
+            unsigned char *buf = new unsigned char[fsize];
+            if(fread(buf,1,fsize,file) != fsize){
+                cout << "Can't read EXIF, ignoring" << endl;
+                delete[] buf;
+            }
+            fclose(file);
+
+            EXIFInfo file_exif;
+            int code = file_exif.parseFrom(buf, fsize);
+            delete[] buf;
+
+            if(code){
+                cout << "Error parsing EXIF code" << endl;
+            }
+
+            imdata -> planelat      = file_exif.GeoLocation.Latitude;
+            imdata -> planelongt    = file_exif.GeoLocation.Longitude;
+            imdata -> planealt      = file_exif.GeoLocation.Altitude;
+        }
+        else{
+            fclose(file);
+        }
     }
     else{
         cout << "FolderPush: Image not found!" << endl;
         return;
     }
+
 
     // Increment sendcount, each image has an individual id
     imdata->id = FolderPush::sendcount ++;

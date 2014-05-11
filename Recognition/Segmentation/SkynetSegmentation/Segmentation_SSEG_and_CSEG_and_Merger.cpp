@@ -99,21 +99,6 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
 			consoleOutput.Level0() << "WARNING: SEGMENTATION'S CSEGS AREN'T IN \'CV_8U\' FORMAT" << std::endl;
 		}
 		
-		
-		
-		if(save_images_and_results && name_of_target_image != nullptr && folder_path_of_output_saved_images != nullptr)
-        {
-            if(returned_SSEGs->empty()==false)
-            {
-                saveImage(*returned_SSEGs->begin(),
-                    (*folder_path_of_output_saved_images) + std::string("/") + (*name_of_target_image) + std::string("__SSEG.png"));
-            }
-            if(returned_CSEGs->empty()==false)
-            {
-                saveImage(*returned_CSEGs->begin(),
-                    (*folder_path_of_output_saved_images) + std::string("/") + (*name_of_target_image) + std::string("__CSEG.png"));
-            }
-        }
     }
     else
         consoleOutput.Level0() << "warning: segmentation wasn't given a place to put SSEGs or CSEGs, so it didn't return any" << std::endl;

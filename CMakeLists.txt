@@ -34,3 +34,5 @@ add_subdirectory(Publish)
 add_subdirectory(Recognition)
 add_subdirectory(Verification)
 add_subdirectory(SharedUtils)
+
+FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/debug)

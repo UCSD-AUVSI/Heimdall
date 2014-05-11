@@ -7,9 +7,6 @@
 #include "SharedUtils/SharedUtils_OpenCV.hpp" //for saveImage
 
 
-int number_of_crops_saved = 0;
-
-
 void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
 {
 	std::cout << "SkynetSeg, ID: " << imdata->id  << ", CropID: " << imdata->cropid << std::endl;
@@ -28,17 +25,13 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
 
 		//these two are optional; they tell the module where to save photos, and what name to assign this crop
 		std::string folder_to_save_SSEGs_and_CSEGs("../../output_images");
-		number_of_crops_saved++;
-		std::string name_of_input_crop(to_istring(number_of_crops_saved));
-		imdata->internal_num_of_saved_cseg_and_sseg = number_of_crops_saved;
+        std::string name_of_input_crop = std::to_string(imdata->id) + "_" + std::to_string(imdata->cropid);
 		bool save_ssegs_and_csegs = check_if_directory_exists(folder_to_save_SSEGs_and_CSEGs);
-		
 		
 		if(save_ssegs_and_csegs) {
 			saveImage(cropped_input_image,
 				folder_to_save_SSEGs_and_CSEGs + std::string("/") + name_of_input_crop + std::string("__crop.jpg"));
 		}
-
 
 		SkynetSegmentation_module_instance.DoModule(cropped_input_image,
 										                    &returned_SSEGs,

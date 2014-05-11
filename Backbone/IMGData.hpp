@@ -37,7 +37,6 @@ struct imgdata_t{
 	bool cDone;
 	bool verified;
 	
-	int internal_num_of_saved_cseg_and_sseg;
 	std::string shape, character;
 	std::string scolor, ccolor;
 
@@ -73,13 +72,13 @@ struct imgdata_t{
 		scolor(""),
 		ccolor(""),
 
-		planelat(0.0),
-		planelongt(0.0),
-		planealt(0.0),
-		planeheading(0.0),
-		targetlat(0.0),
-		targetlongt(0.0),
-		targetorientation(0.0)
+		planelat(-1.0),
+		planelongt(-1.0),
+		planealt(-1.0),
+		planeheading(-1.0),
+		targetlat(-1.0),
+		targetlongt(-1.0),
+		targetorientation(-1.0)
 		{}
 };
 

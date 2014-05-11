@@ -1,6 +1,10 @@
 set(sharedutils_source_files
 	cvplot.cpp
 	cvplot.h
+	exif.cpp
+	exif.h
+    intersection.cpp
+    intersection.hpp
 	SharedUtils.hpp
 	SharedUtils.cpp
 	SharedUtils_OpenCV.hpp

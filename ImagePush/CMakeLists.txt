@@ -8,4 +8,4 @@ add_subdirectory(FolderPush)
 
 add_library(imagepush ${imagepush_source_files})
 
-target_link_libraries(imagepush filepush folderpush backbone ${OpenCV_LIBS})
+target_link_libraries(imagepush filepush folderpush sharedutils backbone ${OpenCV_LIBS})

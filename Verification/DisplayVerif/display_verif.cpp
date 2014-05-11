@@ -7,10 +7,12 @@
 #include "Backbone/IMGData.hpp"
 #include "opencv2/opencv.hpp"
 #include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/SharedUtils_OpenCV.hpp" //for saveImage
 
 using std::cout;
 using std::endl;
 
+const bool kSaveImages = true;
 const bool kShowImages = false;
 const bool kShowIfSsegCsegSuccess = true;
 
@@ -19,27 +21,61 @@ bool outfile_verif_results_has_been_opened = false;
 
 void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     cout << "DisplayVerify , ID: " << imdata->id  << ", CropID: " << imdata->cropid << endl;
-	
+
     bool both_cseg_and_sseg_succeeded = (imdata->sseg_image_data->empty()==false && imdata->sseg_image_data->empty()==false);
-	bool save_output_file = false;
+    bool save_output_file = false;
 
+    std::string output_folder("../../output_images");
+
+    // Update results file
     if(outfile_verif_results == nullptr) {
-		if(outfile_verif_results_has_been_opened == false) {
-			outfile_verif_results = new std::fstream();
-			std::string output_folder("../../output_images");
-			save_output_file = (check_if_directory_exists(output_folder) && outfile_verif_results!=nullptr);
-			if(save_output_file) {
-				outfile_verif_results_has_been_opened = true;
-				outfile_verif_results->open(output_folder+std::string("/verif_results.txt"),
-						std::fstream::trunc | std::fstream::out); //clear the file of data (if it existed): we're about to rewrite it
-				save_output_file = (outfile_verif_results->is_open() && outfile_verif_results->good());
-			}
-		}
-	}
-	else {
-		save_output_file = (outfile_verif_results->is_open() && outfile_verif_results->good());
-	}
+        if(outfile_verif_results_has_been_opened == false) {
+            outfile_verif_results = new std::fstream();
+            save_output_file = (check_if_directory_exists(output_folder) && outfile_verif_results!=nullptr);
+            if(save_output_file) {
+                outfile_verif_results_has_been_opened = true;
+                outfile_verif_results->open(output_folder+std::string("/verif_results.txt"),
+                        std::fstream::trunc | std::fstream::out); //clear the file of data (if it existed): we're about to rewrite it
+                save_output_file = (outfile_verif_results->is_open() && outfile_verif_results->good());
+            }
+        }
+    }
+    else {
+        save_output_file = (outfile_verif_results->is_open() && outfile_verif_results->good());
+    }
+    if(both_cseg_and_sseg_succeeded && save_output_file) {
+        cout << "==============================wrote results to file" << endl;
+        (*outfile_verif_results) << "--------------------------------" << endl;
+        (*outfile_verif_results) << "target #" << imdata->id << endl;
+        (*outfile_verif_results) << "shape: " << imdata->shape << endl;
+        (*outfile_verif_results) << "char:  " << imdata->character << endl;
+        (*outfile_verif_results) << std::flush;
+    }
 
+    // Save images and crops
+    std::string name_of_input_crop = std::to_string(imdata->id) + "_" + std::to_string(imdata->cropid);
+    if(kSaveImages && check_if_directory_exists(output_folder)) {
+        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
+                i < imdata->image_data->end(); ++i){
+            cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
+            saveImage(image, output_folder + "/" + name_of_input_crop + "__crop.jpg");
+        }
+    
+        int count = 0;
+        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
+                i < imdata->sseg_image_data->end(); ++i){
+            cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
+            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.jpg");
+        }
+        count = 0;
+        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
+                i < imdata->cseg_image_data->end(); ++i){
+            cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
+            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.jpg");
+        }
+    }
+
+    // Give some information to cout
     if(imdata->shape.empty())
         cout << "no shape found!" << endl;
     else
@@ -50,15 +86,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     else
         cout << "character found: \'" << imdata->character << "\'" << endl;
 
-    if(both_cseg_and_sseg_succeeded && save_output_file) {
-		cout << "==============================wrote results to file" << endl;
-		(*outfile_verif_results) << "--------------------------------" << endl;
-		(*outfile_verif_results) << "target #" << imdata->id << endl;
-		(*outfile_verif_results) << "shape: " << imdata->shape << endl;
-		(*outfile_verif_results) << "char:  " << imdata->character << endl;
-		(*outfile_verif_results) << std::flush;
-	}
-
+    // Show images
     if(kShowImages)
     {
         cv::startWindowThread();

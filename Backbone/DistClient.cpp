@@ -77,6 +77,7 @@ void DistClient :: work(){
             delete sendmsg;
 
             imdata.image_data->back()->clear();
+            delete imdata.image_data->back();
             imdata.image_data->pop_back();
             imdata.cropid++;
         }

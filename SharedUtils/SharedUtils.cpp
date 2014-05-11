@@ -176,6 +176,8 @@ bool check_if_directory_exists(const std::string & dir_name)
 bool filename_extension_is_image_type(const std::string & filename_extension)
 {
     /*
+     * Possible re-write of this function
+     *
     std::string possible_extensions[14] = {".bmp", ".dib", ".jpeg",
         ".jpg", ".jpe", ".jp2", ".png", ".pbm", ".pgm", ".ppm", ".sr"
             ".ras", "tiff", ".tif"};

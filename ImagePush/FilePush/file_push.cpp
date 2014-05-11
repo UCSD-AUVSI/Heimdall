@@ -55,6 +55,8 @@ void FilePush :: processArguments(std::string args, std::string& image){
 
 void FilePush :: execute(imgdata_t *imdata, std::string args){
     if(!FilePush::send){
+        std::chrono::milliseconds dura(5000);
+        std::this_thread::sleep_for(dura);
         return;
     }
 
