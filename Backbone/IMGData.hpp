@@ -66,7 +66,6 @@ struct imgdata_t{
 		cDone(false),
 		verified(false),
 		
-		internal_num_of_saved_cseg_and_sseg(0),
 		shape(""),
 		character(""),
 		scolor(""),

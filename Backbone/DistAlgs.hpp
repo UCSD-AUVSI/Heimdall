@@ -9,6 +9,7 @@
 
 #include "Saliency/stub_saliency.hpp"
 #include "Saliency/SSaliency/ssaliency.hpp"
+#include "Saliency/BlobSaliency/blob_saliency.hpp"
 #include "GUISaliency/GUISaliency.hpp"
 
 #include "Recognition/Segmentation/stub_seg.hpp"

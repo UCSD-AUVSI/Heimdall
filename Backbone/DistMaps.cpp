@@ -16,7 +16,7 @@ const std::map<std::string, std::vector<std::string>> alg_choice_map =
 {
     {"images",      {"SINGLE_FILE_PUSH", "FOLDER_PUSH", "STUB_PUSH", "NONE"}},
     {"orthorect",   {"STUB_ORTHORECT", "NONE"}},
-    {"saliency",    {"SSALIENCY", "STUB_SALIENCY", "GUISAL", "NONE"}},
+    {"saliency",    {"BLOB_SALIENCY", "SSALIENCY", "STUB_SALIENCY", "GUISAL", "NONE"}},
     {"seg",         {"SKYNET_SEG", "STUB_SEG", "GUIREC", "NONE"}},
     {"srec",        {"POLYGON_SREC", "STUB_SREC", "NONE"}},
     {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "NONE"}},
@@ -34,6 +34,7 @@ const std::map<std::string, void (*)(imgdata_t *, std::string)> alg_func_map =
 
     {"STUB_SALIENCY",       StubSaliency :: execute},
     {"SSALIENCY",           SSaliency :: execute},
+    {"BLOB_SALIENCY",       BlobSaliency :: execute},
     {"GUISAL",              GUISaliency :: execute},
 
     {"STUB_SEG",            StubSeg ::execute},
