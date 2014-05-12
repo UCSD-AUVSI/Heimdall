@@ -165,7 +165,7 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
 
             imdata -> planelat      = file_exif.GeoLocation.Latitude;
             imdata -> planelongt    = file_exif.GeoLocation.Longitude;
-            imdata -> planealt      = file_exif.GeoLocation.Altitude;
+            imdata -> planealt      = file_exif.GeoLocation.Altitude * 3.28; //meters -> feet
         }
         else{
             fclose(file);
@@ -179,7 +179,7 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
 
     // Increment sendcount, each image has an individual id
     imdata->id = FolderPush::sendcount ++;
-
+    cout << "Reading " << endl;
     // Load image into struct
     std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
     cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);

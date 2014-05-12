@@ -33,8 +33,6 @@ double to_radians(double degrees){
 
 // Calculate pixels per feet (resolution) of given image, AFTER scaling
 double calculate_px_per_feet(double horiz_cols, double altitude, double scalefactor){
-    altitude = altitude + 100; //TODO: DELETE ME, I'M JUST TRYING STUFF
-
     double focal_length = 35, crop_factor = 1.6; 
     double equiv_foc_len = focal_length * crop_factor;
 
@@ -55,12 +53,12 @@ double calculate_area(double horiz_cols, double altitude, double scalefactor, do
 
 // Calculate max area of blobs to look for
 double calculate_max_area(double horiz_cols, double altitude, double scalefactor){
-    return calculate_area(horiz_cols, altitude, scalefactor, 6, 2); //max dimens in feet
+    return calculate_area(horiz_cols, altitude, scalefactor, 6, 6); //max dimens in feet
 }
 
 // Calculate min area of blobs to look for (thresholded at a small blob size)
 double calculate_min_area(double horiz_cols, double altitude, double scalefactor){
-    double min_area = calculate_area(horiz_cols, altitude, scalefactor, 1, 1); //max dimens in feet
+    double min_area = calculate_area(horiz_cols, altitude, scalefactor, 1.5, 1.5); //max dimens in feet
     return (min_area <= 5.0f)?5.0f:min_area;
 }
 
@@ -93,10 +91,11 @@ void Blob_Saliency_Module::do_saliency_with_setting(cv::Mat input_image, Blob_Sa
     double max_ellipse_area = setting.max_ellipse_area_base * (pow(relative_scalefactor,2)), 
            min_ellipse_area = setting.min_ellipse_area_base * (pow(relative_scalefactor,2));
     // If we have been given altitude data
+    cout << "Alt: " << imdata->planealt << endl;
     if(imdata->planealt > 0.0f){
         max_ellipse_area = calculate_max_area(input_image.cols, imdata->planealt, scalefactor);
         min_ellipse_area = calculate_min_area(input_image.cols, imdata->planealt, scalefactor);
-        cout << "Alt: " << imdata->planealt << " Max: " << max_ellipse_area << " Min: " << min_ellipse_area << endl;
+        cout << " Max: " << max_ellipse_area << " Min: " << min_ellipse_area << endl;
     }
 
     cv::RNG rng(8123);
@@ -206,8 +205,8 @@ void Blob_Saliency_Module::do_saliency_with_setting(cv::Mat input_image, Blob_Sa
             }
 
             // Check ellipse fit of contour against our criteria
-            if(ellipse_area < max_ellipse_area &&
-                    ellipse_area > min_ellipse_area &&
+            if(moment.m00 < max_ellipse_area &&
+                    moment.m00 > min_ellipse_area &&
                     elongation > min_elongation && 
                     blob_ellipse_area_ratio > min_blob_ellipse_area_ratio){
 

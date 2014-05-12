@@ -31,7 +31,7 @@ void BlobSaliency :: execute(imgdata_t *imdata, std::string args){
     if(global_blobsaliency_instance == nullptr) {
         global_blobsaliency_instance = new Blob_Saliency_Module();
         
-        global_blobsaliency_instance->write_internal_images = false;
+        global_blobsaliency_instance->write_internal_images = true;
         global_blobsaliency_instance->output_dir = std::string("./debug/Saliency");
         bool environment_is_desert = false;
 
@@ -49,7 +49,6 @@ void BlobSaliency :: execute(imgdata_t *imdata, std::string args){
             global_blobsaliency_instance->settings.push_back(desert_settings);
         } else {
             global_blobsaliency_instance->settings.push_back(Blob_Saliency_Settings());
-            global_blobsaliency_instance->settings.rbegin()->keep_color_channel[0] = false;
         }
 
         if(global_blobsaliency_instance->write_internal_images){
