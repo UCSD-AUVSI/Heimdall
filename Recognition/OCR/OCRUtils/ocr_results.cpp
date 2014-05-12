@@ -394,6 +394,8 @@ double CalculateMeanAndStdDev(double & xx, double & yy, double num_appearances, 
 	}
 	
 	std::sort(bin_left.begin(), bin_left.end(), OCR_angle_sorter::SortByAngle);
+	bin_rght.push_back(bin_left.back()); //start with 1 in the right bin
+	bin_left.pop_back();
 	
 	while(bin_left.empty() == false)
 	{
@@ -404,8 +406,15 @@ double CalculateMeanAndStdDev(double & xx, double & yy, double num_appearances, 
 		
 		
 		//--------------
-		std::cout << "leftbin tot_stddev: " << saved_total_stddevs.back() << ", \t";
+		//None of the standard devations of either bin should ever be negative!
+		//There seems to be a bug where sometimes they are. They SHOULD be >= 0.
+		//
+		std::cout << "leftbin tot_stddev: " << bin_left_meanangle << ", \trigtbin: " << bin_rght_meanangle << ", \t";
 		for(std::vector<OCR_angle_sorter>::iterator biniter = bin_left.begin(); biniter != bin_left.end(); biniter++) {
+			std::cout << biniter->the_letter;
+		}
+		std::cout << ",   ";
+		for(std::vector<OCR_angle_sorter>::iterator biniter = bin_rght.begin(); biniter != bin_rght.end(); biniter++) {
 			std::cout << biniter->the_letter;
 		}
 		std::cout << std::endl;

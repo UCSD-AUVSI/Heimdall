@@ -89,12 +89,16 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     // Show images
     if(kShowImages)
     {
+		std::string name_of_crop_window = std::string("crop (") + to_istring(imdata->id)
+						+ std::string(",") + to_istring(imdata->cropid) + std::string("), char \'")
+						+ imdata->character + std::string("\'");
+		
         cv::startWindowThread();
-        cv::namedWindow("Image", CV_WINDOW_NORMAL);
+        cv::namedWindow(name_of_crop_window, CV_WINDOW_NORMAL);
 
         for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
                 i < imdata->image_data->end(); ++i){
-            cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
+            cv::imshow(name_of_crop_window,	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
             cv::waitKey(0);
         }
 
@@ -102,17 +106,17 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         {
             for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
                     i < imdata->sseg_image_data->end(); ++i){
-                cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
+                cv::imshow(name_of_crop_window,	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
                 cv::waitKey(0);
             }
 
             for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
                     i < imdata->cseg_image_data->end(); ++i){
-                cv::imshow("Image",	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
+                cv::imshow(name_of_crop_window,	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
                 cv::waitKey(0);
             }
         }
-        cv::destroyWindow("Image");
+        cv::destroyWindow(name_of_crop_window);
     }
 
     setDone(imdata, VERIF);
