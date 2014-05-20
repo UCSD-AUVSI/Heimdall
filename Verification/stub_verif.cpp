@@ -9,6 +9,8 @@ using std::cout;
 using std::endl;
 
 void StubVerify :: execute(imgdata_t *imdata, std::string args){
+    cout << "Stub Verify" << endl << endl;
+    
 	if(imdata->shape.empty())
 		cout << "no shape found!" << endl;
 	else
@@ -19,6 +21,5 @@ void StubVerify :: execute(imgdata_t *imdata, std::string args){
 	else
 		cout << "character found: \'" << imdata->character << "\'" << endl;
 	
-    cout << "Stub Verify" << endl << endl;
     setDone(imdata, VERIF);
 }

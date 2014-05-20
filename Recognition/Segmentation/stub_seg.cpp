@@ -3,6 +3,8 @@
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
 #include "stub_seg.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using std::cout;
 using std::endl;

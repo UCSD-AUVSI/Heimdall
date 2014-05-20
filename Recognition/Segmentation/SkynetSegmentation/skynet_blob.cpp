@@ -648,7 +648,16 @@ CvBox2D CBlob::GetEllipse()
 */
 void CBlob::FillBlob( IplImage *imatge, CvScalar color, int offsetX /*=0*/, int offsetY /*=0*/)
 {
-	cvDrawContours( imatge, m_externalContour.GetContourPoints(), color, color,0, CV_FILLED, 8 );
+	cvDrawContours( imatge, m_externalContour.GetContourPoints(), color, color, 0, CV_FILLED, 8 );
+}
+
+void CBlob::FillBlob_WithoutFloodFill( IplImage *imatge, CvScalar color, int offsetX /*=0*/, int offsetY /*=0*/)
+{
+	CvScalar black = {0,0,0,0};
+	cvDrawContours( imatge, m_externalContour.GetContourPoints(), color, color, 0, CV_FILLED, 8); //0 or INT_MAX ?
+	for(t_contourList::iterator iter = m_internalContours.begin(); iter != m_internalContours.end(); iter++) {
+		cvDrawContours( imatge, iter->GetContourPoints(), black, black, 0, CV_FILLED, 8);
+	}
 }
 
 

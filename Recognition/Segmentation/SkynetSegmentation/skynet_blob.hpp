@@ -100,6 +100,7 @@ public:
 	//! Pinta l'interior d'un blob d'un color determinat
 	//! Paints the blob in an image
 	void FillBlob( IplImage *imatge, CvScalar color, int offsetX = 0, int offsetY = 0 );
+	void FillBlob_WithoutFloodFill( IplImage *imatge, CvScalar color, int offsetX = 0, int offsetY = 0 );
 
 	//! Join a blob to current one (add's contour
 	void JoinBlob( CBlob *blob );

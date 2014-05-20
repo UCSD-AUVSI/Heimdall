@@ -65,13 +65,13 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
                 i < imdata->sseg_image_data->end(); ++i){
             cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.jpg");
+            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.png");
         }
         count = 0;
         for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
                 i < imdata->cseg_image_data->end(); ++i){
             cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.jpg");
+            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.png");
         }
     }
 

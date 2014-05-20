@@ -22,6 +22,7 @@ namespace Skynet {
 
 		cv::Mat findShape(cv::Mat colorImg,
                         const Segmenter_Module_Settings & attempt_settings,
+                        float crop_was_resized_how_much,
                         cv::Scalar* input_color_of_previously_found_shapeblob,
                         cv::Scalar* returned_color_of_blob,
                         cv::Mat* mask_of_returned_shape_blob,
@@ -35,8 +36,11 @@ namespace Skynet {
 	private:
         std::vector<ColorBlob*> getRoundishBlobs_ByCircularity(std::vector<ColorBlob*>& blobList, float cutoff_circularity);
 
-		std::vector<ColorBlob*> getLargeBlobs(std::vector<ColorBlob*>& blobList, cv::Size imgSize);
-		std::vector<ColorBlob*> getInteriorBlobs(std::vector<ColorBlob*>& blobList, float acceptable_fraction_of_blobs_pixels_that_touch_edge);
+		std::vector<ColorBlob*> getLargeBlobs(std::vector<ColorBlob*>& blobList, float img_area);
+		
+		std::vector<ColorBlob*> getInteriorBlobs(std::vector<ColorBlob*>& blobList,
+												float acceptable_fraction_of_border_pixels_that_can_be_in_the_blob,
+												float acceptable_fraction_of_blobs_pixels_that_touch_edge);
 
 		std::vector<ColorBlob*> eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>& blobList,
                                                                     std::vector<cv::Mat>& masks_of_blobList,

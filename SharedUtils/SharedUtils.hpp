@@ -80,6 +80,7 @@ public:
 
 
 
+int RoundFloatToInteger(float num);
 int RoundDoubleToInteger(double num);
 double ModulusD(double num, double divisor);
 

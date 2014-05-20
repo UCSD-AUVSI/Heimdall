@@ -61,6 +61,13 @@ std::ostream& OutputMessageHandler::Level4()
 //-------------------------------------
 
 
+int RoundFloatToInteger(float num)
+{
+	if ((num - floor(num)) < 0.5f)
+		return ((int)floor(num));
+	else
+		return ((int)ceil(num));
+}
 int RoundDoubleToInteger(double num)
 {
 	if ((num - floor(num)) < 0.5)

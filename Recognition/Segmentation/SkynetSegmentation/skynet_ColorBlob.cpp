@@ -21,7 +21,8 @@ ColorBlob::ColorBlob(BlobId bId, cv::Size sizeIn) :
 	setBlobColor(blackPixelColor());
 
 #if 1
-    saved_last_fraction_of_blobs_pixels_along_border = -1.0f;
+    saved_last_fraction_of_borders_pixels_that_are_blob = -1.0f;
+    saved_last_fraction_of_blobs_pixels_that_are_on_border = -1.0f;
 #endif
 }
 
@@ -147,37 +148,25 @@ ColorBlob::drawIntoFalseColorImg(cv::Mat& img, FalseColor color)
 void
 ColorBlob::drawFilledIntoFalseColorImg(cv::Mat& img, unsigned char color)
 {
-	cv::Mat filled = mask->clone();
-
-    if(filled.type() == CV_8U) //should always be true
-    {
-
-        //If it's a black pixel, do flood fill. This algorithm won't work if you start flood filling from a white pixel.
-        //it's possible for (0,0) to be a white pixel, since a few edge-touching pixels is acceptable.
-        //(algorithm: do flood fill outside the shape; then everything that wasn't filled by this, is the shape)
-
-        if(filled.at<unsigned char>(0,0) == 0)
-            cv::floodFill(filled, cv::Point(0,0), 128);
-        else
-        {
-            for(int j=1; j<filled.cols; j++)
-            {
-                //scan across the top edge; this will work.
-                //  if the WHOLE top edge was filled, the blob wouldn't have been accepted.
-
-                if(filled.at<unsigned char>(0,j) == 0) //(y,x) access notation
-                {
-                    cv::floodFill(filled, cv::Point(j,0), 128); //(x,y) access notation
-                    break;
-                }
-            }
-        }
-
-        cv::Mat outsideShape = filled - *mask;
-        img.setTo(color, outsideShape == 0);
-    }
-    else
-        drawIntoFalseColorImg(img, FalseColor(color,color,color));
+	if(img.type() == CV_8U) {
+        //algorithm: do flood fill outside the shape; then everything that wasn't filled by this, is now the shape
+        //first, add a 1-pixel-wide black border around the entire image
+        //use that border to start the flood fill, and the flood fill will creep inward
+        //
+		cv::Mat largermat(img.rows+2, img.cols+2, CV_8U, cv::Scalar(0));
+        cv::Rect toCrop = cv::Rect(1, 1, img.cols, img.rows);
+        cv::Mat submatrix_of_largermat_that_represents_crop = largermat(toCrop);
+        mask->copyTo(submatrix_of_largermat_that_represents_crop);
+        
+        cv::floodFill(largermat, cv::Point(0,0), 1);
+        
+        cv::Mat outsideShape = submatrix_of_largermat_that_represents_crop - (*mask);
+		img.setTo(color, outsideShape == 0);
+	}
+	else {
+		consoleOutput.Level1() << "warning: drawFilledIntoFalseColorImg() was called, but it refused to fill it!" << std::endl;
+		drawIntoFalseColorImg(img, FalseColor(color,color,color));
+	}
 }
 
 void
@@ -223,17 +212,15 @@ ColorBlob::CalculateTotalPerimeters()
 
 #define FOUR_PI_float 12.566370614359173f
 
+// circularity:
+// 1 for a perfect circle,
+// 0.785 for a square,
+//  (1/N) for N perfect circles; the more circles, the less total circularity; so dust specs in a blob reduce its "circularity"
+// 0.310 for a rectangle of sides 1x8
+// 0 for an ideal line
 //
-//1 for a perfect circle,
-//0.785 for a square,
-//0.5 for two perfect circles side-by-side
-//          (the more circles, the less total circularity; so dust specs in a blob reduce its "circularity")
-//0.310 for a rectangle of sides 1x8
-//0 for an ideal line
+// noisiness also decreases circularity by increasing the perimeter
 //
-//noisiness also decreases circularity by increasing the perimeter
-//
-
 float
 ColorBlob::CalculateCircularity()
 {
@@ -247,7 +234,16 @@ ColorBlob::CalculateCircularity()
 float
 ColorBlob::area()
 {
-	return (float)cv::sum(*mask)[0];
+	float found_area = ((float)cv::sum(*mask)[0]);
+	
+	if(found_area > 0.0f) {
+		double max_value_of_a_pixel_in_mask = 0.0f;
+		cv::minMaxLoc(*mask, nullptr, &max_value_of_a_pixel_in_mask);
+		if(max_value_of_a_pixel_in_mask > 0.0f) {
+			found_area /= ((float)max_value_of_a_pixel_in_mask);
+		}
+	}
+	return found_area;
 }
 
 void
@@ -261,7 +257,8 @@ ColorBlob::setBlobColor(PixelColor color)
 
 //Compare the fraction of the blob's pixels that belong to a border
 bool
-ColorBlob::isInterior(float acceptable_fraction_of_blobs_pixels_that_touch_edge)
+ColorBlob::isInterior(float acceptable_fraction_of_border_pixels_that_can_be_in_the_blob,
+					  float acceptable_fraction_of_blobs_pixels_that_touch_edge)
 {
 	cv::Mat edgeMask = cv::Mat(mask->size(), CV_8UC1);
 	edgeMask.setTo(0);
@@ -271,23 +268,30 @@ ColorBlob::isInterior(float acceptable_fraction_of_blobs_pixels_that_touch_edge)
 	edgeMask.row(mask->rows-1).setTo(1);
 	cv::Mat valuesOnEdges;
 	mask->copyTo(valuesOnEdges, edgeMask);
-	int numPixelsOnBorder_FromBlob = cv::countNonZero(valuesOnEdges);
-
-    float numPixelsInBlob = area();
+	float numPixelsOnBorder_FromBlob = static_cast<float>(cv::countNonZero(valuesOnEdges));
+	float numPixelsOnBorder_TotalFromEdgeMask = static_cast<float>(cv::countNonZero(edgeMask));
+	float numPixelsInBlob = area();
 
 #if 0
-	float fraction_ofBlobPixels_OnBorder =
-            (static_cast<float>(numPixelsOnBorder_FromBlob) / numPixelsInBlob);
+	float fraction_of_borderpixels_areblob =
+            (numPixelsOnBorder_FromBlob / numPixelsOnBorder_TotalFromEdgeMask);
 
-consoleOutput.Level3() << std::string("ColorBlob::isInterior() - numOnBorder: ") << to_sstring(numPixelsOnBorder_FromBlob) << std::endl;
-consoleOutput.Level3() << std::string("ColorBlob::isInterior() - area: ") << to_sstring(numPixelsInBlob) << std::endl;
-consoleOutput.Level3() << std::string("ColorBlob::isInterior() - fractionOnBorder: ") << to_sstring(fraction_ofBlobPixels_OnBorder) << std::endl;
+consoleOutput.Level2() << std::string("ColorBlob::isInterior() - numOnBorder_ofBlob: ") << to_istring(numPixelsOnBorder_FromBlob) << std::endl;
+consoleOutput.Level2() << std::string("ColorBlob::isInterior() - numOnBorder_total: ") << to_istring(numPixelsOnBorder_TotalFromEdgeMask) << std::endl;
+consoleOutput.Level2() << std::string("ColorBlob::isInterior() - fractionOfBorder: ") << to_sstring(fraction_of_borderpixels_areblob) << std::endl;
 #endif
 #if 1
-    saved_last_fraction_of_blobs_pixels_along_border = (static_cast<float>(numPixelsOnBorder_FromBlob) / numPixelsInBlob);
+    saved_last_fraction_of_borders_pixels_that_are_blob = (numPixelsOnBorder_FromBlob / numPixelsOnBorder_TotalFromEdgeMask);
+    saved_last_fraction_of_blobs_pixels_that_are_on_border = (numPixelsOnBorder_FromBlob / numPixelsInBlob);
 #endif
-
-	return (static_cast<float>(numPixelsOnBorder_FromBlob) / numPixelsInBlob) < acceptable_fraction_of_blobs_pixels_that_touch_edge;
+	
+	bool checkpassed__border_pixels_that_are_blob = (numPixelsOnBorder_FromBlob / numPixelsOnBorder_TotalFromEdgeMask)
+													< acceptable_fraction_of_border_pixels_that_can_be_in_the_blob;
+			
+	bool checkpassed__blobs_pixels_that_are_on_border = (numPixelsOnBorder_FromBlob / numPixelsInBlob)
+													< acceptable_fraction_of_blobs_pixels_that_touch_edge;
+	
+	return (checkpassed__border_pixels_that_are_blob && checkpassed__blobs_pixels_that_are_on_border);
 }
 
 cv::Mat
@@ -295,21 +299,17 @@ ColorBlob::clonedMaskWithNoSmallBlobs(int minimum_num_pixels_in_speck)
 {
 	cv::Mat clonedMask;
 	mask->copyTo(clonedMask);
-
-	CBlobResult blobs;
 	CBlob * currentBlob;
 	IplImage binaryIpl = clonedMask;
-	blobs = CBlobResult( &binaryIpl, NULL, 0 );
+	CBlobResult blobs( &binaryIpl, NULL, 0 );
 
-	blobs.Filter( blobs, B_EXCLUDE, CBlobGetArea(), B_GREATER_OR_EQUAL, minimum_num_pixels_in_speck );
-	for (int i = 0; i < blobs.GetNumBlobs(); i++ )
-	{
+	blobs.Filter(blobs, B_INCLUDE, CBlobGetArea(), B_GREATER_OR_EQUAL, minimum_num_pixels_in_speck, 0.0);
+	
+	clonedMask.setTo(0);
+	for(int i = 0; i < blobs.GetNumBlobs(); i++) {
     	currentBlob = blobs.GetBlob(i);
-		currentBlob->FillBlob( &binaryIpl, cvScalar(0));
+		currentBlob->FillBlob_WithoutFloodFill( &binaryIpl, cvScalar(255));
 	}
-
-	//clonedMask = binaryIpl;
-
 	return clonedMask;
 }
 

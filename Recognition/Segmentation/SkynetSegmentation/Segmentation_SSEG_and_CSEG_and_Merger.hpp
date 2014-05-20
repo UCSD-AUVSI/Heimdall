@@ -39,8 +39,7 @@ public:
                     std::string* name_of_target_image=nullptr,
                     std::vector<test_data_results_segmentation*>* optional_results_info_vec=nullptr,
                     test_data_results_segmentation* master_results_info_segmentation_only=nullptr,
-                    std::string* correct_shape_name=nullptr,
-                    const char* correct_ocr_character=nullptr);
+                    bool this_crop_has_a_real_target=false);
 };
 
 

@@ -25,11 +25,6 @@ namespace Skynet {
 			return std::vector<ColorBlob*>();
 		}
 
-		std::vector<ColorBlob*> findBlobs(cv::Mat colorImg)
-		{
-			return findBlobs(colorImg, nullptr);
-		}
-
 		virtual cv::Mat secondSegmentation(PixelColor color)
 		{
 			throw myexception("Tried to use Abstract Class - Use subclass instead");

@@ -38,8 +38,7 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
     std::string* name_of_target_image/*=nullptr*/,
     std::vector<test_data_results_segmentation*>* optional_results_info_vec/*=nullptr*/,
     test_data_results_segmentation* master_results_info_segmentation_only/*=nullptr*/,
-    std::string* correct_shape_name/*=nullptr*/,
-    const char* correct_ocr_character/*=nullptr*/)
+    bool this_crop_has_a_real_target/*=false*/)
 {
     if(my_sseg_module==nullptr || my_cseg_module==nullptr)
     {
@@ -53,41 +52,54 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
         returned_SSEG_colors->clear();
         returned_CSEGs->clear();
         returned_CSEG_colors->clear();
+    
+        //----------------------
+        //resize the input crop!
+        float HistSeg_CROP_RESIZE_AMOUNT = 2.0f;
+		cv::Mat resized_mat;
+		if(HistSeg_CROP_RESIZE_AMOUNT > 1.0) {
+			cv::resize(cropped_target_image, resized_mat, cv::Size(0.0,0.0), HistSeg_CROP_RESIZE_AMOUNT, HistSeg_CROP_RESIZE_AMOUNT, cv::INTER_LINEAR);
+		} else {
+			cropped_target_image.copyTo(resized_mat);
+		}
+		//---
+		
 
 
-        my_sseg_module->DoModule(cropped_target_image,
+        my_sseg_module->DoModule(resized_mat,
                                     returned_SSEGs,
-                                    returned_SSEG_colors/*,
+                                    returned_SSEG_colors,
+                                    HistSeg_CROP_RESIZE_AMOUNT,
                                     //optional
                                     folder_path_of_output_saved_images,
                                     save_images_and_results,
-                                    name_of_target_image,
+                                    name_of_target_image/*,
                                     optional_results_info_vec,
                                     master_results_info_segmentation_only,
-                                    correct_shape_name,
-                                    correct_ocr_character*/);
+                                    this_crop_has_a_real_target*/);
 
 
-        my_cseg_module->DoModule(cropped_target_image,
+        my_cseg_module->DoModule(resized_mat,
                                     returned_SSEGs,
                                     returned_SSEG_colors, //avoid segmenting these colors
                                     returned_CSEGs,
-                                    returned_CSEG_colors/*,
+                                    returned_CSEG_colors,
+                                    HistSeg_CROP_RESIZE_AMOUNT,
                                     //optional
                                     folder_path_of_output_saved_images,
                                     save_images_and_results,
-                                    name_of_target_image,
+                                    name_of_target_image/*,
                                     optional_results_info_vec,
                                     master_results_info_segmentation_only,
-                                    correct_shape_name,
-                                    correct_ocr_character*/);
+                                    this_crop_has_a_real_target*/);
 
 
-        Segmentation_CSEG_SSEG_Merger::DoModule(cropped_target_image,
+        Segmentation_CSEG_SSEG_Merger::DoModule(//resized_mat,
                                     returned_SSEGs,
                                     returned_SSEG_colors,
                                     returned_CSEGs,
-                                    returned_CSEG_colors
+                                    returned_CSEG_colors,
+                                    HistSeg_CROP_RESIZE_AMOUNT
                                     );
 		
 		
@@ -105,17 +117,18 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
 }
 
 
+
+
 void Segmentation_SSEG_and_CSEG_and_Merger::SetupDefaultSettings()
 {
-    my_sseg_module->settings.resize(8);
-    my_cseg_module->settings.resize(8);
-
-    my_test_results_vec.resize(8,nullptr);
+    my_sseg_module->settings.resize(9);
+    my_cseg_module->settings.resize(11);
+    /*   my_test_results_vec.resize(10,nullptr);
     for(int bbb=0; bbb<my_test_results_vec.size(); bbb++)
     {
         my_test_results_vec[bbb] = new test_data_results_segmentation();
         my_test_results_vec[bbb]->my_test_type = testtype__per_segmentation;
-    }
+    }*/
 
 
 
@@ -127,13 +140,17 @@ void Segmentation_SSEG_and_CSEG_and_Merger::SetupDefaultSettings()
 	int COLORSPACE_SETTING_CIELUV_11 =  5;
 	int COLORSPACE_SETTING_CIELUV_22 =  6;
 	int COLORSPACE_SETTING_CIELUV_33 =  7;
+	
+	int COLORSPACE_SETTING_CIELAB_L  =  8;
+	int COLORSPACE_SETTING_CIELAB_LA =  9;
+	int COLORSPACE_SETTING_CIELAB_LB = 10;
 
 
-	int COLORSPACE_SETTING_CIELAB_44 =  8;
-	int COLORSPACE_SETTING_CIELUV_44 =  9;
+	int COLORSPACE_SETTING_CIELAB_44 =  10;
+	int COLORSPACE_SETTING_CIELUV_44 =  11;
 
-	int COLORSPACE_SETTING_HSV_11 =     10;
-	int COLORSPACE_SETTING_HSV_22 =     11;
+	int COLORSPACE_SETTING_HSV_11 =     12;
+	int COLORSPACE_SETTING_HSV_22 =     13;
 
 
 
@@ -161,6 +178,12 @@ void Segmentation_SSEG_and_CSEG_and_Merger::SetupDefaultSettings()
 	my_sseg_module->settings[COLORSPACE_SETTING_CIELUV_33].preprocess_CV_conversion_type = CV_BGR2Luv;
 	my_sseg_module->settings[COLORSPACE_SETTING_CIELUV_33].HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS = 6;
 	my_sseg_module->settings[COLORSPACE_SETTING_CIELUV_33].preprocess_channels_to_keep[0] = true;
+	
+	my_sseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_CV_conversion_type = CV_BGR2Lab;
+	my_sseg_module->settings[COLORSPACE_SETTING_CIELAB_L].HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS = 6;
+	my_sseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_channels_to_keep[0] = true;
+	my_sseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_channels_to_keep[1] = false;
+	my_sseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_channels_to_keep[2] = false;
 
 
 
@@ -190,6 +213,24 @@ void Segmentation_SSEG_and_CSEG_and_Merger::SetupDefaultSettings()
 	my_cseg_module->settings[COLORSPACE_SETTING_CIELUV_33].HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS = 6;
 	my_cseg_module->settings[COLORSPACE_SETTING_CIELUV_33].preprocess_channels_to_keep[0] = true;
 
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_CV_conversion_type = CV_BGR2Lab;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_L].HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS = 6;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_channels_to_keep[0] = true;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_channels_to_keep[1] = false;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_L].preprocess_channels_to_keep[2] = false;
+	
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LA].preprocess_CV_conversion_type = CV_BGR2Lab;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LA].HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS = 6;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LA].preprocess_channels_to_keep[0] = true;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LA].preprocess_channels_to_keep[1] = true;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LA].preprocess_channels_to_keep[2] = false;
+	
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LB].preprocess_CV_conversion_type = CV_BGR2Lab;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LB].HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS = 6;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LB].preprocess_channels_to_keep[0] = true;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LB].preprocess_channels_to_keep[1] = false;
+	my_cseg_module->settings[COLORSPACE_SETTING_CIELAB_LB].preprocess_channels_to_keep[2] = true;
+
 	for(std::vector<Segmenter_Module_Settings>::iterator csegset_iter = my_cseg_module->settings.begin();
                     csegset_iter != my_cseg_module->settings.end(); csegset_iter++)
     {
@@ -198,8 +239,8 @@ void Segmentation_SSEG_and_CSEG_and_Merger::SetupDefaultSettings()
         csegset_iter->HistSeg_MERGE_COLOR_DISTANCE = 25.0f;
         csegset_iter->HistSeg_COLOR_DISTANCE_TO_PREVIOUSLYFOUND_THRESHOLD = 26.0f;
         csegset_iter->HistSeg_COLOR_DISTANCE_THRESHOLD = 250.0f;
-        csegset_iter->HistSeg_MINIMUM_BLOB_SIZE_THRESHOLD *= 0.5f;
-        csegset_iter->HistSeg_PERCENT_TOUCHING_EDGES_ACCEPTABLE = 0.0067f;
+        //csegset_iter->HistSeg_MINIMUM_BLOB_SIZE_THRESHOLD *= 0.5f;
+        csegset_iter->HistSeg_PERCENT_OF_CROP_EDGE_TOUCHED_ACCEPTABLE = 0.15f;
         csegset_iter->HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING = false;
     }
 }

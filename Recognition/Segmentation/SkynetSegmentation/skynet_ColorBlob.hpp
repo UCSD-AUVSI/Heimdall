@@ -52,7 +52,9 @@ namespace Skynet {
         float CalculateCircularity();
 
 		float area();
-		bool isInterior(float acceptable_fraction_of_blobs_pixels_that_touch_edge);
+		bool isInterior(float acceptable_fraction_of_border_pixels_that_can_be_in_the_blob,
+						float acceptable_fraction_of_blobs_pixels_that_touch_edge);
+		
 		PixelColor getBlobColor() { return *blobColor; }
 		void setBlobColor(PixelColor color);
 
@@ -67,7 +69,8 @@ namespace Skynet {
 		PixelColor* blobColor;
 
 #if 1
-        float saved_last_fraction_of_blobs_pixels_along_border;
+        float saved_last_fraction_of_borders_pixels_that_are_blob;
+        float saved_last_fraction_of_blobs_pixels_that_are_on_border;
 		cv::Mat* GetMyMaskEvenThoughItIsPrivate() {return mask;}
 #endif
 	private:

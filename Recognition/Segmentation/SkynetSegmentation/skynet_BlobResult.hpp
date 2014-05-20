@@ -117,10 +117,10 @@ public:
 	//! Filters the blobs of the class using some property
 	void Filter(CBlobResult &dst,
 				int filterAction, funcio_calculBlob *evaluador,
-				int condition, double lowLimit, double highLimit = 0 );
+				int condition, double lowLimit, double highLimit=0);
 	void Filter(CBlobResult &dst,
 				int filterAction, funcio_calculBlob *evaluador,
-				int condition, double lowLimit, double highLimit = 0 ) const;
+				int condition, double lowLimit, double highLimit=0) const;
 
 	//! Retorna l'enèssim blob segons un determinat criteri
 	//! Sorts the blobs of the class acording to some criteria and returns the n-th blob
@@ -159,7 +159,7 @@ private:
 	//! Does the Filter method job
 	void DoFilter(CBlobResult &dst,
 				int filterAction, funcio_calculBlob *evaluador,
-				int condition, double lowLimit, double highLimit = 0) const;
+				int condition, double lowLimit, double highLimit=0) const;
 
 protected:
 

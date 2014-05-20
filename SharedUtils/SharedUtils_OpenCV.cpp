@@ -112,7 +112,7 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
         retval_average /= static_cast<float>(input_mats->size());
 
 
-        //if(max_acceptable_fractional_difference < 1.0f)
+        if(max_acceptable_fractional_difference < 1.0f && max_acceptable_fractional_difference > 0.0f)
         {
             inputsegs_iter = input_mats->begin();
 
@@ -169,7 +169,7 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
 
             //============================================
             consoleOutput.Level4() << std::string(", final ");
-            consoleOutput.Level3() << std::string("normed err: ") << to_sstring(single_total_error_value) << std::endl;
+            consoleOutput.Level2() << std::string("SEG averaging normed err: ") << to_sstring(single_total_error_value) << std::endl;
             //============================================
 
 
