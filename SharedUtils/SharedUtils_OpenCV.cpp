@@ -94,7 +94,7 @@ std::string GetNameOfCVColorSpace(int CV_colorspace_conversion_type)
 
 //Returns an averaged cv::Mat in floating point format (CV_32F)
 //
-cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, float max_acceptable_fractional_difference/*=1.0f*/)
+cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, float max_acceptable_fractional_difference/*=1.0f*/, std::string error_msg_comment/*=""*/)
 {
     if(input_mats != nullptr && input_mats->empty()==false)
     {
@@ -183,7 +183,8 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
                 retval_average.release();
                 retval_average = cv::Mat();
 
-                consoleOutput.Level1() << "Average_Several_SingleChannel_CVMats() said there was too much difference between the Mats, so couldn't find an accurate average, so returned nothing!" << std::endl;
+                consoleOutput.Level1() << "Average_Several_SingleChannel_CVMats() said: couldn't find an accurate average, so returned nothing!" << std::endl;
+                consoleOutput.Level1() << "Average_Several_SingleChannel_CVMats() message: " << error_msg_comment << std::endl;
             }
         }
 

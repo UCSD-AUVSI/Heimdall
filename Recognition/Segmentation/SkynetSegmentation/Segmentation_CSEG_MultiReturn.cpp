@@ -55,7 +55,7 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
 
         if(input_SSEGs->size() > 1)
         {
-            avg_input_sseg = Average_Several_SingleChannel_CVMats(input_SSEGs);
+            avg_input_sseg = Average_Several_SingleChannel_CVMats(input_SSEGs, 0.06f, "CSEG at the beginning of MultiReturn, doing input SSEGs");
             mean_color_of_all_input_SSEGs = Average_Several_CVColors(input_colors_to_ignore);
 
 //=======================================================================
@@ -175,7 +175,7 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
             }
             if(test_number >= 0)
                 test_number++;
-#if 1
+#if 0
             if(save_images_and_results && folder_path_of_output_saved_images != nullptr)
             {
 				saveImage(findshape_returned_histogrambins_for_saving,
@@ -206,7 +206,7 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
         if(returned_char_segmentations->empty()==false && returned_char_colors->empty()==false)
         {
             cv::Scalar avg_color = Average_Several_CVColors(returned_char_colors);
-            cv::Mat avg_shape = Average_Several_SingleChannel_CVMats(returned_char_segmentations, 0.04f);
+            cv::Mat avg_shape = Average_Several_SingleChannel_CVMats(returned_char_segmentations, 0.04f, "CSEG at the end of MultiReturn");
 
             if(avg_shape.empty()) //the averager found that the average wasn't very accurate!
                                   //this means segmentation wasn't consistent, so it probably didn't find anything useful

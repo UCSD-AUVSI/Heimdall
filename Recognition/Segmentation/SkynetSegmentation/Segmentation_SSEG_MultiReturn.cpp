@@ -102,7 +102,7 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
             }
             if(test_number >= 0)
                 test_number++;
-#if 1
+#if 0
             if(save_images_and_results && folder_path_of_output_saved_images != nullptr)
             {
 #if 0
@@ -136,7 +136,7 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
         if(returned_shape_segmentations->empty()==false && returned_shape_colors->empty()==false)
         {
             cv::Scalar avg_color = Average_Several_CVColors(returned_shape_colors);
-            cv::Mat avg_shape = Average_Several_SingleChannel_CVMats(returned_shape_segmentations, 0.06f);
+            cv::Mat avg_shape = Average_Several_SingleChannel_CVMats(returned_shape_segmentations, 0.06f, "SSEG at the end of MultiReturn");
 
             if(avg_shape.empty()) //the averager found that the average wasn't very accurate!
                                   //this means segmentation wasn't consistent, so it probably didn't find anything useful
@@ -157,7 +157,7 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
 
 
 //=======================================================================
-#if 1
+#if 0
         if(save_images_and_results && folder_path_of_output_saved_images != nullptr) {
             saveImage(avg_shape,
                 *folder_path_of_output_saved_images + std::string("/") +

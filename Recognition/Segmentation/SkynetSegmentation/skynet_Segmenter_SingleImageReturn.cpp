@@ -77,7 +77,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	std::vector<ColorBlob*> blobList = segmenter->findBlobs(converted_mat, returned_mat_of_binned_histogram);
 	
 	
-	if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
 	{
 		consoleOutput.Level2() << "num blobs found by HistSeg: " << to_istring(blobList.size()) << std::endl;
 		for(int i=0; i<blobList.size(); i++)
@@ -89,7 +89,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 			cv::waitKey(0);
 			cv::destroyAllWindows();
 		}
-	}
+	}*/
 	
 	
 	//cleans up blobs, removes tiny pieces of them if the area of the piece is less than the minimum speck size threshold
@@ -97,7 +97,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	
 	
 	
-	if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
 	{
 		consoleOutput.Level2() << "num blobs found by HistSeg: " << to_istring(blobList.size()) << std::endl;
 		for(int i=0; i<blobList.size(); i++)
@@ -109,7 +109,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 			cv::waitKey(0);
 			cv::destroyAllWindows();
 		}
-	}
+	}*/
 	
 	
 	//gets rid of entire blobs that have a combined area less than desired
@@ -136,7 +136,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	}
 	
 	
-	if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
 	{
 		consoleOutput.Level2() << "num ROUNDISH blobs found: " << to_istring(roundishBlobs.size()) << std::endl;
 		for(int i=0; i<roundishBlobs.size(); i++)
@@ -148,7 +148,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 			cv::waitKey(0);
 			cv::destroyAllWindows();
 		}
-	}
+	}*/
 
 
     //Almost done! Get ready for the last step, in case it needs to be done.
@@ -199,11 +199,11 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     }
     
     
-    if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+    /*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
     {
 		cv::imshow("final blob result", chosenShapeBlob_Mask);
 		cv::waitKey(0);
-    }
+    }*/
     
 
     if(returned_color_of_blob != nullptr)

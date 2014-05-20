@@ -44,7 +44,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         save_output_file = save_output_file?(outfile_verif_results->is_open() && outfile_verif_results->good()):false;
     }
     if(both_cseg_and_sseg_succeeded && save_output_file) {
-        cout << "==============================wrote results to file" << endl;
+        cout << "==============================wrote the below results to file" << endl;
         (*outfile_verif_results) << "--------------------------------" << endl;
         (*outfile_verif_results) << "target #" << imdata->id << ", " << imdata->cropid << endl;
         (*outfile_verif_results) << "shape: " << imdata->shape << endl;
