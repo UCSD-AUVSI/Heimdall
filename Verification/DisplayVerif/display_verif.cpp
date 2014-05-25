@@ -44,7 +44,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         save_output_file = save_output_file?(outfile_verif_results->is_open() && outfile_verif_results->good()):false;
     }
     if(both_cseg_and_sseg_succeeded && save_output_file) {
-        cout << "==============================wrote results to file" << endl;
+        cout << "==============================wrote the below results to file" << endl;
         (*outfile_verif_results) << "--------------------------------" << endl;
         (*outfile_verif_results) << "target #" << imdata->id << ", " << imdata->cropid << endl;
         (*outfile_verif_results) << "shape: " << imdata->shape << endl;
@@ -65,13 +65,13 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
                 i < imdata->sseg_image_data->end(); ++i){
             cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.jpg");
+            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.png");
         }
         count = 0;
         for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
                 i < imdata->cseg_image_data->end(); ++i){
             cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.jpg");
+            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.png");
         }
     }
 

@@ -73,7 +73,7 @@ HistogramSegmenter::setImageWithPreprocessing(cv::Mat colorImg)
 
 	cv::normalize(colorImg, colorImg, 0.0, MAX_RGB_COLOR_VALUE, cv::NORM_MINMAX);
 	//cv::GaussianBlur(colorImg, colorImg, cv::Size(3,3), 0);
-	cv::blur(colorImg, colorImg, cv::Size(2,2));
+	//cv::blur(colorImg, colorImg, cv::Size(2,2));
 
 	mImg = cv::Mat(colorImg);
 }
@@ -200,11 +200,24 @@ HistogramSegmenter::redrawImageWithColors(cv::Mat& input, std::vector<PixelColor
 {
 	PixelColor inputColor;
 	PixelColor convertedColor;
-
 	Pixel2ChannelColor convertedColor2D;
 
 	switch(input.channels())
 	{
+	case 1:
+		inputColor[1] = 0.0f;
+		inputColor[2] = 0.0f;
+		for (cv::MatIterator_<Pixel1ChannelColor> it = input.begin<Pixel1ChannelColor>();
+			 it != input.end<Pixel1ChannelColor>(); ++it)
+		{
+			inputColor[0] = (*it)[0];
+
+			convertedColor = convertToValidColor(inputColor, validColors);
+			Pixel1ChannelColor convertedColor1D;
+			convertedColor1D[0] = convertedColor[0];
+			*it = convertedColor1D;
+		}
+		break;
 	case 2:
 		inputColor[2] = 0.0f;
 		for (cv::MatIterator_<Pixel2ChannelColor> it = input.begin<Pixel2ChannelColor>();
@@ -295,10 +308,22 @@ void
 HistogramSegmenter::drawImageIntoBlobs(cv::Mat& input, std::vector<ColorBlob*>& blobs)
 {
 	PixelColor color_3channel;
-	Pixel2ChannelColor color2;
 
 	switch(input.channels())
 	{
+	case 1:
+		color_3channel[1] = 0.0f;
+		color_3channel[2] = 0.0f;
+		for (int x = 0; x < input.cols; ++x)
+		{
+			for (int y = 0; y < input.rows; ++y)
+			{
+				Pixel1ChannelColor color1 = input.at<Pixel1ChannelColor>(y,x);
+				color_3channel[0] = color1[0];
+				drawPixelIntoBlobs(cv::Point(x,y), color_3channel, blobs);
+			}
+		}
+		break;
 	case 2:
 		color_3channel[2] = 0.0f;
 		for (int x = 0; x < input.cols; ++x)

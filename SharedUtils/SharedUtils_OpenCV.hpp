@@ -15,7 +15,7 @@ std::string GetNameOfCVColorSpace(int CV_colorspace_conversion_type);
 #define COLORSPACE_CONVERSIONTYPE_KEEPRGB -1234567
 
 
-cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, float max_acceptable_fractional_difference=1.00001f);
+cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, float max_acceptable_fractional_difference=1.00001f, std::string error_msg_comment="");
 cv::Scalar Average_Several_CVColors(std::vector<cv::Scalar>* input_colors);
 
 double GetLengthOfCVScalar(cv::Scalar input);

@@ -34,12 +34,12 @@ public:
         std::vector<cv::Scalar>* input_colors_to_ignore,
         std::vector<cv::Mat>* returned_char_segmentations,
         std::vector<cv::Scalar>* returned_char_colors,
+		float HistSeg_CROP_RESIZE_AMOUNT,
 
         std::string* folder_path_of_output_saved_images=nullptr,
 		bool save_images_and_results=false,
-		std::string* name_of_target_image=nullptr,
+		std::string* name_of_crop=nullptr,
 		std::vector<test_data_results_segmentation*>* optional_results_info_vec=nullptr,
 		test_data_results_segmentation* master_results_info_segmentation_only=nullptr,
-		std::string* correct_shape_name=nullptr,
-		const char* correct_ocr_character=nullptr);
+		bool this_crop_has_a_real_target=false);
 };

@@ -24,6 +24,7 @@ Segmenter_SingleImageReturn::~Segmenter_SingleImageReturn()
 
 cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
                         const Segmenter_Module_Settings & attempt_settings,
+                        float crop_was_resized_how_much,
                         cv::Scalar* input_color_of_previously_found_shapeblob,
                         cv::Scalar* returned_color_of_blob,
                         cv::Mat* mask_of_returned_shape_blob,
@@ -36,12 +37,13 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
         consoleOutput.Level0() << "WARNING: Segmenter_SingleImageReturn::findShape() given an empty cv::Mat (with zero pixels)!" << std::endl;
         return colorImg;
     }
-    //consoleOutput.Level3() << std::string("---- beginning segmentation from: ") << name_of_process_calling_this_function << std::endl;
-
+    consoleOutput.Level2() << std::string("---- beginning segmentation from: ") << name_of_process_calling_this_function << std::endl;
+	
+	
     cv::Mat converted_mat;
     ConvertMat_UsingSettings(colorImg, converted_mat,
                             attempt_settings.preprocess_CV_conversion_type,
-                            attempt_settings.preprocess_channels_to_keep, true);
+                            attempt_settings.preprocess_channels_to_keep, false);
 
     //---------------------------------------------------------
     //Set global ("extern") variables used by Skynet's histogram segmenter.
@@ -54,32 +56,69 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     //---------------------------------------------------------
 	
 	/*
-		TODO: (as of April 28, 2014)
-			-- is there still a bug in the shape-filling-in that fills in too much areas of white beyond the shape outline?
-				I haven't seen it in a while...
-				ColorBlob::drawFilledIntoFalseColorImg(cv::Mat& img, unsigned char color)
-			-- get rid of noise speckles (right now they've been reduced to 1-pixel in size, but aren't completely erased)
-			-- to ensure that you get the blob of the shape (and not of the letter, as occasionally happens),
+		TODO: (as of May 19, 2014)
+			-- to ensure that SSEG gets the blob of the shape (and not of the letter, as occasionally happens),
 				compare the size of the minimum-bounding-convex-polygon and get the bigger one
 				(do this after eliminating noise, so speckles aren't included in the convex outline)
 	*/
 	
-
-    cv::blur(converted_mat, converted_mat, cv::Size(attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS,attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS));
-    if(returned_mat_preprocessed != nullptr)
-        converted_mat.copyTo(*returned_mat_preprocessed);
-
-
+	if(attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS > 0) {
+		int blurpixs = RoundFloatToInteger(((float)attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS) * crop_was_resized_how_much);
+		cv::blur(converted_mat, converted_mat, cv::Size(blurpixs, blurpixs));
+	}
+	
+	if(returned_mat_preprocessed != nullptr)
+		converted_mat.copyTo(*returned_mat_preprocessed);
+	
+	
+	float area_of_converted_mat = static_cast<float>(converted_mat.cols * converted_mat.rows);
+	
+	
 	std::vector<ColorBlob*> blobList = segmenter->findBlobs(converted_mat, returned_mat_of_binned_histogram);
-
-
-	ClearBlobsOfTinyNoiseSpeckles(blobList, 64); //any specks smaller than 8x8 pixels will be eliminated
-
-
-	std::vector<ColorBlob*> largeBlobs = getLargeBlobs(blobList, converted_mat.size());
-
-
-	std::vector<ColorBlob*> interiorBlobs = getInteriorBlobs(largeBlobs, attempt_settings.HistSeg_PERCENT_TOUCHING_EDGES_ACCEPTABLE);
+	
+	
+	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	{
+		consoleOutput.Level2() << "num blobs found by HistSeg: " << to_istring(blobList.size()) << std::endl;
+		for(int i=0; i<blobList.size(); i++)
+		{
+			if(blobList[i] == nullptr)
+				std::cout << "WARNING: NULL BLOB" << std::endl;
+			
+			cv::imshow(std::string("blob")+to_istring(i), (*blobList[i]->GetMyMaskEvenThoughItIsPrivate() * 255));
+			cv::waitKey(0);
+			cv::destroyAllWindows();
+		}
+	}*/
+	
+	
+	//cleans up blobs, removes tiny pieces of them if the area of the piece is less than the minimum speck size threshold
+	ClearBlobsOfTinyNoiseSpeckles(blobList, RoundFloatToInteger(area_of_converted_mat*attempt_settings.HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD));
+	
+	
+	
+	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	{
+		consoleOutput.Level2() << "num blobs found by HistSeg: " << to_istring(blobList.size()) << std::endl;
+		for(int i=0; i<blobList.size(); i++)
+		{
+			if(blobList[i] == nullptr)
+				std::cout << "WARNING: NULL BLOB" << std::endl;
+			
+			cv::imshow(std::string("clearedblob")+to_istring(i), (*blobList[i]->GetMyMaskEvenThoughItIsPrivate() * 255));
+			cv::waitKey(0);
+			cv::destroyAllWindows();
+		}
+	}*/
+	
+	
+	//gets rid of entire blobs that have a combined area less than desired
+	std::vector<ColorBlob*> largeBlobs = getLargeBlobs(blobList, area_of_converted_mat);
+	
+	
+	std::vector<ColorBlob*> interiorBlobs = getInteriorBlobs(largeBlobs,
+															 attempt_settings.HistSeg_PERCENT_OF_CROP_EDGE_TOUCHED_ACCEPTABLE,
+															 attempt_settings.HistSeg_PERCENT_OF_BLOB_TOUCHING_EDGES_ACCEPTABLE);
 
 
     //0.1 seems to work well as a cutoff circularity
@@ -95,6 +134,21 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 		DeletePointersInVectorAndClearIt<ColorBlob*>(blobList);
         return cv::Mat();
 	}
+	
+	
+	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	{
+		consoleOutput.Level2() << "num ROUNDISH blobs found: " << to_istring(roundishBlobs.size()) << std::endl;
+		for(int i=0; i<roundishBlobs.size(); i++)
+		{
+			if(roundishBlobs[i] == nullptr)
+				std::cout << "WARNING: NULL BLOB" << std::endl;
+			
+			cv::imshow(std::string("roundblob")+to_istring(i), (*roundishBlobs[i]->GetMyMaskEvenThoughItIsPrivate() * 255));
+			cv::waitKey(0);
+			cv::destroyAllWindows();
+		}
+	}*/
 
 
     //Almost done! Get ready for the last step, in case it needs to be done.
@@ -134,12 +188,23 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
         chosenShapeBlob = *(final_acceptable_blobs.begin());
         chosenShapeBlob_Mask = *(all_blob_masks.begin()); //this list was passed to "eliminateBobs..." because it trimmed this list too,
                                                     //so its beginning still corresponds to the beginning of "final_acceptable_blobs"
+                                                    
+        if((*name_of_process_calling_this_function.begin()) == 'S')
+			consoleOutput.Level3() << "WARNING: SSEG Gave HistSeg a color???" << std::endl;
     }
     else
     {
         chosenShapeBlob = *(roundishBlobs.begin());
-        chosenShapeBlob_Mask = getShapeFromBlob(*(roundishBlobs.begin()), converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING);
+        chosenShapeBlob_Mask = getShapeFromBlob(chosenShapeBlob, converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING);
     }
+    
+    
+    /*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+    {
+		cv::imshow("final blob result", chosenShapeBlob_Mask);
+		cv::waitKey(0);
+    }*/
+    
 
     if(returned_color_of_blob != nullptr)
         (*returned_color_of_blob) = cv::mean(colorImg, chosenShapeBlob_Mask);
@@ -148,11 +213,10 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 
 //consoleOutput.Level3() << std::string("Num large blobs: ") << largeBlobs->size());
 //consoleOutput.Level3() << std::string("Num interior blobs: ") << interiorBlobs->size());
-
 consoleOutput.Level3() << std::string("==========================================================================") << std::endl;
-consoleOutput.Level3() << std::string("================================= circularity of accepted shape: ") << to_sstring(chosenShapeBlob->CalculateCircularity()) << std::endl;
-consoleOutput.Level3() << std::string("===============fraction of pixels that were touching an edge: ") << to_sstring(chosenShapeBlob->saved_last_fraction_of_blobs_pixels_along_border) << std::endl;
-
+consoleOutput.Level2() << std::string("================================= circularity of accepted shape: ") << to_sstring(chosenShapeBlob->CalculateCircularity()) << std::endl;
+consoleOutput.Level2() << std::string("===============fraction of edge's pixels that were of the blob: ") << to_sstring(chosenShapeBlob->saved_last_fraction_of_borders_pixels_that_are_blob) << std::endl;
+consoleOutput.Level2() << std::string("===============fraction of blob's pixels that were on the edge: ") << to_sstring(chosenShapeBlob->saved_last_fraction_of_blobs_pixels_that_are_on_border) << std::endl;
 
 
 
@@ -161,22 +225,10 @@ consoleOutput.Level3() << std::string("===============fraction of pixels that we
 
 
 
-
 	if(chosenShapeBlob_Mask.empty())
 		consoleOutput.Level3() << "No shape found!";
-#if 0
-    else
-	{
-		//if(filename.empty() == false)
-			saveImage(chosenShapeBlob_Mask, std::string("output_images/") + to_istring(rand()) + std::string("_segmented_shape.bmp"));
-	}
-#endif
 
 
-	//if (filename != nullptr)
-	//	saveBlobsToFalseColorImage(largeBlobs, std::string("blob_d_big"));
-	//if (filename != nullptr)
-	//	saveBlobsToFalseColorImage(interiorBlobs, std::string("blob_e_interior"));
 
 	DeletePointersInVectorAndClearIt<ColorBlob*>(blobList);
 	return chosenShapeBlob_Mask;
@@ -232,10 +284,9 @@ consoleOutput.Level3() << std::string("blob") << to_istring(blobcounter) << std:
 
 
 std::vector<ColorBlob *>
-Segmenter_SingleImageReturn::getLargeBlobs(std::vector<ColorBlob*>& blobList, cv::Size imgSize)
+Segmenter_SingleImageReturn::getLargeBlobs(std::vector<ColorBlob*>& blobList, float img_area)
 {
-	float imgArea = (float)imgSize.width * imgSize.height;
-	float minimumBlobSize = ((float)(imgArea))*MINIMUM_BLOB_SIZE_THRESHOLD;
+	float minimumBlobSize = img_area*MINIMUM_BLOB_SIZE_THRESHOLD;
 
 	std::vector<ColorBlob*> bigBlobs;
 	//for each (ColorBlob * blob in blobList)
@@ -249,13 +300,15 @@ Segmenter_SingleImageReturn::getLargeBlobs(std::vector<ColorBlob*>& blobList, cv
 
 
 std::vector<ColorBlob*>
-Segmenter_SingleImageReturn::getInteriorBlobs(std::vector<ColorBlob*>& blobList, float acceptable_fraction_of_blobs_pixels_that_touch_edge)
+Segmenter_SingleImageReturn::getInteriorBlobs(std::vector<ColorBlob*>& blobList,
+											float acceptable_fraction_of_border_pixels_that_can_be_in_the_blob,
+											float acceptable_fraction_of_blobs_pixels_that_touch_edge)
 {
 	std::vector<ColorBlob*> interiorBlobs;
 	//for each (ColorBlob * blob in blobList)
 	for(std::vector<ColorBlob*>::iterator bliter = blobList.begin(); bliter != blobList.end(); bliter++)
 	{
-		if ((*bliter)->isInterior(acceptable_fraction_of_blobs_pixels_that_touch_edge))
+		if ((*bliter)->isInterior(acceptable_fraction_of_border_pixels_that_can_be_in_the_blob,acceptable_fraction_of_blobs_pixels_that_touch_edge))
 			interiorBlobs.push_back(*bliter);
     }
 	return interiorBlobs;
@@ -346,7 +399,7 @@ Segmenter_SingleImageReturn::getShapeFromBlob(ColorBlob * blob, cv::Size imgSize
             blob->drawIntoFalseColorImg(shape, FalseColor(255,255,255));
 
 		shape.convertTo(shape, CV_8UC1);
-		shape = shape > 0;
+		shape = (shape > 0);
 	}
 	else
 		shape = cv::Mat();

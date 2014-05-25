@@ -12,6 +12,7 @@ MODIFICACIONS (Modificació, Autor, Data):
 #include <functional>
 #include <algorithm>
 #include "skynet_BlobResult.hpp"
+#include "SharedUtils/SharedUtils.hpp"
 
 //! Show errors functions: only works for windows releases
 #ifdef _SHOW_ERRORS
@@ -501,11 +502,11 @@ void CBlobResult::Filter(CBlobResult &dst,
 						 int filterAction,
 						 funcio_calculBlob *evaluador,
 						 int condition,
-						 double lowLimit, double highLimit /*=0*/) const
+						 double lowLimit, double highLimit/*=0*/) const
 
 {
 	// do the job
-	DoFilter(dst, filterAction, evaluador, condition, lowLimit, highLimit );
+	DoFilter(dst, filterAction, evaluador, condition, lowLimit, highLimit);
 }
 
 /**
@@ -563,13 +564,13 @@ void CBlobResult::Filter(CBlobResult &dst,
 						 int filterAction,
 						 funcio_calculBlob *evaluador,
 						 int condition,
-						 double lowLimit, double highLimit /*=0*/)
+						 double lowLimit, double highLimit/*=0*/)
 
 {
 	int numBlobs = GetNumBlobs();
 
 	// do the job
-	DoFilter(dst, filterAction, evaluador, condition, lowLimit, highLimit );
+	DoFilter(dst, filterAction, evaluador, condition, lowLimit, highLimit);
 
 	// inline operation: remove previous blobs
 	if( &dst == this )
@@ -589,7 +590,7 @@ void CBlobResult::Filter(CBlobResult &dst,
 
 //! Does the Filter method job
 void CBlobResult::DoFilter(CBlobResult &dst, int filterAction, funcio_calculBlob *evaluador,
-						   int condition, double lowLimit, double highLimit/* = 0*/) const
+						   int condition, double lowLimit, double highLimit/*=0*/) const
 {
 	int i, numBlobs;
 	bool resultavaluacio;
@@ -598,6 +599,7 @@ void CBlobResult::DoFilter(CBlobResult &dst, int filterAction, funcio_calculBlob
 
 	if( GetNumBlobs() <= 0 ) return;
 	if( !evaluador ) return;
+	
 	//avaluem els blobs amb la funció pertinent
 	avaluacioBlobs = GetSTLResult(evaluador);
 	itavaluacioBlobs = avaluacioBlobs.begin();
