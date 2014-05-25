@@ -22,7 +22,7 @@ class Blob_Saliency_Settings
         Blob_Saliency_Settings() :
             converted_color_space(CV_BGR2Lab),//options: CV_BGR2Lab, CV_BGR2Luv
             canny_low_thresh{100, 30, 30},
-            canny_high_thresh{200, 70, 70},
+            canny_high_thresh{200, 80, 80},
             blur_kernel_size{4,3,3}, 
             keep_color_channel{true, true, true},
             max_ellipse_area_base(400.0f),

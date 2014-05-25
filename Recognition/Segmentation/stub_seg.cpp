@@ -4,6 +4,8 @@
 #include "Backbone/IMGData.hpp"
 #include "stub_seg.hpp"
 
+#include "opencv2/opencv.hpp"
+
 using std::cout;
 using std::endl;
 
