@@ -55,35 +55,35 @@ void SSaliency :: execute(imgdata_t *imdata, std::string args){
 	}
 	
 	
-	std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
-	while(i != imdata->image_data->end())
-	{
-		global_SSaliency_module_instance->do_saliency(cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
-		
-		//after saliency is done with the fullsize image, remove that fullsize image from the message's images vector
-		delete (*i);
-		i = imdata->image_data->erase(i);
-	}
-	
-	
-	if(imdata->image_data->empty()==false)
-	{
-		cout << "WARNING: message struct's vector of images wasn't fully cleared before saliency started pushing back crops!" << std::endl;
-	}
-	
+    global_SSaliency_module_instance->do_saliency(cv::imdecode(*imdata->image_data, CV_LOAD_IMAGE_COLOR));
+    
+    //after saliency is done with the fullsize image, remove that fullsize image from the message's images vector
+    imdata->image_data->clear();
+    delete imdata->image_data;
 	
 	consoleOutput.Level1() << "Saliency found "
 							<< to_istring(global_SSaliency_module_instance->returned_cropped_images.size())
 							<< " crops" << std::endl;
 	
-	
+    imgdata_t *curr_imdata = imdata;
 	for(std::vector<cv::Mat>::iterator criter = global_SSaliency_module_instance->returned_cropped_images.begin();
-		criter != global_SSaliency_module_instance->returned_cropped_images.end(); criter++)
+		criter != global_SSaliency_module_instance->returned_cropped_images.end();)
 	{
 		//valgrind doesn't like this ("definitely lost")
 		std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
 		cv::imencode(".jpg", *criter, *newarr);
-		imdata->image_data->push_back(newarr);
+		curr_imdata->image_data = newarr;
+        
+        if(++criter != global_SSaliency_module_instance->returned_cropped_images.end()){
+            imgdata_t *new_imdata = new imgdata_t();
+            copyIMGData(new_imdata, curr_imdata);
+
+            new_imdata->image_data->clear();
+            delete new_imdata->image_data;
+            new_imdata->next = nullptr;
+
+            curr_imdata = new_imdata;
+        }
 	}
 	
 	setDone(imdata, SALIENCY);

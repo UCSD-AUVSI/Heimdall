@@ -22,6 +22,17 @@
 using std::cout;
 using std::endl;
 
+void Blob_Saliency_Module::do_saliency(cv::Mat input_image, imgdata_t *imdata){
+    return_crops.clear();
+    return_geolocs.clear();
+
+    std::vector<Blob_Saliency_Settings>::iterator siter = settings.begin();
+    for(; siter != settings.end(); siter++) {
+        do_saliency_with_setting(input_image, *siter, imdata);
+        write_crops_name_incrementer++;
+    }
+}
+
 //Helper functions and variables for trig functions
 const double kPI = 4 * atan(1);
 double to_degrees(double radians){
@@ -62,16 +73,21 @@ double calculate_min_area(double horiz_cols, double altitude, double scalefactor
     return (min_area <= 5.0f)?5.0f:min_area;
 }
 
-std::vector<cv::Mat>& Blob_Saliency_Module::do_saliency(cv::Mat input_image, imgdata_t *imdata){
-    returned_cropped_images.clear();
+std::pair<double, double> find_target_geoloc(int targetrow, int targetcol, int imrows, int imcols, double planelat, double planelongt, double planeheading, double pxtofeet){
+    int rowdiff = imrows - targetrow;
+    int coldiff = imcols - targetcol;
 
-    std::vector<Blob_Saliency_Settings>::iterator siter = settings.begin();
-    for(; siter != settings.end(); siter++) {
-        do_saliency_with_setting(input_image, *siter, imdata);
-        write_crops_name_incrementer++;
-    }
+    int rowfeetdiff = rowdiff * pxtofeet;
+    int colfeetdiff = coldiff * pxtofeet;
 
-    return returned_cropped_images;
+    double latfeetdiff = rowfeetdiff/cos(planeheading);
+    double longtfeetdiff = colfeetdiff/sin(planeheading);
+
+    double target_lat = planelat + latfeetdiff/365221; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
+    double longt_deg_to_feet = 2.0890566 * pow(10, 7) * cos(to_radians(target_lat)); //Radius of circle at this lat, (2*PI*R)/(2*PI)
+    double target_longt = planelongt + longtfeetdiff/longt_deg_to_feet;
+
+    return std::pair<double, double>(target_lat, target_longt);
 }
 
 void Blob_Saliency_Module::do_saliency_with_setting(cv::Mat input_image, Blob_Saliency_Settings& setting, imgdata_t *imdata){
@@ -288,7 +304,9 @@ void Blob_Saliency_Module::do_saliency_with_setting(cv::Mat input_image, Blob_Sa
 
         cropped = cv::Mat(input_image, toCrop);
 
-        returned_cropped_images.push_back(cropped);
+        return_crops.push_back(cropped);
+        return_geolocs.push_back(find_target_geoloc(starty + cropsize/2, startx + cropsize/2, input_image.rows, input_image.cols,
+                    imdata->planelat, imdata->planelongt, imdata->planeheading, calculate_px_per_feet(input_image.cols, imdata->planealt, 1)));
     }
 
     if(write_internal_images) {

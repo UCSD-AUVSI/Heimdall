@@ -86,7 +86,7 @@ void FilePush :: execute(imgdata_t *imdata, std::string args){
 
     std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
     cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
-    imdata->image_data->push_back(newarr);
+    imdata->image_data = newarr;
 
     cout << "Sending " << messageSizeNeeded(imdata) << " bytes. File ID: " << imdata->id << endl << endl;
 

@@ -56,32 +56,36 @@ void DistClient :: work(){
     push_socket.connect(port_str.c_str());
 
     while(true){
-        imgdata_t imdata;
-        initEmptyIMGData(&imdata);
+        imgdata_t *imdata = new imgdata_t();
+        initEmptyIMGData(imdata);
         if(pull_needed){
             zmq::message_t *msg = new zmq::message_t();
             pull_socket.recv(msg);
 
-            unpackMessageData(&imdata, msg);
+            unpackMessageData(imdata, msg);
             delete msg;
         }
 
-        func(&imdata, args);
+        func(imdata, args);
 
+        imgdata_t *curr_send_imdata = imdata;
         // Send one message per new image crop in imgdata
-        while(imdata.image_data->size() > 0){
-            // Need to allocate on heap, too large for stack
-            zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
-            packMessageData(sendmsg, &imdata);
-            push_socket.send(*sendmsg);
-            delete sendmsg;
+        while(curr_send_imdata != nullptr){
+            if(messageSizeNeeded(curr_send_imdata) > 0 &&
+                    curr_send_imdata->image_data != nullptr &&
+                    curr_send_imdata->image_data->size()) { //If we need to send a message
+                // Need to allocate on heap, too large for stack
+                zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(curr_send_imdata));
+                packMessageData(sendmsg, curr_send_imdata);
+                push_socket.send(*sendmsg);
+                delete sendmsg;
+            }
 
-            imdata.image_data->back()->clear();
-            delete imdata.image_data->back();
-            imdata.image_data->pop_back();
-            imdata.cropid++;
+            clearIMGData(curr_send_imdata);
+            imgdata_t *temp = curr_send_imdata;
+            curr_send_imdata = curr_send_imdata->next;
+            delete temp;
         }
-        clearIMGData(&imdata);
     }
 }
 
@@ -223,15 +227,15 @@ int main(int argc, char* argv[]){
     for(auto& x: local_alg_map){
         // User could specifically want to run no algorithm
         // for a certain algorithm class
-            // Print what algorithm has been chosen
-            std::string alg_class_str = x.first;
-            std::string alg_args = local_args_map[alg_class_str];
+        // Print what algorithm has been chosen
+        std::string alg_class_str = x.first;
+        std::string alg_args = local_args_map[alg_class_str];
 
-            std::transform(alg_class_str.begin(), alg_class_str.end(), alg_class_str.begin(), toupper);
-            cout << "Algorithm for ";
-            cout << std::setfill('.') << std::setw(15) << std::left << alg_class_str;
-            cout << std::setfill(' ') << std::setw(15) << std::left << x.second << endl;
-            cout << "With arguments: " << alg_args << endl;
+        std::transform(alg_class_str.begin(), alg_class_str.end(), alg_class_str.begin(), toupper);
+        cout << "Algorithm for ";
+        cout << std::setfill('.') << std::setw(15) << std::left << alg_class_str;
+        cout << std::setfill(' ') << std::setw(15) << std::left << x.second << endl;
+        cout << "With arguments: " << alg_args << endl;
 
         if(x.second != "NONE"){
             AlgClass alg_class;
@@ -260,11 +264,11 @@ int main(int argc, char* argv[]){
     cout << "Press any key to exit." << endl;
     getchar();
 
-	if(outfile_verif_results != nullptr) {
-		outfile_verif_results->close();
-		delete outfile_verif_results;
-		outfile_verif_results = nullptr;
-	}
+    if(outfile_verif_results != nullptr) {
+        outfile_verif_results->close();
+        delete outfile_verif_results;
+        outfile_verif_results = nullptr;
+    }
 
     //std::chrono::milliseconds dura(60000);
     //std::this_thread::sleep_for(dura);

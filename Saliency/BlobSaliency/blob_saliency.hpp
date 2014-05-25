@@ -5,7 +5,7 @@
 #include "Backbone/AUVSI_Algorithm.hpp"
 
 class Blob_Saliency_Module;
-extern Blob_Saliency_Module* global_blobsaliency_instance; //instantiated in BlobSaliency.cpp
+extern Blob_Saliency_Module* global_sal_instance; //instantiated in BlobSaliency.cpp
 
 class BlobSaliency : AUVSI_Algorithm{
 	public:

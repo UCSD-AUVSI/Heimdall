@@ -12,9 +12,7 @@ using std::cout;
 using std::endl;
 
 void populateSizes(imgdata_t *imdata){
-    if(imdata->image_data->size()){
-        imdata->image_data_size = imdata->image_data->back()->size();
-    }
+    imdata->image_data_size = imdata->image_data->size();
 
     // If the size length is equal to the number of crops, then we can assume its already been populated
     if(imdata->sseg_image_sizes->size() != imdata->sseg_image_data->size()){
@@ -193,10 +191,8 @@ unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	memcpy(arr + start, imdata->ccolor.c_str(), imdata->ccolor.size() + 1);
 	start += imdata->ccolor.size() + 1;
 	
-    if(imdata->image_data_size){
-        memcpy(arr + start, &(*(imdata->image_data->back()))[0], imdata->image_data_size);
-        start += imdata->image_data_size;
-    }
+    memcpy(arr + start, &(*(imdata->image_data))[0], imdata->image_data_size);
+    start += imdata->image_data_size;
 
     if(imdata->sseg_image_size_count){
         memcpy(arr + start, &(*(imdata->sseg_image_sizes))[0], imdata->sseg_image_size_count * sizeof(uint32_t));
@@ -252,21 +248,14 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 	imdata->ccolor = reinterpret_cast<char*>(arr+start);
 	start += (imdata->ccolor.size() + 1);
 
-    //Copy main images/image crops
-    if(imdata->image_data_size){
-        unsigned char *img_arr = new unsigned char[imdata->image_data_size];
+    //Copy main image/image crop
+    unsigned char *img_arr = new unsigned char[imdata->image_data_size];
 
-        memcpy(img_arr, arr + start, imdata->image_data_size);
-        start += imdata->image_data_size;
+    memcpy(img_arr, arr + start, imdata->image_data_size);
+    start += imdata->image_data_size;
 
-        // Though image_data is designed to hold several images, the imgdata_t's flying through the
-        // pipes should only have one image in image_data. Rest will be separated into their own 
-        // imgdata_t's
-		
-        //valgrind doesn't like this ("definitely lost")
-		imdata->image_data->push_back(new std::vector<unsigned char>(img_arr, img_arr + imdata->image_data_size));
-		delete[] img_arr;
-	}
+    imdata->image_data = new std::vector<unsigned char>(img_arr, img_arr + imdata->image_data_size);
+    delete[] img_arr;
 
     //Copy size lists for sseg/cseg crops
     if(imdata->sseg_image_size_count){

@@ -19,7 +19,7 @@ void StubSeg :: execute(imgdata_t *imdata, std::string args) {
 	
 	if(imdata->image_data->empty() == false)
 	{
-		cv::Mat cropped_input_image = cv::imdecode(**(imdata->image_data->begin()), CV_LOAD_IMAGE_COLOR);
+		cv::Mat cropped_input_image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
 		
 		std::vector<int> param = std::vector<int>(2);
 		param[0] = CV_IMWRITE_PNG_COMPRESSION;

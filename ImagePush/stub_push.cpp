@@ -21,7 +21,7 @@ void StubPush :: execute(imgdata_t *imdata, std::string args){
     }
     std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
     newarr->push_back('A');
-    imdata->image_data->push_back(newarr);
+    imdata->image_data = newarr;
     
     cout << "Stub Push" << endl;
 }

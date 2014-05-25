@@ -14,7 +14,7 @@ class Blob_Saliency_Module : public Blob_Saliency_Module_Template
     public:
         Blob_Saliency_Module() : Blob_Saliency_Module_Template(), write_crops_name_incrementer(0) {}
 
-        std::vector<cv::Mat>& do_saliency(cv::Mat input_image, imgdata_t *imdata);
+        void do_saliency(cv::Mat input_image, imgdata_t *imdata);
 };
 
 

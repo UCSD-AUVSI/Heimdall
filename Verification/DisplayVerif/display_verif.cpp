@@ -13,8 +13,12 @@ using std::cout;
 using std::endl;
 
 const bool kSaveImages = true;
+const bool kSaveSegs = false;
+
 const bool kShowImages = false;
 const bool kShowIfSsegCsegSuccess = true;
+
+const std::string output_folder("../../output_images");
 
 std::fstream* outfile_verif_results = nullptr;
 bool outfile_verif_results_has_been_opened = false;
@@ -24,8 +28,6 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
 
     bool both_cseg_and_sseg_succeeded = (imdata->sseg_image_data->empty()==false && imdata->sseg_image_data->empty()==false);
     bool save_output_file = true;
-
-    std::string output_folder("../../output_images");
 
     // Update results file
     if(outfile_verif_results == nullptr) {
@@ -49,29 +51,31 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         (*outfile_verif_results) << "target #" << imdata->id << ", " << imdata->cropid << endl;
         (*outfile_verif_results) << "shape: " << imdata->shape << endl;
         (*outfile_verif_results) << "char:  " << imdata->character << endl;
+        (*outfile_verif_results) << "lat:  " << imdata->targetlat << endl;
+        (*outfile_verif_results) << "long:  " << imdata->targetlongt << endl;
         (*outfile_verif_results) << std::flush;
     }
 
     // Save images and crops
     std::string name_of_input_crop = std::to_string(imdata->id) + "_" + std::to_string(imdata->cropid);
     if(kSaveImages && check_if_directory_exists(output_folder)) {
-        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
-                i < imdata->image_data->end(); ++i){
-            cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
+        if(imdata->image_data->size()){
+            cv::Mat image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
             saveImage(image, output_folder + "/" + name_of_input_crop + "__crop.jpg");
         }
-    
-        int count = 0;
-        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
-                i < imdata->sseg_image_data->end(); ++i){
-            cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.png");
-        }
-        count = 0;
-        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
-                i < imdata->cseg_image_data->end(); ++i){
-            cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.png");
+        if(kSaveSegs){   
+            int count = 0;
+            for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
+                    i < imdata->sseg_image_data->end(); ++i){
+                cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
+                saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__SSEG.png");
+            }
+            count = 0;
+            for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
+                    i < imdata->cseg_image_data->end(); ++i){
+                cv::Mat image = cv::imdecode(**i, CV_LOAD_IMAGE_COLOR);
+                saveImage(image, output_folder + "/" + name_of_input_crop + "_" + std::to_string(count++) + "__CSEG.png");
+            }
         }
     }
 
@@ -89,18 +93,15 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     // Show images
     if(kShowImages)
     {
-		std::string name_of_crop_window = std::string("crop (") + to_istring(imdata->id)
-						+ std::string(",") + to_istring(imdata->cropid) + std::string("), char \'")
-						+ imdata->character + std::string("\'");
-		
+        std::string name_of_crop_window = std::string("crop (") + to_istring(imdata->id)
+            + std::string(",") + to_istring(imdata->cropid) + std::string("), char \'")
+            + imdata->character + std::string("\'");
+
         cv::startWindowThread();
         cv::namedWindow(name_of_crop_window, CV_WINDOW_NORMAL);
 
-        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->image_data->begin();
-                i < imdata->image_data->end(); ++i){
-            cv::imshow(name_of_crop_window,	cv::imdecode(**i, CV_LOAD_IMAGE_COLOR));
-            cv::waitKey(0);
-        }
+        cv::imshow(name_of_crop_window,	cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR));
+        cv::waitKey(0);
 
         if(!kShowIfSsegCsegSuccess || (!imdata->sseg_image_data->empty() && !imdata->sseg_image_data->empty()))
         {

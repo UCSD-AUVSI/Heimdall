@@ -24,7 +24,7 @@ int FolderPush::sendcount = 0, FolderPush::delay = 100;
 bool FolderPush::send = true, FolderPush::pause = false,
      FolderPush::search_subfolders = false, FolderPush::first_send = true;
 
-const bool kUseEXIFForInfo = false;
+const bool kUseEXIFForInfo = true;
 
 std::vector<std::string> * file_list = new std::vector<std::string>();
 
@@ -183,7 +183,7 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
     // Load image into struct
     std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
     cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
-    imdata->image_data->push_back(newarr);
+    imdata->image_data = newarr;
 
     cout << "Sending " << messageSizeNeeded(imdata) << " bytes. File ID: " << imdata->id << endl << endl;
 }

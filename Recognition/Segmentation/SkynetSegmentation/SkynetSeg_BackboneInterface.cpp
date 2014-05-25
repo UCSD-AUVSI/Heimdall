@@ -16,7 +16,7 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
         Segmentation_SSEG_and_CSEG_and_Merger SkynetSegmentation_module_instance;
 
 		//valgrind doesn't like this ("possibly lost")
-		cv::Mat cropped_input_image = cv::imdecode(**(imdata->image_data->begin()), CV_LOAD_IMAGE_COLOR);
+		cv::Mat cropped_input_image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
 
 		std::vector<cv::Mat> returned_SSEGs;
 		std::vector<cv::Scalar> returned_SSEG_colors;

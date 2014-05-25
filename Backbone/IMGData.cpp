@@ -1,5 +1,6 @@
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
+#include "Backbone/MessageHandling.hpp"
 
 #include <iostream>
 
@@ -31,7 +32,7 @@ void img_print(imgdata_t* data){
 
 // TODO: Add consequences if imgdata_t is not initialized
 void initEmptyIMGData(imgdata_t *data){
-    data->image_data =          new std::vector<std::vector<unsigned char>*>();
+    data->image_data =          new std::vector<unsigned char>();
     data->sseg_image_data =     new std::vector<std::vector<unsigned char>*>();
     data->cseg_image_data =     new std::vector<std::vector<unsigned char>*>();
     data->sseg_image_sizes =    new std::vector<uint32_t>();
@@ -39,6 +40,8 @@ void initEmptyIMGData(imgdata_t *data){
     data->initialized = true;
 }
 
+// Clears all of the data in the struct that will not be properly freed
+// automatically (so, the pointers)
 void clearIMGData(imgdata_t *data){
     if(data->initialized = false){
         cout << "Data not initialized before clear!" << endl;
@@ -46,11 +49,6 @@ void clearIMGData(imgdata_t *data){
     }
 
     if(data->image_data){
-        for(std::vector<std::vector<unsigned char>*>::iterator i = data->image_data->begin();
-                i < data->image_data->end(); ++i){
-            (*i)->clear();
-            delete *i;
-        }
         data->image_data->clear();
         delete data->image_data;
     }
@@ -85,4 +83,10 @@ void clearIMGData(imgdata_t *data){
         delete data->cseg_image_sizes;
     }
     data->initialized = false;
+}
+
+void copyIMGData(imgdata_t *dest, imgdata_t *src){
+    int retlen = 0;
+    unsigned char *src_arr = linearizeData(src, &retlen);
+    expandData(dest, src_arr);
 }

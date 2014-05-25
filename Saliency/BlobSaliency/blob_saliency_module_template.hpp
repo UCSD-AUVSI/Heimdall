@@ -58,14 +58,15 @@ class Blob_Saliency_Module_Template
 
         std::vector<Blob_Saliency_Settings> settings;
 
-        std::vector<cv::Mat> returned_cropped_images;
+        std::vector<cv::Mat> return_crops;
+        std::vector<std::pair<double,double>> return_geolocs;
 
         //---------------------------
 
         Blob_Saliency_Module_Template() : write_internal_images(false), output_dir("") {}
         virtual ~Blob_Saliency_Module_Template() {}
 
-        virtual std::vector<cv::Mat>& do_saliency(cv::Mat input_image, imgdata_t *imdata) = 0;
+        virtual void do_saliency(cv::Mat input_image, imgdata_t *imdata) = 0;
 };
 
 #endif

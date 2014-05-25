@@ -1,5 +1,5 @@
-#ifndef IMGDATA_H
-#define IMGDATA_H
+#ifndef IMGDATA_H_
+#define IMGDATA_H_
 
 #include <vector>
 #include <string>
@@ -16,7 +16,7 @@ struct imgdata_t{
 	bool initialized;
 
 	// image_data vector guaranteed to have only one row when packed/unpacked
-	std::vector<std::vector<unsigned char>*> *image_data;
+	std::vector<unsigned char> *image_data;
 	std::vector<std::vector<unsigned char>*> *sseg_image_data;
 	std::vector<std::vector<unsigned char>*> *cseg_image_data;
 	
@@ -43,6 +43,8 @@ struct imgdata_t{
 	double planelat, planelongt, planealt, planeheading;
 	double targetlat, targetlongt;
 	double targetorientation;
+
+    imgdata_t *next;
 
 	imgdata_t() :
 		id(0),
@@ -77,7 +79,9 @@ struct imgdata_t{
 		planeheading(-1.0),
 		targetlat(-1.0),
 		targetlongt(-1.0),
-		targetorientation(-1.0)
+		targetorientation(-1.0),
+
+        next(nullptr)
 		{}
 };
 
@@ -85,5 +89,6 @@ void img_print(imgdata_t* data);
 void setDone(imgdata_t *data, AlgClass alg);
 void initEmptyIMGData(imgdata_t *data);
 void clearIMGData(imgdata_t *data);
+void copyIMGData(imgdata_t *dest, imgdata_t *src);
 
 #endif
