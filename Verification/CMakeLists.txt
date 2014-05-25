@@ -4,7 +4,8 @@ set(verification_source_files
 	)
 
 add_subdirectory(DisplayVerif)
+add_subdirectory(PlaneVerif)
 
 add_library(verification ${verification_source_files})
 
-target_link_libraries(verification display_verif backbone ${OpenCV_LIBS})
+target_link_libraries(verification displayverif planeverif backbone ${OpenCV_LIBS})

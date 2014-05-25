@@ -5,7 +5,8 @@ set(imagepush_source_files
 
 add_subdirectory(FilePush)
 add_subdirectory(FolderPush)
+add_subdirectory(FolderWatch)
 
 add_library(imagepush ${imagepush_source_files})
 
-target_link_libraries(imagepush filepush folderpush sharedutils backbone ${OpenCV_LIBS})
+target_link_libraries(imagepush filepush folderpush folderwatch sharedutils backbone ${OpenCV_LIBS})

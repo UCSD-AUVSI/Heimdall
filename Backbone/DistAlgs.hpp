@@ -4,6 +4,7 @@
 #include "ImagePush/stub_push.hpp"
 #include "ImagePush/FilePush/file_push.hpp"
 #include "ImagePush/FolderPush/folder_push.hpp"
+#include "ImagePush/FolderWatch/folder_watch.hpp"
 
 #include "Orthorect/stub_orthorect.hpp"
 
@@ -25,5 +26,6 @@
 
 #include "Verification/stub_verif.hpp"
 #include "Verification/DisplayVerif/display_verif.hpp"
+#include "Verification/PlaneVerif/plane_verif.hpp"
 
 #endif

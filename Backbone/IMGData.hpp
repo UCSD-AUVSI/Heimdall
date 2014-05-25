@@ -10,7 +10,6 @@
 #include <stdint.h>
 #endif
 
-
 struct imgdata_t{
 	uint32_t id, cropid;
 	bool initialized;
@@ -40,7 +39,8 @@ struct imgdata_t{
 	std::string shape, character;
 	std::string scolor, ccolor;
 
-	double planelat, planelongt, planealt, planeheading;
+	double planelat, planelongt, planealt;
+    double planeroll, planepitch, planeheading;
 	double targetlat, targetlongt;
 	double targetorientation;
 
@@ -76,6 +76,8 @@ struct imgdata_t{
 		planelat(-1.0),
 		planelongt(-1.0),
 		planealt(-1.0),
+        planeroll(-1.0),
+        planepitch(-1.0),
 		planeheading(-1.0),
 		targetlat(-1.0),
 		targetlongt(-1.0),

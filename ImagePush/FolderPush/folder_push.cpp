@@ -26,7 +26,7 @@ bool FolderPush::send = true, FolderPush::pause = false,
 
 const bool kUseEXIFForInfo = true;
 
-std::vector<std::string> * file_list = new std::vector<std::string>();
+std::vector<std::string> * FolderPush::file_list = new std::vector<std::string>();
 
 void FolderPush :: usage(){
 	cout << "Usage: --images FOLDER_PUSH [OPTIONS]..."  << endl;
@@ -88,7 +88,7 @@ int FolderPush :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_d
 		else {
 			if(filename_extension_is_image_type(get_extension_from_filename(std::string(file.name)))) {
                 num_files_found++;
-                file_list -> push_back(std::string(file.path));
+                FolderPush::file_list -> push_back(std::string(file.path));
 			}
 		}
 		tinydir_next(&dir);
@@ -124,17 +124,17 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
     }
     
     //If we are finished with all files, we are done sending
-    if(file_list -> size() <= 0){
+    if(FolderPush::file_list -> size() <= 0){
         FolderPush::send = false;
         cout << "Done with all files in folder" << endl;
 
-        delete file_list;
+        delete FolderPush::file_list;
         return;
     }
 
     //Get next file
-    std::string image = file_list ->back();
-    file_list -> pop_back();
+    std::string image = FolderPush::file_list ->back();
+    FolderPush::file_list -> pop_back();
 
     cout << "Running with following parameters: \n" << endl;
     cout << "Image: " << image << endl;
