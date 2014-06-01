@@ -20,7 +20,7 @@ using std::endl;
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "SharedUtils/exif.h"
 
-int FolderWatch::sendcount = 0, FolderWatch::delay = 1000;
+int FolderWatch::sendcount = 0, FolderWatch::delay = 500;
 
 bool FolderWatch::send = true, FolderWatch::pause = false,
      FolderWatch::search_subfolders = false, FolderWatch::first_send = true;
@@ -45,23 +45,8 @@ void FolderWatch :: usage(){
     cout << "   --subfolders   When used with --folder, will search subfolders of --folder too." << endl;
 }
 
-std::vector<std::string>& FolderWatch :: split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-std::vector<std::string> FolderWatch :: split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    FolderWatch::split(s, delim, elems);
-    return elems;
-}
-
 void FolderWatch :: processArguments(std::string args, std::string& folder){
-    std::vector<std::string> arglist = FolderWatch::split(args, ' ');
+    std::vector<std::string> arglist = split(args, ' ');
 
     for(int i = 0; i < arglist.size(); i++){
         std::string arg = arglist[i]; 
@@ -98,10 +83,10 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
             eliminate_extension_from_filename(filename);
 
             if(filename_extension_is_image_type(get_extension_from_filename(std::string(file.name)))) {
-                num_files_found++;
-
                 if(seen_image_set->find(filename) == seen_image_set->end()){
+                    num_files_found++;
                     seen_image_set->insert(filename);
+                    
                     try{
                         std::pair<std::string, std::string> file_pair = file_map->at(filename);
                         std::get<0>(file_pair) = std::string(file.path);
@@ -120,6 +105,7 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
             else if(get_extension_from_filename(std::string(file.name)) == ".txt"){
                 if(seen_info_set->find(filename) == seen_info_set->end()){
                     seen_info_set->insert(filename);
+                    
                     try{
                         std::pair<std::string, std::string> file_pair = file_map->at(filename);
                         std::get<1>(file_pair) = std::string(file.path);
@@ -218,10 +204,10 @@ void FolderWatch :: execute(imgdata_t *imdata, std::string args){
     cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
     imdata->image_data = newarr;
 
-    std::vector<std::string> split_line = FolderWatch::split(infoline, '\t');
+    std::vector<std::string> split_line = split(infoline, '\t');
 
     if(split_line.size() < 8){
-        cout << "Crash imminent, input info file has less than 8 attributes" << endl;
+        cout << "Crash imminent, input info file has less than 8 attributes. Nathan has not adhered to his end of the contract." << endl;
     }
 
     imdata->planeroll =     atof(split_line.at(1).c_str());

@@ -16,10 +16,39 @@ using std::endl;
 
 const bool kSaveImages = true;
 
-const std::string output_folder("../../output_images");
+void PlaneVerify :: usage(){
+    cout << "Usage: --verif PLANE_VERIF [OPTIONS]..."  << endl;
+    cout << "Saves images and info files to output folder" << endl;
+
+    cout << "Command Line Options: \n" << endl;
+    cout << "   --folder       Path to output folder\n" << endl;
+}
+
+void PlaneVerify :: processArguments(std::string args, std::string& folder){
+    std::vector<std::string> arglist = split(args, ' ');
+
+    for(int i = 0; i < arglist.size(); i++){
+        std::string arg = arglist[i]; 
+        if(arg == "--folder"){
+            if(++i >= arglist.size()){
+                cout << "PlaneVerify argument list incorrectly formatted" << endl;
+                PlaneVerify::usage();
+                return;
+            }
+            folder = arglist[i];
+        }
+        else{
+            PlaneVerify::usage();
+            return;
+        }
+    }
+}
 
 void PlaneVerify :: execute(imgdata_t *imdata, std::string args){
     cout << "PlaneVerify , ID: " << imdata->id  << ", CropID: " << imdata->cropid << endl;
+
+    std::string output_folder("../../output_images");
+    PlaneVerify::processArguments(args, output_folder);
 
     // Save images and crops
     std::string name_of_input_crop = std::to_string(imdata->id) + "_" + std::to_string(imdata->cropid);

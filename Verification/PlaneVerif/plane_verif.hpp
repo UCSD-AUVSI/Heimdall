@@ -7,6 +7,9 @@
 class PlaneVerify : AUVSI_Algorithm {
 	public:
 		static void execute(imgdata_t *data, std::string args);
+    private:
+        static void usage();
+        static void processArguments(std::string args, std::string& folder);
 };
 
 #endif

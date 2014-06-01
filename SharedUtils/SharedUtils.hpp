@@ -138,7 +138,8 @@ bool filename_extension_is_image_type(const std::string & filename_extension);
 bool check_if_file_exists(const std::string & filename);
 bool check_if_directory_exists(const std::string & dir_name);
 
-
+std::vector<std::string> split(const std::string &s, char delim);
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 //For debugging; get the name of what the object is; e.g. "myClass" or "std::vector<int>"
 std::string demangle_typeid_name(const char* name);

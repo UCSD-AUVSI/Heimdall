@@ -37,23 +37,8 @@ void FolderPush :: usage(){
 	cout << "   --subfolders   When used with --folder, will search subfolders of --folder too." << endl;
 }
 
-std::vector<std::string>& FolderPush :: split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-std::vector<std::string> FolderPush :: split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    FolderPush::split(s, delim, elems);
-    return elems;
-}
-
 void FolderPush :: processArguments(std::string args, std::string& folder){
-    std::vector<std::string> arglist = FolderPush::split(args, ' ');
+    std::vector<std::string> arglist = split(args, ' ');
 
     for(int i = 0; i < arglist.size(); i++){
         std::string arg = arglist[i]; 

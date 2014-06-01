@@ -15,8 +15,6 @@ class FolderPush : AUVSI_Algorithm{
         static void usage();
         static void processArguments(std::string args, std::string& folder);
         static int FindAllImagesInDir(std::string dirpath, int subdir_recursion_depth_limit);
-        static std::vector<std::string> split(const std::string &s, char delim);
-        static std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 };
 
 #endif
