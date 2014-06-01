@@ -74,14 +74,16 @@ double calculate_min_area(double horiz_cols, double altitude, double scalefactor
 }
 
 std::pair<double, double> find_target_geoloc(int targetrow, int targetcol, int imrows, int imcols, double planelat, double planelongt, double planeheading, double pxtofeet){
-    int rowdiff = imrows - targetrow;
-    int coldiff = imcols - targetcol;
+    planeheading = -planeheading; //Gimbal is reversed in plane
+
+    int rowdiff = targetrow - imrows/2; //row diff from center (and center of plane)
+    int coldiff = targetcol - imcols/2; //col diff from center (and center of plane)
 
     int rowfeetdiff = rowdiff * pxtofeet;
     int colfeetdiff = coldiff * pxtofeet;
 
-    double latfeetdiff = rowfeetdiff/cos(planeheading);
-    double longtfeetdiff = colfeetdiff/sin(planeheading);
+    double latfeetdiff = -rowfeetdiff * cos(planeheading) + colfeetdiff * cos(kPI/2 + planeheading); //-diff because up/right = pos
+    double longtfeetdiff = -rowfeetdiff * sin(planeheading) + colfeetdiff * sin(kPI/2 + planeheading); //-diff because up/right = pos
 
     double target_lat = planelat + latfeetdiff/365221; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
     double longt_deg_to_feet = 2.0890566 * pow(10, 7) * cos(to_radians(target_lat)); //Radius of circle at this lat, (2*PI*R)/(2*PI)
