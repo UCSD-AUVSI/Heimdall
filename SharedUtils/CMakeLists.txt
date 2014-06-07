@@ -12,7 +12,8 @@ set(sharedutils_source_files
 	OS_FolderBrowser_tinydir.h
 	)
 
+add_subdirectory(gocr)
+
 add_library(sharedutils ${sharedutils_source_files})
 
-target_link_libraries(sharedutils backbone)
-
+target_link_libraries(sharedutils gocr backbone)

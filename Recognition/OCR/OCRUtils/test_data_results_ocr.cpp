@@ -13,7 +13,7 @@
 
 #define PRINTVAR_TO_FILE(varname, fileoutput) \
     (consoleOutput.Level1() << #varname << std::string(": ") << varname << std::endl); \
-    (fileoutput << #varname << std::string(": ") << varname << std::endl)
+(fileoutput << #varname << std::string(": ") << varname << std::endl)
 
 
 
@@ -33,9 +33,9 @@ void test_data_results_ocr::Print()
 
 void test_data_results_ocr::PrintToFile(std::fstream & outfile)
 {
-	if(outfile.is_open() && outfile.good())
+    if(outfile.is_open() && outfile.good())
     {
-		outfile << std::endl << std::endl;
+        outfile << std::endl << std::endl;
 
         PRINTVAR_TO_FILE(OCR_attempts, outfile);
         PRINTVAR_TO_FILE(OCR_attempts_in_which_there_was_a_target, outfile);
@@ -46,26 +46,26 @@ void test_data_results_ocr::PrintToFile(std::fstream & outfile)
         PRINTVAR_TO_FILE(OCR_did_not_find_a_letter_when_there_was_one, outfile);
         PRINTVAR_TO_FILE(OCR_did_not_find_a_letter_when_there_was_NOT_one, outfile);
 
-//------------------------------------------------
+        //------------------------------------------------
 
 
-    if(OCR_attempts > 0)
-    {
-        outfile << std::endl << std::string("OCR success rate for finding the letter (assuming CSEG succeeded): ")
-    << (static_cast<float>(OCR_1st_successes)/static_cast<float>(OCR_attempts_in_which_there_was_a_target) * 100.0f) << std::string(" %");
+        if(OCR_attempts > 0)
+        {
+            outfile << std::endl << std::string("OCR success rate for finding the letter (assuming CSEG succeeded): ")
+                << (static_cast<float>(OCR_1st_successes)/static_cast<float>(OCR_attempts_in_which_there_was_a_target) * 100.0f) << std::string(" %");
 
-        outfile << std::endl << std::string("OCR success rate for saying non-targets aren't targets (assuming CSEG succeeded): ")
-    << (static_cast<float>(OCR_did_not_find_a_letter_when_there_was_NOT_one)/static_cast<float>(OCR_attempts_in_which_there_was_NOT_a_target) * 100.0f) << std::string(" %") << std::endl << std::endl;
-    }
+            outfile << std::endl << std::string("OCR success rate for saying non-targets aren't targets (assuming CSEG succeeded): ")
+                << (static_cast<float>(OCR_did_not_find_a_letter_when_there_was_NOT_one)/static_cast<float>(OCR_attempts_in_which_there_was_NOT_a_target) * 100.0f) << std::string(" %") << std::endl << std::endl;
+        }
 
-//------------------------------------------------
+        //------------------------------------------------
 
 
         outfile << std::flush;
     }
     else
     {
-		Print();
+        Print();
     }
 }
 
@@ -83,7 +83,7 @@ void test_data_results_ocr::PrintToFile(std::fstream & outfile)
 
 
 void CheckValidityOfResults_ocr			(std::ostream* PRINTHERE, test_data_results_ocr* optional_results_info,
-	OCR_ResultsContainer& results_to_check, const char* correct_ocr_character)
+        OCR_ResultsContainer& results_to_check, const char* correct_ocr_character)
 {
     if(results_to_check.empty()) //OCR module didn't find a letter
     {
@@ -118,7 +118,7 @@ void CheckValidityOfResults_ocr			(std::ostream* PRINTHERE, test_data_results_oc
                 else
                 {
                     for(std::vector<OCR_Result>::iterator ocr_results = results_to_check.results.begin();
-                        ocr_results != results_to_check.results.end(); ocr_results++)
+                            ocr_results != results_to_check.results.end(); ocr_results++)
                     {
                         if(ocr_results->character == (*correct_ocr_character))
                         {
@@ -141,7 +141,7 @@ void CheckValidityOfResults_ocr			(std::ostream* PRINTHERE, test_data_results_oc
 
 
 void UpdateResultsAttemptsData_ocr      (std::ostream* PRINTHERE, test_data_results_ocr* optional_results_info,
-	OCR_ResultsContainer& results_to_check, const char* correct_ocr_character)
+        OCR_ResultsContainer& results_to_check, const char* correct_ocr_character)
 {
     TRY_GET_OPTIONAL_INFO(OCR_attempts)++;
 

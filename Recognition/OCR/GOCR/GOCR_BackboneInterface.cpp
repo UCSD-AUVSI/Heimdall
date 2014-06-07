@@ -28,7 +28,6 @@ void GOCRBackboneInterface :: execute(imgdata_t *imdata, std::string args) {
             given_CSEGs.push_back(cv::imdecode(**cseg_iter, CV_LOAD_IMAGE_ANYDEPTH));
         }
 
-
 		global_GOCR_module_instance->RotateAndGetLetterCandidates(&given_CSEGs);
 		global_GOCR_module_instance->SiftThroughCandidates(4);
 		imdata->character = global_GOCR_module_instance->GetBestCandidate();

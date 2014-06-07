@@ -52,7 +52,6 @@ double calculate_px_per_feet(double horiz_cols, double altitude, double scalefac
     double h_ground = 2 * altitude * tan(h_fov/2);
     double px_per_feet = horiz_cols/h_ground;
 
-    cout << "Alt: " << altitude << " px_per_feet: " << px_per_feet << endl;
     return px_per_feet * scalefactor;
 }
 

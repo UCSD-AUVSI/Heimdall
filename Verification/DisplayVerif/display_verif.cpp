@@ -13,10 +13,10 @@ using std::cout;
 using std::endl;
 
 const bool kSaveImages = true;
-const bool kSaveSegs = false;
+const bool kSaveSegs = true;
 
 const bool kShowImages = false;
-const bool kShowIfSsegCsegSuccess = true;
+const bool kShowIfSsegCsegSuccess = false;
 
 const std::string output_folder("../../output_images");
 
@@ -27,6 +27,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     cout << "DisplayVerify , ID: " << imdata->id  << ", CropID: " << imdata->cropid << endl;
 
     bool both_cseg_and_sseg_succeeded = (imdata->sseg_image_data->empty()==false && imdata->sseg_image_data->empty()==false);
+    cout << "CS: " << (both_cseg_and_sseg_succeeded?"true":"false") << endl;
     bool save_output_file = true;
 
     // Update results file

@@ -66,7 +66,13 @@ void DistClient :: work(){
             delete msg;
         }
 
-        func(imdata, args);
+        try{
+            func(imdata, args);
+        }
+        catch(const std::exception &e){
+            cout << "Exception in " << alg << endl;
+            throw e;
+        }
 
         imgdata_t *curr_send_imdata = imdata;
         // Send one message per new image crop in imgdata

@@ -24,7 +24,7 @@ int FolderPush::sendcount = 0, FolderPush::delay = 100;
 bool FolderPush::send = true, FolderPush::pause = false,
      FolderPush::search_subfolders = false, FolderPush::first_send = true;
 
-const bool kUseEXIFForInfo = true;
+const bool kUseEXIFForInfo = false;
 
 std::vector<std::string> * FolderPush::file_list = new std::vector<std::string>();
 
