@@ -3,13 +3,10 @@
 
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
-
-
-class AnyOCR_Module_Main;
+#include "ocr_algorithm_gocr.hpp"
 
 //instantiated in GOCR_BackboneInterface.cpp
-extern AnyOCR_Module_Main* global_GOCR_module_instance;
-
+extern OCRModuleAlgorithm_GOCR* global_GOCR_module_instance;
 
 class GOCRBackboneInterface : AUVSI_Algorithm
 {

@@ -6,6 +6,9 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
+#include <vector>
+#include <map>
 
 #include "ocr_algorithm_gocr.hpp"
 #include "Recognition/OCR/OCRUtils/ocr_results.hpp"
@@ -21,94 +24,151 @@ extern "C" {
 using std::cout;
 using std::endl;
 
-bool OCRModuleAlgorithm_GOCR::TryToInitializeMe()
-{
-    //assume it's there
-    return true;
-}
+std::vector<std::pair<char,int>> candidates;
+int kMinSetSize = 5;
+int kMinGroupSize = 4;
+int kGroupDegreeSeparation = 30;
 
+char OCRModuleAlgorithm_GOCR::ProcessCandidates() {
 
-void OCRModuleAlgorithm_GOCR::do_SiftThroughCandidates(OCR_ResultsContainer & given_results,
-        int max_num_reported_letters,
-        double cutoff_confidence)
-{
-    //this method assumes that each letter has an attached confidence value
-    //if the OCR algorithm doesn't return confidence values, some other means of sorting must be used
+    // Mapping of individual characters to ALL of their angle values
+    std::map<char, std::vector<int>> char_map;
 
-    std::map<char, int> char_appearances;
-    std::map<char, double> char_std_deviances;
-    //std::map<char, double> char_std_deviances__doublebinned;
-    std::map<char, double> char_confidences;
-    std::map<char, double> char_angles;
+    // Mapping of characters to their individual groupings of characters
+    // each group of characters is distinct, and is separated by kGroupDegreeSeparation
+    // degrees from eachother
+    std::map<char, std::vector<std::vector<int>>> group_map;
 
-    std::vector<OCR_Result>::iterator riter = given_results.results.begin();
-    for(; riter != given_results.results.end(); riter++) {
-        if(riter->character != ' ') {
-            if(char_appearances.find(riter->character) == char_appearances.end()) {
-                char_appearances[riter->character] = 0;
+    //for(std::pair<char, int> candidate_pair : candidates){
+    //    cout << candidate_pair.first << "\t|";
+    //}
+    //cout << endl;
+    //for(std::pair<char, int> candidate_pair : candidates){
+    //    cout << candidate_pair.second << "\t|";
+    //}
+    //cout << endl;
 
-                if(letter_has_only_one_orientation(riter->character)) {
-                    double letter_standard_deviance = 0.0;
-                    char_angles[riter->character] = OCR_ResultsContainer::GetMeanAngle_FromOCRResults(given_results.results, riter->character, &letter_standard_deviance);
-                    char_std_deviances[riter->character] = letter_standard_deviance;
-                }
-                else if(letter_has_two_orientations(riter->character)) {
-                    char_std_deviances[riter->character] = 0.5 * OCR_ResultsContainer::Get_DoubleBinned_StdDev_FromOCRResults(given_results.results, riter->character);
-                }
-                else {
-                    //what to do here? don't bother calculating?
-                    char_std_deviances[riter->character] = 1.0;
-                }
+    // Sort candidates into lists according to the character
+    bool discard_small_sets = false;
+    for(std::pair<char, int> cand_pair : candidates) {
+        char_map[cand_pair.first].push_back(cand_pair.second);
+
+        // If we ever see a list > the min set size, we want to discard
+        // anything < than the set size
+        if(!discard_small_sets && char_map[cand_pair.first].size() >= kMinSetSize){
+            discard_small_sets = true;
+        }
+    }
+
+    // Go through the map and discard small sets (if we need to)
+    if(discard_small_sets){
+        for(std::map<char, std::vector<int>>::iterator it = char_map.begin(); it != char_map.end();){
+            if((*it).second.size() < kMinSetSize){
+                it = char_map.erase(it);
             }
-            char_appearances[riter->character]++;
-        }
-    }
-
-
-    given_results.clear();
-
-
-    std::map<char, int>::iterator miter = char_appearances.begin();
-    for(; miter != char_appearances.end(); miter++)
-    {
-        if(char_appearances[miter->first] >= 5)
-        {
-            double its_num_appearances = static_cast<double>(char_appearances[miter->first]);
-            char_confidences[miter->first] = (pow(its_num_appearances, 1.0) / pow(char_std_deviances[miter->first], 1.0));
-        }
-        else
-        {
-            char_confidences[miter->first] = 0.0;
-        }
-
-        given_results.PushBackNew(char_confidences[miter->first], char_angles[miter->first], miter->first);
-    }
-
-
-    given_results.SortByConfidence();
-
-
-    std::map<char, int> new_chars____test_for_printing;
-    riter = given_results.results.begin();
-    for(; riter != given_results.results.end(); riter++)
-    {
-        if(riter->character != ' ')
-        {
-            if(new_chars____test_for_printing.find(riter->character) == new_chars____test_for_printing.end())
-            {
-                new_chars____test_for_printing[riter->character] = 0;
-                consoleOutput.Level2() << "letter: " << riter->character << ", num appearances: " << char_appearances[riter->character] << ", std dev: " << char_std_deviances[riter->character] << ", \"conf\": " << char_confidences[riter->character] << std::endl;
+            else{
+                ++it;
             }
         }
     }
+
+    //for(std::pair<char, std::vector<int>> entry : char_map){
+    //    cout << entry.first << "\t";
+    //    for(int angle : entry.second){
+    //        cout << angle << " ";
+    //    }
+    //    cout << endl;
+    //}
+
+    // No entries remain, we don't know the character
+    if(char_map.empty()) {
+        return '_';
+    }
+
+    // Separate each character's degree list into groups
+    // Each group is a set of strictly increasing angles with
+    // their local change never being more than or equal to kGroupDegreeSeparation
+    for(std::pair<char, std::vector<int>> entry : char_map){
+        std::vector<std::vector<int>> &group_list = group_map[entry.first];
+
+        std::vector<int> curr_list;
+        for(int curr_angle : entry.second){
+            // curr_angle is part of this group
+            if(curr_list.empty() || abs(curr_list.back() - curr_angle) < kGroupDegreeSeparation){
+                curr_list.push_back(curr_angle);
+            }
+            // curr_angle is not part of this group, new group
+            else {
+                group_list.push_back(curr_list);
+                curr_list.clear();
+                curr_list.push_back(curr_angle);
+            }
+        }
+
+        group_list.push_back(curr_list); // Push back last group
+
+        // 360 -> 0 degree wraparound, so if groups around 0 degrees and groups around 360 degrees could
+        // overlap (be part of the same group), move them into same group
+        if(group_list.size() > 1 && abs(group_list.front().front() - (group_list.back().back() - 360)) < kGroupDegreeSeparation){
+            group_list.front().insert(group_list.front().end(), group_list.back().begin(), group_list.back().end());
+            group_list.pop_back();
+        }
+    }
+
+    // Delete any group with less than kMinGroupSize elements
+    for(std::map<char, std::vector<std::vector<int>>>::iterator map_it = group_map.begin(); map_it != group_map.end();){
+        std::vector<std::vector<int>> &curr_list = (*map_it).second;
+        for(std::vector<std::vector<int>>::iterator vec_it = curr_list.begin(); vec_it != curr_list.end();){
+            if((*vec_it).size() < kMinGroupSize){
+                vec_it = curr_list.erase(vec_it);
+            }
+            else{
+                ++vec_it;
+            }
+        }
+        if((*map_it).second.size() == 0){
+            map_it = group_map.erase(map_it);
+        }
+        else {
+            ++map_it;
+        }
+    }
+
+    for(std::pair<char, std::vector<std::vector<int>>> group : group_map){
+        cout << group.first << ":" << endl;
+        for(std::vector<int> list : group.second){
+            for(int angle : list){
+                cout << angle << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+
+    char retchar;
+    int retcharcount = 0;
+
+    // Simple algorithm for deciding retchar: whichever has the most hits wins
+    for(std::pair<char, std::vector<std::vector<int>>> group : group_map){
+        int currcharcount = 0;
+        for(std::vector<int> list : group.second){
+            currcharcount += list.size();
+        }
+        if(currcharcount > retcharcount){
+            retchar = group.first;
+            retcharcount = currcharcount;
+        }
+    }
+
+    return retchar;
 }
 
 job_t *OCR_JOB;
 
-void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amount, bool return_empty_characters)
+void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amount)
 {
     cv::Mat mat_rotated, mat_converted, mat_gray, mat_gocr;
-    
+
     // Rotated input to desired angle, and then convert to binary image (for gocr compatibility)
     Rotate_CV_Mat(matsrc, angle_amount, mat_rotated);
     if(matsrc.channels() >= 3){
@@ -158,7 +218,7 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
     job.src.p.x = mat_gocr.rows;
     job.src.p.y = mat_gocr.cols;
     job.src.p.bpp = 1;
-    
+
     //cv::Mat testmat(job.src.p.x, job.src.p.y, CV_8U, job.src.p.p);
     //cv::startWindowThread();
     //cv::namedWindow("test", CV_WINDOW_NORMAL);
@@ -189,7 +249,8 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
             foundchar = ' ';
         }
         if(foundchar != ' ' || return_empty_characters) {
-            last_obtained_results.PushBackNew(certainty_lower_bound+1, angle_amount, foundchar);
+            candidates.push_back(std::pair<char, int>(foundchar, angle_amount));
+            //last_obtained_results.PushBackNew(certainty_lower_bound+1, angle_amount, foundchar);
         }
     }
 
@@ -198,22 +259,10 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
 }
 
 
-bool OCRModuleAlgorithm_GOCR::do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/, bool return_empty_characters/*=false*/)
-{
-    last_obtained_results.clear();
-    cout << " HERE " << endl;
+bool OCRModuleAlgorithm_GOCR::do_OCR(cv::Mat letter_binary_mat) {
+    candidates.clear();
     for(int curr_angle = 0.0; curr_angle < 360.0; curr_angle += 360.0 / num_angles_to_check){
-        RotateAndRunOCR(letter_binary_mat, curr_angle, return_empty_characters);
+        RotateAndRunOCR(letter_binary_mat, curr_angle);
     }
-
-    ////rotate a bunch and detect chars
-    //double angle_current=0.0;
-    //double angle_delta = (360.0 / static_cast<double>(num_angles_to_check));
-    //for(int bb=0; bb<num_angles_to_check; bb++)
-    //{
-    //    RotateAndRunOCR(letter_binary_mat, angle_current, return_empty_characters);
-    //    angle_current += angle_delta;
-    //}
-
-    return (last_obtained_results.empty() == false);
+    return (candidates.empty() == false);
 }
