@@ -6,15 +6,21 @@
 #include <QFont>
 #include <thread>
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
 QString extension = "jpg";
 
 Model::Model() :
     vc(0),
     prev(0),
-//    nextQLock(new std::unique_lock<std::mutex>(*qMutex)),
+    //    nextQLock(new std::unique_lock<std::mutex>(*qMutex)),
     qFull(new std::condition_variable()),
     qSize(new std::condition_variable()),
     qMutex(new std::mutex()),
+    fullMutex(new std::mutex()),
     setMutex(new std::mutex()),
     curr(new std::vector<StalkerLabels*>()),
     nextQ(new std::vector<StalkerLabels*>()),
@@ -63,6 +69,8 @@ void Model::nextClicked()
         case 5:
             tmp = prev4;
             break;
+        default:
+            break;
     }
 
     // If tmp is not null we are going to one of the states
@@ -78,16 +86,17 @@ void Model::nextClicked()
         qMutex->lock();
 
         // if the queue is empty don't do anything
-        if (nextQ->empty())
+        if (nextQ->empty()) {
+            qMutex->unlock();
             return;
+        }
 
         tmp = new std::vector<StalkerLabels*>();
-        int i = 0;
 
         // get up to 10 StalkerLabels from the queue to
         // add to the gui, and fill the other spaces with
         // empty StalkerLabels
-        while (i < 10)
+        for (int i = 0; i < 10; i++)
         {
             if (!nextQ->empty())
             {
@@ -99,7 +108,6 @@ void Model::nextClicked()
             {
                 tmp->push_back(new StalkerLabels());
             }
-            i++;
         }
 
         // done with nextQ so unlock it's mutex
@@ -117,7 +125,7 @@ void Model::nextClicked()
 
         // Before clear of prev5, delete input files
         for (std::vector<StalkerLabels*>::iterator start = prev5->begin();
-             start != prev5->end(); start++)
+                start != prev5->end(); start++)
         {
             // get the pictures path
             QString picPath = (*start)->getAbsPath();
@@ -230,8 +238,8 @@ void Model::addToNextQ(QString fp, QString fName)
     infoFileStr = infoFileStr.remove(infoFileStr.size()-extLen,extLen).append("txt");
     QFile infoFile(infoFileStr);
 
-//    printf("File Name: %s\n", fName.toStdString().c_str());
-//    fflush(stdout);
+    //    printf("File Name: %s\n", fName.toStdString().c_str());
+    //    fflush(stdout);
 
     // used to hold the attributes lat and lon of the picture
     QString attribs[2] = {0,0};
@@ -273,12 +281,14 @@ void Model::addToNextQ(QString fp, QString fName)
 
     // put in the proper fields to the new StalkerLabels object
     StalkerLabels *lbls = new StalkerLabels(
-                fName, attribs[0], attribs[1], fp);
+            fName, attribs[0], attribs[1], fp);
 
     // lock the mutex for nextQ
-    std::unique_lock<std::mutex> localLock(*qMutex);
+    //std::unique_lock<std::mutex> localLock(*qMutex);
 
+    qMutex->lock();
     nextQ->push_back(lbls);
+    qMutex->unlock();
 
     // wake up any other thread waiting on synchronizing the q's size
     qSize->notify_all();
@@ -301,7 +311,7 @@ void Model::fileChecker(QDir dir, ViewController *vc)
 {
     dir.refresh();
     QFileInfoList dirList = dir.entryInfoList();
-    QString ext(".png");
+    QString ext(".jpg");
     for (int i = 0; i < dirList.size(); i++)
     {
         QFileInfo file = dirList.at(i);
@@ -311,13 +321,13 @@ void Model::fileChecker(QDir dir, ViewController *vc)
 
         // Don't need the recursive check so file is dir path is
         // just commented out since we just wanted to skip that case
-//        if (file.isDir())
-//        {
-//            if (fName.compare(".") == 0 || fName.compare("..") == 0)
-//                ; // skip
-//            else
-//                fileChecker(QDir(absFP), vc);
-//        }
+        //        if (file.isDir())
+        //        {
+        //            if (fName.compare(".") == 0 || fName.compare("..") == 0)
+        //                ; // skip
+        //            else
+        //                fileChecker(QDir(absFP), vc);
+        //        }
         if (!file.isDir())
         {
             // ensure either branch of the if unlocks the mutex afterwards
@@ -330,7 +340,7 @@ void Model::fileChecker(QDir dir, ViewController *vc)
                 setMutex->unlock();
 
                 // Need a lock for condition variables
-                std::unique_lock<std::mutex> localLock(*qMutex);
+                std::unique_lock<std::mutex> localLock(*fullMutex);
 
                 QString infoFileStr = file.absoluteFilePath();
                 int extLen = extension.size();
@@ -341,7 +351,7 @@ void Model::fileChecker(QDir dir, ViewController *vc)
                 {
                     infoFile.close();
                     printf("Problems finding file with name %s\n",
-                           infoFileStr.toStdString().c_str());
+                            infoFileStr.toStdString().c_str());
 
                 }
                 else

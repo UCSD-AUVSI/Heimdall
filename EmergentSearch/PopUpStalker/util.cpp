@@ -83,7 +83,7 @@ void TargetRec::recurseDir(QDir &dir, std::set<QString> *targetFolders)
 //    recurseDir(dir, vc);
     dir.refresh();
     QFileInfoList dirList = dir.entryInfoList();
-    QString ext(".png");
+    QString ext(".jpg");
     for (int i = 0; i < dirList.size(); i++)
     {
         QFileInfo file = dirList.at(i);

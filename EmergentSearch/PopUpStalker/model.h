@@ -68,7 +68,7 @@ public slots:
 
 private:
     ViewController *vc;
-    std::mutex *qMutex;
+    std::mutex *qMutex, *fullMutex;
 
     std::unique_lock<std::mutex> *nextQLock;
     std::condition_variable *qFull; // Condition if nextQ is full
