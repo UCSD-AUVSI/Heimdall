@@ -48,7 +48,6 @@ target_link_libraries(
     guirec
     guisaliency
     imagepush
-    imagesub
     publish
     verification
     ${ZEROMQ_LIBRARIES}
