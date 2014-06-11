@@ -72,7 +72,10 @@ void startServerPort(std::vector<AlgClass> alg_class_list){
                 delete sendmsg;
             }
             if(pub_msgs){
-                publish_socket.send(*msg);
+                zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(&imdata));
+                packMessageData(sendmsg, &imdata);
+                publish_socket.send(*sendmsg);
+                delete sendmsg;
             }
         }
 

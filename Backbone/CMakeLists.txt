@@ -1,6 +1,3 @@
-# generate binaries in build instead of build/Backbone
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-
 set(backbone_source_files
     AUVSI_Algorithm.hpp
     Backbone.hpp
@@ -15,6 +12,8 @@ set(backbone_source_files
     PortHandling.cpp
     PortHandling.hpp
     Client.hpp
+    SubClient.cpp
+    SubClient.hpp
     )
 set(dist_source_files
     DistAlgs.hpp
@@ -46,7 +45,6 @@ target_link_libraries(
     seg
     ocr
     shaperec
-    display
     guirec
     guisaliency
     imagepush

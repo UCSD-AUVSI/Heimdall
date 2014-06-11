@@ -1,11 +1,18 @@
-set(display_source_files 
-	Display.cpp
-	Display.hpp
+set(bdsub_source_files 
+    BDSub.cpp
+	BDSub.hpp
 	)
 
-add_library(display ${display_source_files})
+add_library(bdsub ${bdsub_source_files})
 
-target_link_libraries(display backbone ${OpenCV_LIBS})
+add_executable(BDSub ${bdsub_source_files})
 
+target_link_libraries(
+    BDSub 
+    backbone 
+    ${ZEROMQ_LIBRARIES}
+    ${OpenCV_LIBS}
+    )
+
+add_subdirectory(BigDog)
 add_subdirectory(Test)
-

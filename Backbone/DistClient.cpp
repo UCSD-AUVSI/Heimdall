@@ -56,7 +56,7 @@ void DistClient :: work(){
     push_socket.connect(port_str.c_str());
 
     while(true){
-        imgdata_t *imdata = new imgdata_t();
+        imgdata_t *imdata = new imgdata_t(); //Deleted as part of send loop
         initEmptyIMGData(imdata);
         if(pull_needed){
             zmq::message_t *msg = new zmq::message_t();
@@ -68,29 +68,31 @@ void DistClient :: work(){
 
         try{
             func(imdata, args);
+
+            imgdata_t *curr_send_imdata = imdata;
+            // Send one message per new image crop in imgdata
+            while(curr_send_imdata != nullptr){
+                if(messageSizeNeeded(curr_send_imdata) > 0 &&
+                        curr_send_imdata->image_data != nullptr &&
+                        curr_send_imdata->image_data->size()) { //If we need to send a message
+                    // Need to allocate on heap, too large for stack
+                    zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(curr_send_imdata));
+                    packMessageData(sendmsg, curr_send_imdata);
+                    push_socket.send(*sendmsg);
+                    delete sendmsg;
+                }
+
+                clearIMGData(curr_send_imdata);
+                imgdata_t *temp = curr_send_imdata;
+                curr_send_imdata = curr_send_imdata->next;
+                delete temp;
+            }
+
         }
         catch(const std::exception &e){
             cout << "Exception in " << alg << endl;
-            throw e;
-        }
-
-        imgdata_t *curr_send_imdata = imdata;
-        // Send one message per new image crop in imgdata
-        while(curr_send_imdata != nullptr){
-            if(messageSizeNeeded(curr_send_imdata) > 0 &&
-                    curr_send_imdata->image_data != nullptr &&
-                    curr_send_imdata->image_data->size()) { //If we need to send a message
-                // Need to allocate on heap, too large for stack
-                zmq::message_t *sendmsg = new zmq::message_t(messageSizeNeeded(curr_send_imdata));
-                packMessageData(sendmsg, curr_send_imdata);
-                push_socket.send(*sendmsg);
-                delete sendmsg;
-            }
-
-            clearIMGData(curr_send_imdata);
-            imgdata_t *temp = curr_send_imdata;
-            curr_send_imdata = curr_send_imdata->next;
-            delete temp;
+            delete imdata;
+            //throw e;
         }
     }
 }

@@ -1,3 +1,9 @@
+SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin/test)
+
+
+# set all executables to be put in test build directory
+SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin/test)
+
 set(teststubocr_source_files
 	TestStubOCR.cpp
 	)
