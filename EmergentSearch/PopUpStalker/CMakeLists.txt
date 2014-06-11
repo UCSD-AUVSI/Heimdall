@@ -10,6 +10,12 @@ set(popupstalker_source_files
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+include_directories("/usr/include/qt5/QtCore")
+include_directories("/usr/include/qt5/QtWidgets")
+include_directories("/usr/include/qt5/QtGui")
+include_directories("/usr/include/qt5/QtConcurrent")
+include_directories("/usr/include/qt5")
+
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
