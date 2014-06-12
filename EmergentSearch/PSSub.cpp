@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
         usage();
         return 0;
     } else if (argc == 3) {
-        if (std::string(argv[2]) == "--server") {
-            default_server = std::string(argv[3]);
+        if (std::string(argv[1]) == "--server") {
+            default_server = std::string(argv[2]);
         } else {
             usage();
             return 0;
