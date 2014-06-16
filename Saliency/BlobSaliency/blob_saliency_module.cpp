@@ -44,6 +44,7 @@ double to_radians(double degrees){
 
 // Calculate pixels per feet (resolution) of given image, AFTER scaling
 double calculate_px_per_feet(double horiz_cols, double altitude, double scalefactor){
+    cout << "alt: " << altitude << endl;
     double focal_length = 35, crop_factor = 1.6; 
     double equiv_foc_len = focal_length * crop_factor;
 
@@ -72,20 +73,36 @@ double calculate_min_area(double horiz_cols, double altitude, double scalefactor
     return (min_area <= 5.0f)?5.0f:min_area;
 }
 
-std::pair<double, double> find_target_geoloc(int targetrow, int targetcol, int imrows, int imcols, double planelat, double planelongt, double planeheading, double pxtofeet){
-    planeheading = -planeheading; //Gimbal is reversed in plane
+std::pair<double, double> find_target_geoloc(int targetrow, int targetcol, int imrows, int imcols, double planelat, double planelongt, double planeheading, double pxperfeet){
+    planeheading = planeheading - kPI; //Gimbal is reversed in plane
 
-    int rowdiff = targetrow - imrows/2; //row diff from center (and center of plane)
-    int coldiff = targetcol - imcols/2; //col diff from center (and center of plane)
+    cout << "heading: " << planeheading << endl;
+    cout << "imrows: " << imrows << " imcols: " << imcols << endl;
+    double rowdiff = targetrow - (double)imrows/2; //row diff from center (and center of plane)
+    double coldiff = targetcol - (double)imcols/2; //col diff from center (and center of plane)
 
-    int rowfeetdiff = rowdiff * pxtofeet;
-    int colfeetdiff = coldiff * pxtofeet;
+    cout << "rd: " << rowdiff << endl;
+    cout << "cd: " << coldiff << endl;
+    cout << "ptf: " << pxperfeet << endl;
 
-    double latfeetdiff = -rowfeetdiff * cos(planeheading) + colfeetdiff * cos(kPI/2 + planeheading); //-diff because up/right = pos
-    double longtfeetdiff = -rowfeetdiff * sin(planeheading) + colfeetdiff * sin(kPI/2 + planeheading); //-diff because up/right = pos
+    double centerdiff = sqrt(pow(rowdiff, 2) + pow(coldiff, 2));
+    double centerfeetdiff = centerdiff / pxperfeet;
+ 
+    cout << "centerdiff: " << centerdiff << endl;
+    cout << "centerfeetdiff: " << centerfeetdiff << endl;
 
+    double centerangle = atan(coldiff/-rowdiff) * ((-rowdiff)>0)?1:-1;
+    
+    cout << "centerangle: " << centerangle << endl;
+
+    double latfeetdiff = -rowfeetdiff * cos(planeheading) - colfeetdiff * cos(kPI/2 + planeheading); //-diff because up/right = pos
+    double longtfeetdiff = -rowfeetdiff * sin(planeheading) - colfeetdiff * sin(kPI/2 + planeheading); //-diff because up/right = pos
+    
+    cout << "coord dist: " << sqrt(pow(latfeetdiff, 2) + pow(longtfeetdiff, 2)) << endl;
+    printf("lat diff: %.7f\tdeg, %.3f feet\n", latfeetdiff/365221, latfeetdiff);
     double target_lat = planelat + latfeetdiff/365221; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
     double longt_deg_to_feet = 2.0890566 * pow(10, 7) * cos(to_radians(target_lat)); //Radius of circle at this lat, (2*PI*R)/(2*PI)
+    printf("long diff: %.7f\tdeg, %.3f feet\n", longtfeetdiff/longt_deg_to_feet, longtfeetdiff);
     double target_longt = planelongt + longtfeetdiff/longt_deg_to_feet;
 
     return std::pair<double, double>(target_lat, target_longt);
@@ -107,11 +124,13 @@ void Blob_Saliency_Module::do_saliency_with_setting(cv::Mat input_image, Blob_Sa
     int erdi_iters = (int)(3 * relative_scalefactor);
     double max_ellipse_area = setting.max_ellipse_area_base * (pow(relative_scalefactor,2)), 
            min_ellipse_area = setting.min_ellipse_area_base * (pow(relative_scalefactor,2));
+    
     // If we have been given altitude data
-    cout << "Alt: " << imdata->planealt << endl;
     if(imdata->planealt > 0.0f){
-        max_ellipse_area = calculate_max_area(input_image.cols, imdata->planealt, scalefactor);
-        min_ellipse_area = calculate_min_area(input_image.cols, imdata->planealt, scalefactor);
+        // TODO: MAKE SURE THESE LINES ARE UNCOMMENTED IN ACTUAL FLIGHT
+        // ONLY COMMENTED NOW TO DISABLE AREA CALCULATION IN DESERT
+        //max_ellipse_area = calculate_max_area(input_image.cols, imdata->planealt, scalefactor);
+        //min_ellipse_area = calculate_min_area(input_image.cols, imdata->planealt, scalefactor);
         cout << " Max: " << max_ellipse_area << " Min: " << min_ellipse_area << endl;
     }
 
