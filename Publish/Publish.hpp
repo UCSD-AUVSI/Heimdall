@@ -2,11 +2,12 @@
 #define PUBLISH_H
 
 #include "Backbone/IMGData.hpp"
-#include "Backbone/AUVSI_Algorithm.hpp"
+#include "Backbone/SubClient.hpp"
 
-class Publish : AUVSI_Algorithm{
+class Publish : public SubClient{
 	public:
-		static void execute(imgdata_t *data, std::string args);
+        Publish(std::string server_addr, AlgClass alg) : SubClient(server_addr, alg){}
+        void DoWork();
 };
 
 #endif

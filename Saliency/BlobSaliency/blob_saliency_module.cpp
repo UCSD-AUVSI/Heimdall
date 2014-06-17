@@ -76,34 +76,33 @@ double calculate_min_area(double horiz_cols, double altitude, double scalefactor
 std::pair<double, double> find_target_geoloc(int targetrow, int targetcol, int imrows, int imcols, double planelat, double planelongt, double planeheading, double pxperfeet){
     planeheading = planeheading - kPI; //Gimbal is reversed in plane
 
-    cout << "heading: " << planeheading << endl;
-    cout << "imrows: " << imrows << " imcols: " << imcols << endl;
     double rowdiff = targetrow - (double)imrows/2; //row diff from center (and center of plane)
     double coldiff = targetcol - (double)imcols/2; //col diff from center (and center of plane)
 
-    cout << "rd: " << rowdiff << endl;
-    cout << "cd: " << coldiff << endl;
-    cout << "ptf: " << pxperfeet << endl;
-
+    // Tranlate to polar coordinates, in feet
     double centerdiff = sqrt(pow(rowdiff, 2) + pow(coldiff, 2));
     double centerfeetdiff = centerdiff / pxperfeet;
- 
+    double centerangle = atan(coldiff/-rowdiff) + (((-rowdiff)>0)?0.0:kPI);
+    
+    // Project to Lat/Long
+    double latfeetdiff = centerfeetdiff * cos(planeheading + centerangle);
+    double longtfeetdiff = centerfeetdiff * sin(planeheading + centerangle);
+
+    // Convert Lat/Long feet differences into degrees to get final lat/long
+    double target_lat = planelat + latfeetdiff/365221.43; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
+    double longt_deg_to_feet = kPI * 20890566 * cos(to_radians(target_lat)) / 180; //Radius of circle at this lat, (PI*R)/(180)
+    double target_longt = planelongt + longtfeetdiff/longt_deg_to_feet;
+    
+    cout << "heading: " << planeheading << endl;
+    cout << "imrows: " << imrows << " imcols: " << imcols << endl;
+    cout << "rd: " << rowdiff << endl;
+    cout << "cd: " << coldiff << endl;
+    cout << "ppf: " << pxperfeet << endl;
     cout << "centerdiff: " << centerdiff << endl;
     cout << "centerfeetdiff: " << centerfeetdiff << endl;
-
-    double centerangle = atan(coldiff/-rowdiff) * ((-rowdiff)>0)?1:-1;
-    
     cout << "centerangle: " << centerangle << endl;
-
-    double latfeetdiff = -rowfeetdiff * cos(planeheading) - colfeetdiff * cos(kPI/2 + planeheading); //-diff because up/right = pos
-    double longtfeetdiff = -rowfeetdiff * sin(planeheading) - colfeetdiff * sin(kPI/2 + planeheading); //-diff because up/right = pos
-    
-    cout << "coord dist: " << sqrt(pow(latfeetdiff, 2) + pow(longtfeetdiff, 2)) << endl;
     printf("lat diff: %.7f\tdeg, %.3f feet\n", latfeetdiff/365221, latfeetdiff);
-    double target_lat = planelat + latfeetdiff/365221; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
-    double longt_deg_to_feet = 2.0890566 * pow(10, 7) * cos(to_radians(target_lat)); //Radius of circle at this lat, (2*PI*R)/(2*PI)
     printf("long diff: %.7f\tdeg, %.3f feet\n", longtfeetdiff/longt_deg_to_feet, longtfeetdiff);
-    double target_longt = planelongt + longtfeetdiff/longt_deg_to_feet;
 
     return std::pair<double, double>(target_lat, target_longt);
 }
@@ -127,10 +126,8 @@ void Blob_Saliency_Module::do_saliency_with_setting(cv::Mat input_image, Blob_Sa
     
     // If we have been given altitude data
     if(imdata->planealt > 0.0f){
-        // TODO: MAKE SURE THESE LINES ARE UNCOMMENTED IN ACTUAL FLIGHT
-        // ONLY COMMENTED NOW TO DISABLE AREA CALCULATION IN DESERT
-        //max_ellipse_area = calculate_max_area(input_image.cols, imdata->planealt, scalefactor);
-        //min_ellipse_area = calculate_min_area(input_image.cols, imdata->planealt, scalefactor);
+        max_ellipse_area = calculate_max_area(input_image.cols, imdata->planealt, scalefactor);
+        min_ellipse_area = calculate_min_area(input_image.cols, imdata->planealt, scalefactor);
         cout << " Max: " << max_ellipse_area << " Min: " << min_ellipse_area << endl;
     }
 

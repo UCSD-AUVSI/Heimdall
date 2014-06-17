@@ -150,6 +150,6 @@ std::string get_typeid_name_of_class(const T& t) {
     return demangle_typeid_name(typeid(t).name());
 }
 
-
+std::string ConvertOrientationToString(double orientation);
 
 #endif

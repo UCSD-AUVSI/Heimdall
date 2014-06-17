@@ -6,9 +6,10 @@
 
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <fstream>
+#include <map>
 
 
 //-------------------------------------
@@ -263,3 +264,32 @@ std::string demangle(const char* name) {
     return name;
 }
 #endif
+
+std::string ConvertOrientationToString(double orientation) {
+    std::map<double, std::string> orient_map = {
+        {0,     "N"},
+        {45,    "NE"},
+        {90,    "E"},
+        {135,   "SE"},
+        {180,   "S"},
+        {225,   "SW"},
+        {270,   "W"},
+        {315,   "NW"}
+    };
+
+    if (orientation < 0.0 || orientation > 360.0) {
+        return "N/A";
+    } else {
+        double min_difference = 360.0;
+        std::string retstr = "N/A";
+
+        for(auto &x : orient_map){
+            if(abs(x.first - orientation) < min_difference){
+                min_difference = abs(x.first - orientation);
+                retstr = x.second;
+            }
+        }
+        return retstr;
+    }
+}
+

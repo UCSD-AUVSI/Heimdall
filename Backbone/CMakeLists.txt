@@ -32,11 +32,11 @@ add_library(backbone ${backbone_source_files})
 add_library(dist ${dist_source_files})
 add_library(server ${server_source_files})
 
-add_executable(zServer ${server_source_files})
-add_executable(zDistClient ${dist_source_files})
+add_executable(HServer ${server_source_files})
+add_executable(HClient ${dist_source_files})
 
 target_link_libraries(
-    zDistClient
+    HClient
     dist
     backbone
     orthorect
@@ -54,7 +54,7 @@ target_link_libraries(
     ${OpenCV_LIBS}
     )
 target_link_libraries(
-    zServer
+    HServer
     server
     backbone
     ${ZEROMQ_LIBRARIES}
@@ -63,5 +63,5 @@ target_link_libraries(
 
 if(Qt_FOUND)
     include_directories(${QT_USE_FILE})
-    target_link_libraries(zDistClient ${QT_LIBRARIES})
+    target_link_libraries(HClient ${QT_LIBRARIES})
 endif(Qt_FOUND)

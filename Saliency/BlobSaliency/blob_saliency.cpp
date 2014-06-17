@@ -37,13 +37,13 @@ void BlobSaliency :: execute(imgdata_t *imdata, std::string args){
 
         if(environment_is_desert) {
             Blob_Saliency_Settings desert_settings;
-            desert_settings.canny_low_thresh[0] = 20;
+            desert_settings.canny_low_thresh[0] = 50;
             desert_settings.canny_low_thresh[1] = 20;
-            desert_settings.canny_low_thresh[2] = 30;
-            desert_settings.canny_high_thresh[0] = 200;
-            desert_settings.canny_high_thresh[1] = 200;
-            desert_settings.canny_high_thresh[2] = 80;
-            desert_settings.max_ellipse_area_base = 70.0f;
+            desert_settings.canny_low_thresh[2] = 20;
+            desert_settings.canny_high_thresh[0] = 140;
+            desert_settings.canny_high_thresh[1] = 60;
+            desert_settings.canny_high_thresh[2] = 60;
+            desert_settings.max_ellipse_area_base = 100.0f;
             desert_settings.min_ellipse_area_base = 0.2f;
             desert_settings.converted_color_space = CV_BGR2Lab;
             desert_settings.blur_kernel_size[0] = 5;

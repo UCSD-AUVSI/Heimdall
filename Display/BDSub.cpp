@@ -9,7 +9,6 @@
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
 
-
 using std::cout;
 using std::endl;
 
@@ -59,7 +58,6 @@ int main(int argc, char* argv[]) {
         usage();
         return 0;
     } else if (argc == 3) {
-        cout << "Here" << endl;
         cout << std::string(argv[1]) << endl;
         if (std::string(argv[1]) == "--server") {
             default_server = std::string(argv[2]);
