@@ -87,6 +87,11 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
                     << to_sstring((*iter_sseg_color)[0]) << std::string(", ")
                     << to_sstring((*iter_sseg_color)[1]) << std::string(", ")
                     << to_sstring((*iter_sseg_color)[2]) << std::endl;
+                
+                imdata->scolor = ConvertColorToString(
+                        (*iter_sseg_color)[2],
+                        (*iter_sseg_color)[1],
+                        (*iter_sseg_color)[0]);
             }
         }
         if(returned_CSEGs.empty() == false)
@@ -98,6 +103,11 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
                     << to_sstring((*iter_cseg_color)[0]) << std::string(", ")
                     << to_sstring((*iter_cseg_color)[1]) << std::string(", ")
                     << to_sstring((*iter_cseg_color)[2]) << std::endl;
+                
+                imdata->ccolor = ConvertColorToString(
+                        (*iter_cseg_color)[2],
+                        (*iter_cseg_color)[1],
+                        (*iter_cseg_color)[0]);
             }
         }
 	}

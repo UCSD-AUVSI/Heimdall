@@ -117,9 +117,12 @@ bool Model::addValidImage(QFileInfo &file, ViewController *vc, QString ext)
                    i < propLen)
             {
                 QString line = infoFileStream.readLine();
-                if (line.isEmpty())
-                    continue;
-                QLabel *temp = new QLabel(line);
+                QLabel *temp;
+                if (line.isEmpty()) {
+                    temp = new QLabel("N/A");
+                } else {
+                    temp = new QLabel(line);
+                }
                 QFont f( "Arial", 14, QFont::Bold);
                 temp->setFont( f);
                 *(properties[i++]) = temp;

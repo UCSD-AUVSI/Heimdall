@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <vector>
 
 
 //-------------------------------------
@@ -293,3 +294,41 @@ std::string ConvertOrientationToString(double orientation) {
     }
 }
 
+std::string ConvertColorToString(double r, double g, double b) {
+    std::map<std::string, std::vector<double>> color_map = {
+        {"black",   {0, 0, 0}},
+        {"gray",    {128, 128, 128}},
+        {"white",   {255, 255, 255}},
+
+        {"red",     {255, 0, 0}},
+        {"green",   {0, 255, 0}},
+        {"blue",    {0, 0, 255}},
+
+        {"yellow",  {255, 255, 0}},
+        {"fuchsia", {255, 0, 255}},
+        {"aqua",    {0, 255, 255}},
+
+        {"orange",  {255, 128, 0}},
+        {"maroon",  {128, 0, 0}},
+        {"purple",  {128, 0, 128}},
+        {"olive",   {128, 128, 0}},
+        {"teal",    {0, 128, 128}},
+    };
+    
+    double distance = 450;
+    std::string color = "";
+
+    for(auto &x: color_map){
+        double curr_dist = sqrt( 
+                pow(x.second[0] - r, 2) +
+                pow(x.second[1] - g, 2) +
+                pow(x.second[2] - b, 2));
+
+        if (curr_dist < distance) {
+            distance = curr_dist;
+            color = x.first;
+        }
+    }
+
+    return color;
+}
