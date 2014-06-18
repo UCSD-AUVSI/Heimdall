@@ -39,7 +39,7 @@
         //cv::imshow("before dilation", try_dilating_this);
 
 
-        int dilation_size = 3;
+        int dilation_size = 6;
         cv::Mat element_dilation = cv::getStructuringElement(cv::MORPH_CROSS,
                                 cv::Size(2*dilation_size + 1, 2*dilation_size + 1),
                                 cv::Point(dilation_size, dilation_size) );
@@ -48,6 +48,10 @@
 
         //cv::imshow("after dilation", try_dilating_this);
 
+		
+		//fill in interior holes in the shape
+		try_dilating_this = FillInteriorsOfBlob(try_dilating_this, 255);
+		
 
 
         cv::Mat filled_and_dilated;
@@ -88,7 +92,7 @@
         //dilation and erosion aren't 100% reversible, even on the outer perimeter where there shouldn't be any filling in,
         //but this seems pretty nearly reversible (dilating-and-eroding a shape without a CSEG doesn't change very much)
 
-        int erosion_size = 3;
+        int erosion_size = 5;
         cv::Mat element_erosion = cv::getStructuringElement(cv::MORPH_CROSS,
                                 cv::Size(2*erosion_size + 1, 2*erosion_size + 1),
                                 cv::Point(erosion_size, erosion_size) );
@@ -98,9 +102,11 @@
 
 
         //cv::imshow("dilated back to where it was", try_dilating_this);
+		//cv::waitKey(0);
+		//cv::destroyAllWindows();
 
 
-
+		//save it
         try_dilating_this.copyTo(*input_SSEGs->begin());
 
 
@@ -128,7 +134,7 @@
                 consoleOutput.Level3() << std::string("percent area of largest SSEG: ")
                 << to_sstring(area_of_largest_contour / total_area_of_all_contours) << std::endl;
 
-                consoleOutput.Level2() << std::endl << std::string("the merger module decided to toss an ugly looking SSEG!") << std::endl;
+                consoleOutput.Level1() << std::endl << std::string("the merger module decided to toss an ugly looking SSEG!") << std::endl;
                 consoleOutput.Level3() << std::string("################################################################################") << std::endl;
                 consoleOutput.Level4() << std::string("################################################################################") << std::endl;
 
@@ -145,7 +151,7 @@
     {
         if(input_CSEGs->empty() && input_SSEGs->empty()==false)
         {
-            consoleOutput.Level2() << std::endl << std::string("the merger module decided to toss the SSEG because there was no CSEG!") << std::endl;
+            consoleOutput.Level1() << std::endl << std::string("the merger module decided to toss the SSEG because there was no CSEG!") << std::endl;
             consoleOutput.Level3() << std::string("################################################################################") << std::endl;
             consoleOutput.Level3() << std::string("################################################################################") << std::endl;
             consoleOutput.Level4() << std::string("################################################################################") << std::endl;

@@ -18,6 +18,8 @@ std::string GetNameOfCVColorSpace(int CV_colorspace_conversion_type);
 cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, float max_acceptable_fractional_difference=1.00001f, std::string error_msg_comment="");
 cv::Scalar Average_Several_CVColors(std::vector<cv::Scalar>* input_colors);
 
+cv::Mat FillInteriorsOfBlob(cv::Mat img, unsigned char fill_color);
+
 double GetLengthOfCVScalar(cv::Scalar input);
 
 int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,

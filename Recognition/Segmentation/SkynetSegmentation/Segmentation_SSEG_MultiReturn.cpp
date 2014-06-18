@@ -10,6 +10,7 @@
 #include "skynet_Segmenter_SingleImageReturn.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
+#include "SegmentationUtils.hpp"
 
 
 
@@ -67,6 +68,8 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
                             &returned_blob_color,
                             &foundshape_blob_returned_mask,
                             std::string("Shape Segmentation (SSEG)"),
+                            (folder_path_of_output_saved_images != nullptr ? *folder_path_of_output_saved_images : ""),
+                            setting_number,
                             &findshape_returned_histogrambins_for_saving,
                             &findshape_returned_preprocessed_for_saving);
 
@@ -161,8 +164,12 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
         if(save_images_and_results && folder_path_of_output_saved_images != nullptr) {
             saveImage(avg_shape,
                 *folder_path_of_output_saved_images + std::string("/") +
-                (*name_of_crop) + std::string("__SSEG.png"));
+                (*name_of_crop) + std::string("__SSEG_color_is_") + to_sstring(avg_color) + std::string(".png"));
         }
+#endif
+#if 0
+		SaveBlobColorCheckImage(cropped_target_image, avg_shape, avg_color,
+				*folder_path_of_output_saved_images + std::string("/") + (*name_of_crop) + std::string("_SSEG_ColorCheck.png"));
 #endif
 //=======================================================================
         }

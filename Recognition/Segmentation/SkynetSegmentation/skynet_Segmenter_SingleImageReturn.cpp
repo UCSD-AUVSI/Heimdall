@@ -7,6 +7,7 @@
 #include <algorithm> //circularity sorter
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
 #include "SharedUtils/SharedUtils.hpp"
+#include "SegmentationUtils.hpp"
 
 
 using namespace Skynet;
@@ -29,6 +30,8 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
                         cv::Scalar* returned_color_of_blob,
                         cv::Mat* mask_of_returned_shape_blob,
                         std::string name_of_process_calling_this_function,
+                        std::string folder_to_save_intermediate_images,
+                        int seg_setting_index_for_testing,
                         cv::Mat* returned_mat_of_binned_histogram/*=nullptr*/,
                         cv::Mat* returned_mat_preprocessed/*=nullptr*/)
 {
@@ -60,6 +63,10 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 			-- to ensure that SSEG gets the blob of the shape (and not of the letter, as occasionally happens),
 				compare the size of the minimum-bounding-convex-polygon and get the bigger one
 				(do this after eliminating noise, so speckles aren't included in the convex outline)
+				
+				NOTE: AFTER TESTING: this only happens 2 out of 41 times...
+					one possibility is to make a weighted metric, where roundedness (the current decider) is weighted
+						more than absolute size, but the larger absolute size is weighted slightly
 	*/
 	
 	if(attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS > 0) {
@@ -97,7 +104,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	
 	
 	
-	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	/*if(true && (*name_of_process_calling_this_function.begin()) == 'S') //SSEG only
 	{
 		consoleOutput.Level2() << "num blobs found by HistSeg: " << to_istring(blobList.size()) << std::endl;
 		for(int i=0; i<blobList.size(); i++)
@@ -136,7 +143,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	}
 	
 	
-	/*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+	/*if(true && (*name_of_process_calling_this_function.begin()) == 'S') //SSEG only
 	{
 		consoleOutput.Level2() << "num ROUNDISH blobs found: " << to_istring(roundishBlobs.size()) << std::endl;
 		for(int i=0; i<roundishBlobs.size(); i++)
@@ -154,29 +161,34 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     //Almost done! Get ready for the last step, in case it needs to be done.
     ColorBlob* chosenShapeBlob = nullptr;
     cv::Mat chosenShapeBlob_Mask;
+    cv::Mat chosenShapeBlob_Mask_Unfilled;
 
 
     //Last step: If we know a color we want to ignore, then eliminate blobs too close to that color
     //
     if(input_color_of_previously_found_shapeblob != nullptr)
     {
-        std::vector<cv::Mat> all_blob_masks;
+        std::vector<cv::Mat> all_blob_masks_unfilled;
         std::vector<cv::Scalar> colors_of_blobs;
 
         for(int i=0; i<roundishBlobs.size(); i++)
         {
-            all_blob_masks.push_back(getShapeFromBlob(roundishBlobs[i], converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING));
+            all_blob_masks_unfilled.push_back(getShapeFromBlob(roundishBlobs[i], converted_mat.size(), false));
 
             //calculate each blob's color by averaging the colors in the blob's region in the
             //                  original RGB image (colorImg; before colorspace conversion)
-            colors_of_blobs.push_back(cv::mean(colorImg, *all_blob_masks.rbegin()));
+            colors_of_blobs.push_back(cv::mean(colorImg, all_blob_masks_unfilled.back()));
+            
+            
+            /*cv::Mat test_color_image = CreateBlobColorCheckImage(colorImg, all_blob_masks_unfilled.back(), colors_of_blobs.back());
+            saveImage(test_color_image, folder_to_save_intermediate_images + std::string("/CSEG_setting_") + to_istring(seg_setting_index_for_testing) + std::string("_blob_") + to_istring(i) + std::string("_color.png"));
+            cv::imshow(to_istring(seg_setting_index_for_testing) + std::string("_charblobcolor"), test_color_image);
+            cv::waitKey(0);
+            cv::destroyAllWindows();*/
         }
 
-        //set this for "eliminateBlobsTooCloseToInputColor"
-        Skynet::COLOR_DISTANCE_THRESHOLD = attempt_settings.HistSeg_COLOR_DISTANCE_TO_PREVIOUSLYFOUND_THRESHOLD;
-
         std::vector<ColorBlob*> final_acceptable_blobs =
-            eliminateBlobsTooCloseToInputColor(roundishBlobs, all_blob_masks, colors_of_blobs, input_color_of_previously_found_shapeblob);
+            eliminateBlobsTooCloseToInputColor(roundishBlobs, all_blob_masks_unfilled, colors_of_blobs, input_color_of_previously_found_shapeblob, attempt_settings.HistSeg_COLOR_DISTANCE_TO_PREVIOUSLYFOUND_THRESHOLD);
 
 
         if(final_acceptable_blobs.empty())
@@ -186,7 +198,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 		}
 
         chosenShapeBlob = *(final_acceptable_blobs.begin());
-        chosenShapeBlob_Mask = *(all_blob_masks.begin()); //this list was passed to "eliminateBobs..." because it trimmed this list too,
+        chosenShapeBlob_Mask_Unfilled = *(all_blob_masks_unfilled.begin()); //this list was passed to "eliminateBobs..." because it trimmed this list too,
                                                     //so its beginning still corresponds to the beginning of "final_acceptable_blobs"
                                                     
         if((*name_of_process_calling_this_function.begin()) == 'S')
@@ -195,19 +207,28 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
     else
     {
         chosenShapeBlob = *(roundishBlobs.begin());
-        chosenShapeBlob_Mask = getShapeFromBlob(chosenShapeBlob, converted_mat.size(), attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING);
+        chosenShapeBlob_Mask_Unfilled = getShapeFromBlob(chosenShapeBlob, converted_mat.size(), false);
     }
+
+
+	if(attempt_settings.HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING) {
+		chosenShapeBlob_Mask = FillInteriorsOfBlob(chosenShapeBlob_Mask_Unfilled, 255);
+	} else {
+		chosenShapeBlob_Mask = chosenShapeBlob_Mask_Unfilled;
+	}    
     
     
-    /*if(false && (*name_of_process_calling_this_function.begin()) == 'C') //CSEG only
+    /*if(true)// && (*name_of_process_calling_this_function.begin()) == 'S') //SSEG only
     {
-		cv::imshow("final blob result", chosenShapeBlob_Mask);
+		cv::imshow("unfilled final blob result", chosenShapeBlob_Mask_Unfilled);
+		cv::imshow("filled final blob result", chosenShapeBlob_Mask);
 		cv::waitKey(0);
+		cv::destroyAllWindows();
     }*/
     
 
     if(returned_color_of_blob != nullptr)
-        (*returned_color_of_blob) = cv::mean(colorImg, chosenShapeBlob_Mask);
+        (*returned_color_of_blob) = cv::mean(colorImg, chosenShapeBlob_Mask_Unfilled);
 
 
 
@@ -319,7 +340,8 @@ std::vector<ColorBlob*>
 Segmenter_SingleImageReturn::eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>& blobList,
                                                                 std::vector<cv::Mat>& masks_of_blobList,
                                                                 std::vector<cv::Scalar>& colors_of_bloblists,
-                                                                cv::Scalar* color_to_eliminate)
+                                                                cv::Scalar* color_to_eliminate,
+                                                                float max_distance_threshold)
 {
     //start by copying from blobList, then we'll literally eliminate them from the new list (instead of adding one-by-one to the new list)
     std::vector<ColorBlob*> acceptable_blobs(blobList);
@@ -331,7 +353,7 @@ Segmenter_SingleImageReturn::eliminateBlobsTooCloseToInputColor(std::vector<Colo
 
     for(; cbiter != acceptable_blobs.end(); )
     {
-        if(Skynet::calcColorDistance(*sciter, *color_to_eliminate) <= (0.99f * Skynet::COLOR_DISTANCE_THRESHOLD))
+        if(Skynet::calcColorDistance(*sciter, *color_to_eliminate) <= (0.99f * max_distance_threshold))
         {
             consoleOutput.Level3() << std::string("------------this blob's color was NOT accepted: ")
             << to_sstring((*sciter)[0]) << std::string(",")
