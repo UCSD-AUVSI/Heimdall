@@ -54,35 +54,6 @@
 		
 
 
-        cv::Mat filled_and_dilated;
-        try_dilating_this.copyTo(filled_and_dilated);
-
-        if(filled_and_dilated.at<unsigned char>(0,0) == 0)
-            cv::floodFill(filled_and_dilated, cv::Point(0,0), 255);
-        else
-        {
-            for(int j=1; j<filled_and_dilated.cols; j++)
-            {
-                //scan across the top edge; this will work.
-                //  if the WHOLE top edge was filled, the blob wouldn't have been accepted.
-
-                if(filled_and_dilated.at<unsigned char>(0,j) == 0) //(y,x) access notation
-                {
-                    cv::floodFill(filled_and_dilated, cv::Point(j,0), 255); //(x,y) access notation
-                    break;
-                }
-            }
-        }
-        //filled_and_dilated should now be pretty much all 255's, except for a few interior specks... which we want to fill in!
-
-        filled_and_dilated = (255 - filled_and_dilated);
-        //now it's a mask, mostly 0's but a few 255's, that tell where the interior specks are
-
-
-        //fill in those interior specks
-        cv::max(try_dilating_this, filled_and_dilated, try_dilating_this);
-
-
 
         //cv::imshow("filled in specks", try_dilating_this);
 

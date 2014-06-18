@@ -248,11 +248,13 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
 
 //=======================================================================
 #if 0
+#if 0
             if(save_images_and_results && folder_path_of_output_saved_images != nullptr)
             {
             saveImage(avg_shape,
                 *folder_path_of_output_saved_images + std::string("/CSEG__") + (*name_of_target_image) + std::string("___avgchar___SegSetting") + to_istring(test_number) + std::string(".jpg"));
             }
+#endif
             SaveBlobColorCheckImage(cropped_target_image, avg_shape, avg_color,
 				*folder_path_of_output_saved_images + std::string("/") + (*name_of_crop) + std::string("_CSEG_ColorCheck.png"));
 #endif
