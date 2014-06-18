@@ -151,5 +151,6 @@ std::string get_typeid_name_of_class(const T& t) {
 }
 
 std::string ConvertOrientationToString(double orientation);
+std::string ConvertColorToString(double r, double g, double b);
 
 #endif

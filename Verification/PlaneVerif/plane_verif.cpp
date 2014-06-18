@@ -60,12 +60,12 @@ void PlaneVerify :: execute(imgdata_t *imdata, std::string args){
             std::ofstream ofs;
             ofs.open(output_folder + "/" + name_of_input_crop + ".txt");
             
-            ofs << std::setprecision(10) << imdata->planelat            << "\t";
-            ofs << std::setprecision(10) << imdata->planelongt          << "\t";
-            ofs << std::setprecision(10) << imdata->planealt            << "\t";
             ofs << std::setprecision(10) << imdata->planeroll           << "\t";
             ofs << std::setprecision(10) << imdata->planepitch          << "\t";
             ofs << std::setprecision(10) << imdata->planeheading        << "\t";
+            ofs << std::setprecision(10) << imdata->planelat            << "\t";
+            ofs << std::setprecision(10) << imdata->planelongt          << "\t";
+            ofs << std::setprecision(10) << imdata->planealt            << "\t";
             ofs << std::setprecision(10) << imdata->targetlat           << "\t";
             ofs << std::setprecision(10) << imdata->targetlongt         << "\t";
             ofs << std::setprecision(10) << imdata->targetorientation   << "\t";
