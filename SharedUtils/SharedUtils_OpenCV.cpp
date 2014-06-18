@@ -213,6 +213,33 @@ cv::Scalar Average_Several_CVColors(std::vector<cv::Scalar>* input_colors)
     return cv::Scalar();
 }
 
+
+cv::Mat FillInteriorsOfBlob(cv::Mat img, unsigned char fill_color)
+{
+	if(img.type() == CV_8U) {
+        //algorithm: do flood fill outside the shape; then everything that wasn't filled by this, is now the shape
+        //first, add a 1-pixel-wide black border around the entire image
+        //use that border to start the flood fill, and the flood fill will creep inward
+        //
+		cv::Mat largermat(img.rows+2, img.cols+2, CV_8U, cv::Scalar(0));
+        cv::Rect toCrop = cv::Rect(1, 1, img.cols, img.rows);
+        cv::Mat submatrix_of_largermat_that_represents_crop = largermat(toCrop);
+        img.copyTo(submatrix_of_largermat_that_represents_crop);
+        
+        cv::floodFill(largermat, cv::Point(0,0), 1);
+        
+        cv::Mat outsideShape = (submatrix_of_largermat_that_represents_crop - img);
+        
+		submatrix_of_largermat_that_represents_crop.setTo(fill_color, outsideShape == 0);
+		return submatrix_of_largermat_that_represents_crop;
+	}
+	else {
+		consoleOutput.Level1() << "warning: FillInteriorOfBlob() was called, but it refused to fill it!" << std::endl;
+	}
+	return img;
+}
+
+
 double GetLengthOfCVScalar(cv::Scalar input)
 {
     return sqrt(input[0]*input[0] + input[1]*input[1] + input[2]*input[2] + input[3]*input[3]);

@@ -10,6 +10,8 @@ set(skynet_seg_source_files
 	Segmentation_SSEG_MultiReturn.hpp
 	SkynetSeg_BackboneInterface.cpp
 	SkynetSeg_BackboneInterface.hpp
+	SegmentationUtils.cpp
+	SegmentationUtils.hpp
 	skynet_BlobContour.cpp
 	skynet_BlobContour.hpp
 	skynet_blob.cpp

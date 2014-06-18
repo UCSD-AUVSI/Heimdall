@@ -3,6 +3,7 @@
 #include "skynet_VisionUtil.hpp"
 #include <cmath>
 #include "skynet_BlobResult.hpp"
+#include "SharedUtils/SharedUtils_OpenCV.hpp"
 
 using namespace Skynet;
 
@@ -149,19 +150,7 @@ void
 ColorBlob::drawFilledIntoFalseColorImg(cv::Mat& img, unsigned char color)
 {
 	if(img.type() == CV_8U) {
-        //algorithm: do flood fill outside the shape; then everything that wasn't filled by this, is now the shape
-        //first, add a 1-pixel-wide black border around the entire image
-        //use that border to start the flood fill, and the flood fill will creep inward
-        //
-		cv::Mat largermat(img.rows+2, img.cols+2, CV_8U, cv::Scalar(0));
-        cv::Rect toCrop = cv::Rect(1, 1, img.cols, img.rows);
-        cv::Mat submatrix_of_largermat_that_represents_crop = largermat(toCrop);
-        mask->copyTo(submatrix_of_largermat_that_represents_crop);
-        
-        cv::floodFill(largermat, cv::Point(0,0), 1);
-        
-        cv::Mat outsideShape = submatrix_of_largermat_that_represents_crop - (*mask);
-		img.setTo(color, outsideShape == 0);
+		img = FillInteriorsOfBlob(*mask, color);
 	}
 	else {
 		consoleOutput.Level1() << "warning: drawFilledIntoFalseColorImg() was called, but it refused to fill it!" << std::endl;

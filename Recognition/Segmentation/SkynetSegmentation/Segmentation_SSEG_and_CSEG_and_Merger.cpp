@@ -237,7 +237,7 @@ void Segmentation_SSEG_and_CSEG_and_Merger::SetupDefaultSettings()
         csegset_iter->HistSeg_NUM_VALID_COLORS = 12;
         csegset_iter->HistSeg_NUM_BINS = 14;
         csegset_iter->HistSeg_MERGE_COLOR_DISTANCE = 25.0f;
-        csegset_iter->HistSeg_COLOR_DISTANCE_TO_PREVIOUSLYFOUND_THRESHOLD = 26.0f;
+        csegset_iter->HistSeg_COLOR_DISTANCE_TO_PREVIOUSLYFOUND_THRESHOLD = 41.0f;//26.0f;
         csegset_iter->HistSeg_COLOR_DISTANCE_THRESHOLD = 250.0f;
         //csegset_iter->HistSeg_MINIMUM_BLOB_SIZE_THRESHOLD *= 0.5f;
         csegset_iter->HistSeg_PERCENT_OF_CROP_EDGE_TOUCHED_ACCEPTABLE = 0.15f;

@@ -27,6 +27,8 @@ namespace Skynet {
                         cv::Scalar* returned_color_of_blob,
                         cv::Mat* mask_of_returned_shape_blob,
                         std::string name_of_process_calling_this_function,
+                        std::string folder_to_save_intermediate_images,
+                        int seg_setting_index_for_testing,
                         cv::Mat* returned_mat_of_binned_histogram=nullptr,
                         cv::Mat* returned_mat_preprocessed=nullptr);
 
@@ -45,7 +47,8 @@ namespace Skynet {
 		std::vector<ColorBlob*> eliminateBlobsTooCloseToInputColor(std::vector<ColorBlob*>& blobList,
                                                                     std::vector<cv::Mat>& masks_of_blobList,
                                                                     std::vector<cv::Scalar>& colors_of_blobList,
-                                                                    cv::Scalar* color_to_eliminate);
+                                                                    cv::Scalar* color_to_eliminate,
+                                                                    float max_distance_threshold);
 
         static void ClearBlobsOfTinyNoiseSpeckles(std::vector<ColorBlob*>& blobList, int minimum_num_pixels_in_speck);
 

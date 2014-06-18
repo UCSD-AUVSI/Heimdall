@@ -3,6 +3,7 @@
 #include "skynet_Segmenter_SingleImageReturn.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
+#include "SegmentationUtils.hpp"
 
 
 
@@ -135,6 +136,8 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
                             &returned_blob_color,
                             &foundshape_blob_returned_mask,
                             std::string("Character Segmentation (CSEG)"),
+                            (folder_path_of_output_saved_images != nullptr ? *folder_path_of_output_saved_images : ""),
+                            setting_number,
                             &findshape_returned_histogrambins_for_saving,
                             &findshape_returned_preprocessed_for_saving);
 
@@ -250,6 +253,8 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
             saveImage(avg_shape,
                 *folder_path_of_output_saved_images + std::string("/CSEG__") + (*name_of_target_image) + std::string("___avgchar___SegSetting") + to_istring(test_number) + std::string(".jpg"));
             }
+            SaveBlobColorCheckImage(cropped_target_image, avg_shape, avg_color,
+				*folder_path_of_output_saved_images + std::string("/") + (*name_of_crop) + std::string("_CSEG_ColorCheck.png"));
 #endif
 //=======================================================================
         }
