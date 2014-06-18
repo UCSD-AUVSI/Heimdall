@@ -25,6 +25,8 @@ int FolderWatch::sendcount = 0, FolderWatch::delay = 500;
 bool FolderWatch::send = true, FolderWatch::pause = false,
      FolderWatch::search_subfolders = false, FolderWatch::first_send = true;
 
+bool kOnGround = false;
+
 std::vector<std::pair<std::string, std::string>> * FolderWatch::file_list = new std::vector<std::pair<std::string, std::string>>();
 std::map<std::string, std::pair<std::string, std::string>> * file_map = new std::map<std::string, std::pair<std::string, std::string>>();
 std::set<std::string> * seen_image_set = new std::set<std::string>();
@@ -86,7 +88,7 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
                 if(seen_image_set->find(filename) == seen_image_set->end()){
                     num_files_found++;
                     seen_image_set->insert(filename);
-                    
+
                     try{
                         std::pair<std::string, std::string> file_pair = file_map->at(filename);
                         std::get<0>(file_pair) = std::string(file.path);
@@ -105,7 +107,7 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
             else if(get_extension_from_filename(std::string(file.name)) == ".txt"){
                 if(seen_info_set->find(filename) == seen_info_set->end()){
                     seen_info_set->insert(filename);
-                    
+
                     try{
                         std::pair<std::string, std::string> file_pair = file_map->at(filename);
                         std::get<1>(file_pair) = std::string(file.path);
@@ -206,16 +208,32 @@ void FolderWatch :: execute(imgdata_t *imdata, std::string args){
 
     std::vector<std::string> split_line = split(infoline, '\t');
 
-    if(split_line.size() < 8){
-        cout << "Crash imminent, input info file has less than 8 attributes. Nathan has not adhered to his end of the contract." << endl;
-    }
+    if (kOnGround) {
+        if(split_line.size() != 9){
+            cout << "Crash imminent, input info file from plane should have 9 attributes." << endl;
+        }
 
-    imdata->planeroll =     atof(split_line.at(1).c_str());
-    imdata->planepitch =    atof(split_line.at(2).c_str());
-    imdata->planeheading =  atof(split_line.at(3).c_str());
-    imdata->planelat =      atof(split_line.at(4).c_str());
-    imdata->planelongt =    atof(split_line.at(5).c_str());
-    imdata->planealt =      atof(split_line.at(7).c_str()); //Using AGL, not MSL
+        imdata->planeroll =         atof(split_line.at(0).c_str());
+        imdata->planepitch =        atof(split_line.at(1).c_str());
+        imdata->planeheading =      atof(split_line.at(2).c_str());
+        imdata->planelat =          atof(split_line.at(3).c_str());
+        imdata->planelongt =        atof(split_line.at(4).c_str());
+        imdata->planealt =          atof(split_line.at(5).c_str()); //Using AGL, not MSL
+        imdata->targetlat =         atof(split_line.at(6).c_str());
+        imdata->targetlongt =       atof(split_line.at(7).c_str());
+        imdata->targetorientation = atof(split_line.at(8).c_str());
+    } else {
+        if(split_line.size() < 8){
+            cout << "Crash imminent, input info file has less than 8 attributes. Nathan has not adhered to his end of the contract." << endl;
+        }
+
+        imdata->planeroll =     atof(split_line.at(1).c_str());
+        imdata->planepitch =    atof(split_line.at(2).c_str());
+        imdata->planeheading =  atof(split_line.at(3).c_str());
+        imdata->planelat =      atof(split_line.at(4).c_str());
+        imdata->planelongt =    atof(split_line.at(5).c_str());
+        imdata->planealt =      atof(split_line.at(7).c_str()); //Using AGL, not MSL
+    }
 
     cout << "Sending " << messageSizeNeeded(imdata) << " bytes. File ID: " << imdata->id << endl << endl;
 }
