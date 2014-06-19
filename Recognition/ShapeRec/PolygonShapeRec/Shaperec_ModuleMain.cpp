@@ -18,6 +18,20 @@ ShapeRecModule_Main::ShapeRecModule_Main(std::string folder_with_reference_shape
 {
     single_shape_namer_algorithm = new ShapeRecModuleAlgorithm_SingleImage_Turning();
     single_shape_namer_algorithm->filefolder_containing_reference_shapes = folder_with_reference_shapes;
+    
+    if(check_if_directory_exists(folder_with_reference_shapes)) {
+		if(CountNumImagesInFolder(folder_with_reference_shapes) > 0) {
+			TryPrintAllFileNamesInFolder(folder_with_reference_shapes, consoleOutput.Level2());
+		} else {
+			for(int j=0; j<30; j++) {
+				consoleOutput.Level0() << "ERROR: SHAPE REC: WAS GIVEN A FOLDER WITH NO REFERENCE SHAPE IMAGES!!!!!!!!" << std::endl;
+			}
+		}
+    } else {
+		for(int j=0; j<30; j++) {
+			consoleOutput.Level0() << "ERROR: SHAPE REC: WAS NOT GIVEN A VALID FOLDER TO FIND REFERENCE SHAPES!!!!" << std::endl;
+		}
+    }
 }
 
 

@@ -35,6 +35,9 @@ void GOCRBackboneInterface :: execute(imgdata_t *imdata, std::string args) {
         if(output != '_') {
             imdata->character += output;
         }
+        if(imdata->character == "") {
+            imdata->character = "_";
+        }
 	}
 
 	setDone(imdata, OCR);
