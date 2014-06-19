@@ -21,10 +21,10 @@ MainTab::MainTab(QWidget *parent)
 MainTab* MainTab::setupAsFirstTab()
 {
     this->addColumn("Target", 0);
-    this->addColumn("Character");
-    this->addColumn("Character Color");
     this->addColumn("Shape");
     this->addColumn("Shape Color");
+    this->addColumn("Character");
+    this->addColumn("Character Color");
     this->addColumn("Latitude");
     this->addColumn("Longitude");
     this->addColumn("Orientation");

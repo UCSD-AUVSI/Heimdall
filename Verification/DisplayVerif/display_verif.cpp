@@ -123,5 +123,10 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         cv::destroyWindow(name_of_crop_window);
     }
 
-    setDone(imdata, VERIF);
+    // Verification check, do we want this message to continue?
+    if (!both_cseg_and_sseg_succeeded || imdata->shape == "") {
+        clearIMGData(imdata);
+    } else {
+        setDone(imdata, VERIF);
+    }
 }

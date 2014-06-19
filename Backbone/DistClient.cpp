@@ -71,7 +71,7 @@ void DistClient :: work(){
 
             imgdata_t *curr_send_imdata = imdata;
             // Send one message per new image crop in imgdata
-            while(curr_send_imdata != nullptr){
+            while(curr_send_imdata != nullptr && curr_send_imdata->initialized){
                 if(messageSizeNeeded(curr_send_imdata) > 0 &&
                         curr_send_imdata->image_data != nullptr &&
                         curr_send_imdata->image_data->size()) { //If we need to send a message

@@ -328,23 +328,22 @@ std::string ConvertOrientationToString(double orientation) {
 
 std::string ConvertColorToString(double r, double g, double b) {
     std::map<std::string, std::vector<double>> color_map = {
-        {"black",   {0, 0, 0}},
-        {"gray",    {128, 128, 128}},
-        {"white",   {255, 255, 255}},
+        {"Black",   {0, 0, 0}},
+        {"White",   {255, 255, 255}},
 
-        {"red",     {255, 0, 0}},
-        {"green",   {0, 255, 0}},
-        {"blue",    {0, 0, 255}},
+        {"Red",     {255, 0, 0}},
+        {"Green",   {0, 255, 0}},
+        {"Blue",    {0, 0, 255}},
 
-        {"yellow",  {255, 255, 0}},
-        {"fuchsia", {255, 0, 255}},
-        {"aqua",    {0, 255, 255}},
+        {"Yellow",  {255, 255, 0}},
+        {"Fuchsia", {255, 0, 255}},
+        {"Aqua",    {0, 255, 255}},
 
-        {"orange",  {255, 128, 0}},
-        {"maroon",  {128, 0, 0}},
-        {"purple",  {128, 0, 128}},
-        {"olive",   {128, 128, 0}},
-        {"teal",    {0, 128, 128}},
+        {"Orange",  {255, 128, 0}},
+        {"Maroon",  {128, 0, 0}},
+        {"Purple",  {128, 0, 128}},
+        {"Olive",   {128, 128, 0}},
+        {"Teal",    {0, 128, 128}},
     };
     
     double distance = 450;

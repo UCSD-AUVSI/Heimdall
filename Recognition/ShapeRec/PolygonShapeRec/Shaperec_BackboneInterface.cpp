@@ -13,7 +13,7 @@ void PolygonShapeRec::execute(imgdata_t *imdata, std::string args) {
 	std::cout << "Polygon Shape Rec, ID: " << imdata->id  << ", CropID: " << imdata->cropid << std::endl;
 	
 	if(global_PolygonShapeRec_instance == nullptr) {
-		global_PolygonShapeRec_instance = new ShapeRecModule_Main("../Recognition/ShapeRec/PolygonShapeRec/shaperec_reference_shapes");
+		global_PolygonShapeRec_instance = new ShapeRecModule_Main("shaperec_reference_shapes");
 	}
 	
 	if(imdata->sseg_image_data->empty() == false)

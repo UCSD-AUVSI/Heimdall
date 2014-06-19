@@ -32,11 +32,8 @@ void GOCRBackboneInterface :: execute(imgdata_t *imdata, std::string args) {
         imdata->character = "";
         
         char output = global_GOCR_module_instance->ProcessCandidates();
-        if(output != '_') {
+        if(output != '_' && output != '\0') {
             imdata->character += output;
-        }
-        if(imdata->character == "") {
-            imdata->character = "_";
         }
 	}
 

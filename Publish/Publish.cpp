@@ -77,12 +77,11 @@ void Publish :: DoWork() {
         imgdata_t* imdata = GetNext();
         cout << "Got " << imdata->id << ", " << imdata->cropid << endl;
 
-        std::string filename = kOutputFolder + "/" + 
-            std::to_string(imdata->id) + "_" + 
+        std::string filename = std::to_string(imdata->id) + "_" + 
             std::to_string(imdata->cropid) + ".jpg";
 
         // Save Crop
-        cv::imwrite(filename, cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR));
+        cv::imwrite(kOutputFolder + "/" + filename, cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR));
 
         // Write target number
         out << std::setfill('0') << std::setw(2);
