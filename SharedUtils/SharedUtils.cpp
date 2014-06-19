@@ -181,6 +181,38 @@ bool check_if_directory_exists(const std::string & dir_name)
 	return false;*/
 }
 
+void TryPrintAllFileNamesInFolder(std::string folder_dir_name, std::ostream &PRINT_HERE)
+{
+	tinydir_dir dir;
+	tinydir_open(&dir, folder_dir_name.c_str());
+	while(dir.has_next) {
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+		if(file.is_dir == false && file.name[0] != '.') {
+			PRINT_HERE << "\"" << folder_dir_name << "\" contains:" << std::string(file.name) << std::endl;
+		}
+		tinydir_next(&dir);
+	}
+	tinydir_close(&dir);
+}
+
+int CountNumImagesInFolder(std::string folder_dir_name)
+{
+	int returned_num_images = 0;
+	tinydir_dir dir;
+	tinydir_open(&dir, folder_dir_name.c_str());
+	while(dir.has_next) {
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+		if(file.is_dir == false && file.name[0] != '.' && filename_extension_is_image_type(get_extension_from_filename(file.name))) {
+			returned_num_images++;
+		}
+		tinydir_next(&dir);
+	}
+	tinydir_close(&dir);
+	return returned_num_images;
+}
+
 
 bool filename_extension_is_image_type(const std::string & filename_extension)
 {

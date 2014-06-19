@@ -38,6 +38,7 @@ public:
     //get a stream to write the output to
     //the message handler will decide if it wants to print at that level
     //
+    std::ostream& Level(int given_level);
     std::ostream& Level0(); //you can use this for runtime errors, or just use std::cout
     std::ostream& Level1(); //interesting stuff that doesn't fill much space in the console
     std::ostream& Level2(); //gap level for stuff you may be currently testing
@@ -137,6 +138,9 @@ bool filename_extension_is_image_type(const std::string & filename_extension);
 
 bool check_if_file_exists(const std::string & filename);
 bool check_if_directory_exists(const std::string & dir_name);
+
+void TryPrintAllFileNamesInFolder(std::string folder_dir_name, std::ostream &PRINT_HERE);
+int CountNumImagesInFolder(std::string folder_dir_name);
 
 std::vector<std::string> split(const std::string &s, char delim);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);

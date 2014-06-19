@@ -107,10 +107,14 @@ void ShapeRecModuleAlgorithm_SingleImage_Turning::CompareTargetContourToAllRefer
     std::string filename_full_path;
     std::string filename_extension;
 
-
+	//-----------------------------------------------------------------
+	// open reference shape files from disk (and compare each one to the shape)
+	// they shouldn't be loaded from disk every single time shape recognition is done;
+	// the contours from reference shapes should be saved in memory when the program first starts up
+	//-----------------------------------------------------------------
+	
     tinydir_open(&dir, folder_containing_reference_images.c_str());
-
-
+	
     while(dir.has_next)
     {
         tinydir_file file;
@@ -182,7 +186,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 
 	cv::Mat mat_for_display;
 	target_binary_image.copyTo(mat_for_display);
-
+	cv::threshold(mat_for_display, mat_for_display, 128, 255, CV_THRESH_BINARY);
 
 	//find contours in target image
 	std::vector<std::vector<cv::Point>> TargContours;
@@ -206,8 +210,8 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 	int whichshape_in_target = GetContourOfGreatestArea(TargContours, &area_of_contour);
 	double area_of_whole_image = static_cast<double>(mat_for_display.rows * mat_for_display.cols);
 
-	if(show_stuff_while_working)
-        consoleOutput.Level3() << "area of contour: " << area_of_contour << "    \tarea of whole image: " << area_of_whole_image << std::endl;
+	//if(show_stuff_while_working)
+    //    consoleOutput.Level3() << "area of contour: " << area_of_contour << "    \tarea of whole image: " << area_of_whole_image << std::endl;
 
 
 
@@ -225,11 +229,13 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 	if(show_stuff_while_working)
 	{
 		//display all contours, and highlight the largest found contour in red
-		drawContours(mat_for_display, std::vector<std::vector<cv::Point>>(1, target_polynomial_contour), -1, cv::Scalar(0,255,0));
-		drawContours(mat_for_display, TargContours, -1, cv::Scalar(255,255,255));
-		drawContours(mat_for_display, TargContours, whichshape_in_target, cv::Scalar(0,0,255));
+		cv::drawContours(mat_for_display, std::vector<std::vector<cv::Point>>(1, target_polynomial_contour), -1, cv::Scalar(0,255,0));
+		cv::drawContours(mat_for_display, TargContours, -1, cv::Scalar(255,255,255));
+		cv::drawContours(mat_for_display, TargContours, whichshape_in_target, cv::Scalar(0,0,255));
 
 		cv::imshow("ALL contours found in target", mat_for_display);
+		cv::waitKey(0);
+		cv::destroyAllWindows();
 	}
 
 
