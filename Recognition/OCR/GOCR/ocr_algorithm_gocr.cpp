@@ -72,13 +72,13 @@ char OCRModuleAlgorithm_GOCR::ProcessCandidates() {
         }
     }
 
-    //for(std::pair<char, std::vector<int>> entry : char_map){
-    //    cout << entry.first << "\t";
-    //    for(int angle : entry.second){
-    //        cout << angle << " ";
-    //    }
-    //    cout << endl;
-    //}
+    for(std::pair<char, std::vector<int>> entry : char_map){
+        cout << "|" << entry.first << "|\t";
+        for(int angle : entry.second){
+            cout << angle << " ";
+        }
+        cout << endl;
+    }
 
     // No entries remain, we don't know the character
     if(char_map.empty()) {
@@ -160,7 +160,12 @@ char OCRModuleAlgorithm_GOCR::ProcessCandidates() {
         }
     }
 
-    return retchar;
+    cout << "rcc is: " << retcharcount << endl;
+    if (retcharcount) {
+        return retchar;
+    } else {
+        return '_';
+    }
 }
 
 job_t *OCR_JOB;
@@ -193,10 +198,13 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
     job.cfg.lc = rec_char_cstr;
 
     // Dust size
-    job.cfg.dust_size = 20;
+    job.cfg.dust_size = 50;
 
     // Certainty
     job.cfg.certainty = certainty_lower_bound;
+
+    // Verbosity
+    job.cfg.verbose = 0;
 
     // Init various image properties of job
     job_init_image(&job);
@@ -245,7 +253,7 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
     // Process output
     if(gocroutput.length() <= 2){
         char foundchar = gocroutput.front();
-        if(foundchar == '_') {
+        if(foundchar == '_' || gocroutput.length() == 0) {
             foundchar = ' ';
         }
         if(foundchar != ' ' || return_empty_characters) {

@@ -18,7 +18,7 @@ const bool kSaveSegs = true;
 const bool kShowImages = false;
 const bool kShowIfSsegCsegSuccess = false;
 
-const std::string output_folder("../../output_images");
+const std::string output_folder("../../../output_images");
 
 std::fstream* outfile_verif_results = nullptr;
 bool outfile_verif_results_has_been_opened = false;

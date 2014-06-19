@@ -90,19 +90,19 @@ std::pair<double, double> find_target_geoloc(int targetrow, int targetcol, int i
 
     // Convert Lat/Long feet differences into degrees to get final lat/long
     double target_lat = planelat + latfeetdiff/365221.43; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
-    double longt_deg_to_feet = kPI * 20890566 * cos(to_radians(target_lat)) / 180; //Radius of circle at this lat, (PI*R)/(180)
+    double longt_deg_to_feet = kPI * 20898855.01138578 * cos(to_radians(target_lat)) / 180; //Radius of circle at this lat, (PI*R)/(180)
     double target_longt = planelongt + longtfeetdiff/longt_deg_to_feet;
     
-    cout << "heading: " << planeheading << endl;
-    cout << "imrows: " << imrows << " imcols: " << imcols << endl;
-    cout << "rd: " << rowdiff << endl;
-    cout << "cd: " << coldiff << endl;
-    cout << "ppf: " << pxperfeet << endl;
-    cout << "centerdiff: " << centerdiff << endl;
-    cout << "centerfeetdiff: " << centerfeetdiff << endl;
-    cout << "centerangle: " << centerangle << endl;
-    printf("lat diff: %.7f\tdeg, %.3f feet\n", latfeetdiff/365221, latfeetdiff);
-    printf("long diff: %.7f\tdeg, %.3f feet\n", longtfeetdiff/longt_deg_to_feet, longtfeetdiff);
+    //cout << "heading: " << planeheading << endl;
+    //cout << "imrows: " << imrows << " imcols: " << imcols << endl;
+    //cout << "rd: " << rowdiff << endl;
+    //cout << "cd: " << coldiff << endl;
+    //cout << "ppf: " << pxperfeet << endl;
+    //cout << "centerdiff: " << centerdiff << endl;
+    //cout << "centerfeetdiff: " << centerfeetdiff << endl;
+    //cout << "centerangle: " << centerangle << endl;
+    //printf("lat diff: %.7f\tdeg, %.3f feet\n", latfeetdiff/365221, latfeetdiff);
+    //printf("long diff: %.7f\tdeg, %.3f feet\n", longtfeetdiff/longt_deg_to_feet, longtfeetdiff);
 
     return std::pair<double, double>(target_lat, target_longt);
 }

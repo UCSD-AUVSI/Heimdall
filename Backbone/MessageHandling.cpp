@@ -14,23 +14,19 @@ using std::endl;
 void populateSizes(imgdata_t *imdata){
     imdata->image_data_size = imdata->image_data->size();
 
-    // If the size length is equal to the number of crops, then we can assume its already been populated
-    if(imdata->sseg_image_sizes->size() != imdata->sseg_image_data->size()){
-        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
-                i < imdata->sseg_image_data->end(); ++i){
-            imdata->sseg_image_sizes->push_back((*i)->size());
-        }
-        imdata->sseg_image_size_count = imdata->sseg_image_sizes->size();
+    imdata->sseg_image_sizes->clear();
+    for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->sseg_image_data->begin();
+            i < imdata->sseg_image_data->end(); ++i){
+        imdata->sseg_image_sizes->push_back((*i)->size());
     }
+    imdata->sseg_image_size_count = imdata->sseg_image_sizes->size();
 
-    // If the size length is equal to the number of crops, then we can assume its already been populated
-    if(imdata->cseg_image_sizes->size() != imdata->cseg_image_data->size()){
-        for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
-                i < imdata->cseg_image_data->end(); ++i){
-            imdata->cseg_image_sizes->push_back((*i)->size());
-        }
-        imdata->cseg_image_size_count = imdata->cseg_image_sizes->size();
+    imdata->cseg_image_sizes->clear();
+    for(std::vector<std::vector<unsigned char>*>::iterator i = imdata->cseg_image_data->begin();
+            i < imdata->cseg_image_data->end(); ++i){
+        imdata->cseg_image_sizes->push_back((*i)->size());
     }
+    imdata->cseg_image_size_count = imdata->cseg_image_sizes->size();
 }
 
 int messageSizeNeeded(imgdata_t *imdata){
@@ -189,7 +185,7 @@ unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	memcpy(arr + start, imdata->character.c_str(), imdata->character.size() + 1);
 	start += imdata->character.size() + 1;
 	
-	memcpy(arr + start, imdata->scolor.c_str(), imdata->scolor.size() + 1);
+    memcpy(arr + start, imdata->scolor.c_str(), imdata->scolor.size() + 1);
 	start += imdata->scolor.size() + 1;
 	
 	memcpy(arr + start, imdata->ccolor.c_str(), imdata->ccolor.size() + 1);
@@ -284,7 +280,7 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
     for(std::vector<uint32_t>::iterator i = imdata->sseg_image_sizes->begin();
             i < imdata->sseg_image_sizes->end(); ++i){
         uint32_t curr_im_size = *i;
-
+       
         unsigned char *sseg_image_arr = new unsigned char[curr_im_size];
         memcpy(sseg_image_arr, arr+start, curr_im_size);
         start += curr_im_size; 
