@@ -94,7 +94,7 @@ void DistClient :: work(){
             delete imdata;
             
             //int *CRASH_ME_HERE_PLEASE = nullptr;
-            //(*CRASH_ME_HERE_PLEASE) += 1;
+            // (*CRASH_ME_HERE_PLEASE) += 1;
             
             //throw e;
         }
