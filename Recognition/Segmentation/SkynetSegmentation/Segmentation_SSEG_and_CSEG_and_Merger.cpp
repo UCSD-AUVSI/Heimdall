@@ -99,7 +99,11 @@ void Segmentation_SSEG_and_CSEG_and_Merger::DoModule(cv::Mat cropped_target_imag
                                     returned_SSEG_colors,
                                     returned_CSEGs,
                                     returned_CSEG_colors,
-                                    HistSeg_CROP_RESIZE_AMOUNT
+                                    HistSeg_CROP_RESIZE_AMOUNT,
+                                    //optional
+                                    folder_path_of_output_saved_images,
+                                    save_images_and_results,
+                                    name_of_target_image
                                     );
 		
 		

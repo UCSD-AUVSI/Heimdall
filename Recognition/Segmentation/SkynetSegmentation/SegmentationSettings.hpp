@@ -11,7 +11,8 @@ public:
 	int   HistSeg_NUM_VALID_COLORS;
 	int   HistSeg_NUM_BINS;
 	int   HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS;
-	float HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD; //any piece of any blob with an individual area less than this is removed (is fraction of image size)
+	float HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD_CSEG; //any piece of any blob with an individual area less than this is removed (is fraction of image size)
+	float HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD_SSEG; //any piece of any blob with an individual area less than this is removed (is fraction of image size)
 	float HistSeg_MINIMUM_BLOB_SIZE_THRESHOLD; //any blob with a combined area less than this is removed (is fraction of image size)
 	float HistSeg_PERCENT_OF_CROP_EDGE_TOUCHED_ACCEPTABLE;
 	float HistSeg_PERCENT_OF_BLOB_TOUCHING_EDGES_ACCEPTABLE;
@@ -29,7 +30,8 @@ public:
 				HistSeg_NUM_VALID_COLORS(10),
 				HistSeg_NUM_BINS(10),
 				HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS(1),
-				HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD(0.001f), //fraction of image size
+				HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD_SSEG(0.001f), //fraction of image size
+				HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD_CSEG(0.0015f), //fraction of image size
 				HistSeg_MINIMUM_BLOB_SIZE_THRESHOLD(0.00000001f), //fraction of image size
 				HistSeg_FILL_IN_SHAPE_BLOB_BEFORE_RETURNING(true),
 

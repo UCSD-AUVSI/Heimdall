@@ -28,7 +28,7 @@ OutputMessageHandler& OutputMessageHandler::operator= (const OutputMessageHandle
 
 OutputMessageHandler::OutputMessageHandler() :
     //you can choose this at compile time... for release builds, use 0 or 1
-    AcceptableOutputLevel(1),
+    AcceptableOutputLevel(4),
     unprinted_output_stops_here(nullptr)
 {}
 
@@ -279,7 +279,6 @@ std::vector<std::string> split(const std::string &s, char delim) {
 #include <cstdlib>
 #include <memory>
 #include <cxxabi.h>
-
 std::string demangle_typeid_name(const char* name) {
 
     int status = -4; // some arbitrary value to eliminate the compiler warning
@@ -334,7 +333,68 @@ std::string ConvertOrientationToString(double orientation) {
     }
 }
 
-std::string ConvertColorToString(double r, double g, double b) {
+//---------------------------------------------------------------
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+typedef cv::Vec<float, 3> MyPixelColorType;
+
+//NOTE: expects input colors to be normalized as 0-255
+//it won't work well otherwise!
+std::string ConvertColorToString(float r, float g, float b) {
+	
+	cv::Mat given_color_in_CIElab(1, 1, CV_32FC3, 0.0);
+	given_color_in_CIElab.at<MyPixelColorType>(0,0) = MyPixelColorType(b,g,r);
+	
+	given_color_in_CIElab = (given_color_in_CIElab * (1.0f / 255.0f)); //it expects the input to be between 0 and 255
+	
+	cv::cvtColor(given_color_in_CIElab, given_color_in_CIElab, CV_BGR2Lab); //requires 32-bit floating point
+	
+	
+    std::map<std::string, std::vector<float>> color_map = {
+        {"Black",	{0, 0, 0}},
+        {"Gray",	{50, 0, 0}},
+        {"White",	{100, 0, 0}},
+
+        {"Red",		{53.2406, 80.0942, 67.2015}},
+        {"Green",	{87.7351, -86.1813, 83.1775}},
+        {"Blue",	{32.2957, 79.187, -107.862}},
+
+        {"Yellow",	{97.1395, -21.5524, 94.4758}},
+        {"Fuchsia",	{60.3235, 98.2352, -60.8255}},
+        {"Aqua",	{91.1133, -48.0886, -14.131}},
+
+        {"Orange",	{66.9565, 43.0733, 73.9576}},
+        {"Maroon",	{25.4184, 47.9108, 37.9052}},
+        {"Purple",	{29.6552, 58.7624, -36.3846}},
+        {"Olive",	{51.6779, -12.8922, 56.5136}},
+        {"Teal",	{48.0731, -28.7656, -8.45287}},
+    };
+    
+    float distance = 100000.0f;
+    std::string color = "";
+
+    for(auto &x: color_map){
+        float curr_dist = sqrt( 
+                pow(x.second[0] - given_color_in_CIElab.at<MyPixelColorType>(0,0)[0], 2) +
+                pow(x.second[1] - given_color_in_CIElab.at<MyPixelColorType>(0,0)[1], 2) +
+                pow(x.second[2] - given_color_in_CIElab.at<MyPixelColorType>(0,0)[2], 2));
+
+        if (curr_dist < distance) {
+            distance = curr_dist;
+            color = x.first;
+        }
+    }
+    
+    std::cout << "@@@@@@@@@@@@@@@@@@@@@@@ color given to color namer: " << std::endl << given_color_in_CIElab << std::endl;
+    std::cout << to_sstring(given_color_in_CIElab.at<MyPixelColorType>(0,0)[0]) << "," << to_sstring(given_color_in_CIElab.at<MyPixelColorType>(0,0)[1]) << "," << to_sstring(given_color_in_CIElab.at<MyPixelColorType>(0,0)[2]) << std::endl;
+    std::cout << "and said it was " << color << std::endl << "@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+
+    return color;
+}
+
+ /*
+    //these are RGB
     std::map<std::string, std::vector<double>> color_map = {
         {"Black",   {0, 0, 0}},
         {"White",   {255, 255, 255}},
@@ -352,22 +412,4 @@ std::string ConvertColorToString(double r, double g, double b) {
         {"Purple",  {128, 0, 128}},
         {"Olive",   {128, 128, 0}},
         {"Teal",    {0, 128, 128}},
-    };
-    
-    double distance = 450;
-    std::string color = "";
-
-    for(auto &x: color_map){
-        double curr_dist = sqrt( 
-                pow(x.second[0] - r, 2) +
-                pow(x.second[1] - g, 2) +
-                pow(x.second[2] - b, 2));
-
-        if (curr_dist < distance) {
-            distance = curr_dist;
-            color = x.first;
-        }
-    }
-
-    return color;
-}
+    };*/

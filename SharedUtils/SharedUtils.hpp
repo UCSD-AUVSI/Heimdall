@@ -160,6 +160,6 @@ double to_degrees(double radians);
 double to_radians(double degrees);
 
 std::string ConvertOrientationToString(double orientation);
-std::string ConvertColorToString(double r, double g, double b);
+std::string ConvertColorToString(float r, float g, float b);
 
 #endif

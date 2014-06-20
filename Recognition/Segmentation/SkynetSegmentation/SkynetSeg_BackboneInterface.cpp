@@ -28,10 +28,12 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
         std::string name_of_input_crop = std::to_string(imdata->id) + "_" + std::to_string(imdata->cropid);
 		bool save_ssegs_and_csegs = check_if_directory_exists(folder_to_save_SSEGs_and_CSEGs);
 		
+#if 0
 		if(save_ssegs_and_csegs) {
 			saveImage(cropped_input_image,
 				folder_to_save_SSEGs_and_CSEGs + std::string("/") + name_of_input_crop + std::string("__crop.jpg"));
 		}
+#endif
 
 		SkynetSegmentation_module_instance.DoModule(cropped_input_image,
 										                    &returned_SSEGs,
@@ -92,7 +94,7 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
                     << to_sstring((*iter_sseg_color)[0]) << std::string(", ")
                     << to_sstring((*iter_sseg_color)[1]) << std::string(", ")
                     << to_sstring((*iter_sseg_color)[2]) << std::endl;*/
-				consoleOutput.Level1() << "color found by SSEG: " << to_sstring(imdata->scolor) << std::endl;
+				consoleOutput.Level2() << "color found by SSEG: " << to_sstring(imdata->scolor) << std::endl;
             }
         }
         if(returned_CSEGs.empty() == false)
@@ -109,7 +111,7 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
                     << to_sstring((*iter_cseg_color)[0]) << std::string(", ")
                     << to_sstring((*iter_cseg_color)[1]) << std::string(", ")
                     << to_sstring((*iter_cseg_color)[2]) << std::endl;*/
-				consoleOutput.Level1() << "color found by CSEG: " << to_sstring(imdata->ccolor) << std::endl;
+				consoleOutput.Level2() << "color found by CSEG: " << to_sstring(imdata->ccolor) << std::endl;
             }
         }
 	}

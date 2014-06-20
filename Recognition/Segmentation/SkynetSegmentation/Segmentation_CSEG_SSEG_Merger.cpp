@@ -9,7 +9,11 @@
         std::vector<cv::Scalar>* input_sseg_colors,
         std::vector<cv::Mat>* input_CSEGs,
         std::vector<cv::Scalar>* input_cseg_colors,
-		float HistSeg_CROP_RESIZE_AMOUNT)
+		float HistSeg_CROP_RESIZE_AMOUNT,
+        std::string* folder_path_of_output_saved_images/*=nullptr*/,
+		bool save_images_and_results/*=false*/,
+		std::string* name_of_crop/*=nullptr*/
+		)
 {
     if(  (input_SSEGs != nullptr && input_SSEGs->empty()==false && input_sseg_colors != nullptr)
     &&   (input_CSEGs != nullptr && input_CSEGs->empty()==false && input_cseg_colors != nullptr)  )
@@ -82,7 +86,30 @@
 
 
         //cv::waitKey(0);
-
+        
+//========================================================================================
+//========================================================================================
+#if 0
+	if(save_images_and_results && folder_path_of_output_saved_images != nullptr && name_of_crop != nullptr)
+	{
+		if(input_SSEGs->empty()) {
+			consoleOutput.Level2() << "no SSEG for the merger module!" << std::endl;
+		} else {
+	saveImage(*input_SSEGs->begin(),
+		*folder_path_of_output_saved_images + "/" + (*name_of_crop) + std::string("_SSEG") + std::string(".jpg"));
+		}
+		
+		if(input_CSEGs->empty()) {
+			consoleOutput.Level2() << "no CSEG for the merger module!" << std::endl;
+		} else {
+	saveImage(*input_CSEGs->begin(),
+		*folder_path_of_output_saved_images + "/" + (*name_of_crop) + std::string("_CSEG") + std::string(".jpg"));
+		}
+	}
+	else {
+		std::cout << "NO DICE ###############################################################################################################################################################" << std::endl;
+	}
+#endif
 //========================================================================================
 //========================================================================================
         //now check to see if the SSEG is valid (if it's mostly 1 contiguous shape)

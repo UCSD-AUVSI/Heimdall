@@ -26,6 +26,7 @@ Segmenter_SingleImageReturn::~Segmenter_SingleImageReturn()
 cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
                         const Segmenter_Module_Settings & attempt_settings,
                         float crop_was_resized_how_much,
+                        float input_MINIMUM_SPECK_SIZE_THRESHOLD,
                         cv::Scalar* input_color_of_previously_found_shapeblob,
                         cv::Scalar* returned_color_of_blob,
                         cv::Mat* mask_of_returned_shape_blob,
@@ -100,7 +101,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	
 	
 	//cleans up blobs, removes tiny pieces of them if the area of the piece is less than the minimum speck size threshold
-	ClearBlobsOfTinyNoiseSpeckles(blobList, RoundFloatToInteger(area_of_converted_mat*attempt_settings.HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD));
+	ClearBlobsOfTinyNoiseSpeckles(blobList, RoundFloatToInteger(area_of_converted_mat*input_MINIMUM_SPECK_SIZE_THRESHOLD));
 	
 	
 	
