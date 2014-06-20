@@ -306,6 +306,97 @@ int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,
     }
 }
 
+
+int GetAreaIntersectionOf_CSEG_in_the_bounding_convex_polygon_of_SSEG(cv::Mat & image_where_contours_came_from,
+									std::vector<cv::Point> & contour__SSEG,
+									std::vector<std::vector<cv::Point>> & contours__CSEG,
+									int& returned_area_of_CSEG)
+{
+	cv::Mat drawn_SSEG_contour(image_where_contours_came_from.rows,
+								image_where_contours_came_from.cols,
+								CV_8U,
+								cv::Scalar(0));
+	cv::Mat drawn_CSEG_contours;
+	drawn_SSEG_contour.copyTo(drawn_CSEG_contours);
+	
+#if 0
+	cv::Mat drawn_SSEG_contour_not_convex;
+	drawn_SSEG_contour.copyTo(drawn_SSEG_contour_not_convex);
+#endif
+	
+	std::vector<cv::Point> output_convex_hull;
+	cv::convexHull(contour__SSEG, output_convex_hull);
+	
+	if(output_convex_hull.size() > 2) {
+		std::vector<std::vector<cv::Point>> output_convex_hull_vecvec;
+		output_convex_hull_vecvec.push_back(output_convex_hull);
+		
+		cv::drawContours(drawn_SSEG_contour, output_convex_hull_vecvec, -1, 1, CV_FILLED);
+		cv::drawContours(drawn_CSEG_contours, contours__CSEG, -1, 1, CV_FILLED);
+		
+		cv::Mat intersection_of_contours;
+		cv::bitwise_and(drawn_SSEG_contour, drawn_CSEG_contours, intersection_of_contours);
+		
+#if 0
+		std::vector<std::vector<cv::Point>> contour__SSEG_vecvec;
+		contour__SSEG_vecvec.push_back(contour__SSEG);
+		cv::drawContours(drawn_SSEG_contour_not_convex, contour__SSEG_vecvec, -1, 1, CV_FILLED);
+		
+		cv::Mat drawtesterr;
+		drawn_SSEG_contour.copyTo(drawtesterr);
+		drawtesterr.setTo(0);
+		
+		drawtesterr += (drawn_SSEG_contour_not_convex * 63);
+		drawtesterr += (drawn_SSEG_contour * 63);
+		drawtesterr += (drawn_CSEG_contours * 63);
+		drawtesterr += (intersection_of_contours * 63);
+		
+		cv::imshow("both contours, and their intersection:", drawtesterr);
+		cv::waitKey(0);
+		cv::destroyAllWindows();
+#endif
+		returned_area_of_CSEG = cv::countNonZero(drawn_CSEG_contours);
+		return cv::countNonZero(intersection_of_contours);
+	}
+	consoleOutput.Level1() << "weird SSEG didn't have a convex hull??" << std::endl;
+	return 0;
+}
+
+
+int GetIntersectionAreaOfContours(	cv::Mat & image_where_contours_came_from,
+									std::vector<std::vector<cv::Point>> & first_contours,
+									std::vector<std::vector<cv::Point>> & second_contours)
+{
+	cv::Mat first_drawn_contours(image_where_contours_came_from.rows,
+								image_where_contours_came_from.cols,
+								CV_8U,
+								cv::Scalar(0));
+	cv::Mat second_drawn_contours;
+	first_drawn_contours.copyTo(second_drawn_contours);
+	
+	cv::drawContours(first_drawn_contours,  first_contours, -1, 1, CV_FILLED);
+	cv::drawContours(second_drawn_contours, second_contours, -1, 1, CV_FILLED);
+	
+	cv::Mat intersection_of_contours;
+	cv::bitwise_and(first_drawn_contours, second_drawn_contours, intersection_of_contours);
+	
+#if 0
+	cv::Mat drawtesterr;
+	first_drawn_contours.copyTo(drawtesterr);
+	drawtesterr.setTo(0);
+	
+	drawtesterr += (first_drawn_contours * 84);
+	drawtesterr += (second_drawn_contours * 84);
+	drawtesterr += (intersection_of_contours * 84);
+	
+	cv::imshow("both contours, and their intersection:", drawtesterr);
+	cv::waitKey(0);
+	cv::destroyAllWindows();
+#endif
+	
+	return cv::countNonZero(intersection_of_contours);
+}
+
 void saveImage(cv::Mat& img, std::string filename)
 {
     if(img.channels() == 2)

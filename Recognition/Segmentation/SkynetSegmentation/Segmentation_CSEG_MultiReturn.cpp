@@ -81,42 +81,38 @@ void Segmentation_CSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
 		consoleOutput.Level4() << "about to draw some contours" << std::endl;
 		
 		
+//is the next step (between underscores) necessary?
+//reduce noise of SSEG's tiny speckles... redundant... but... tries to crop around only
+//									the major regions of the SSEG... not sure how helpful)
+//_______________________________________________________________________________________
         std::vector<std::vector<cv::Point>>* contours_in_avg =
                         GetContoursOfMinimumSize__DestroysInputImage(avg_input_sseg, 0.003f);
-
-        std::vector<cv::Point> all_points_in_all_contours;
+        avg_input_sseg.setTo(0);
+		
+        std::vector<cv::Point> all_points_in_all_contours_of_SSEG;
         std::vector<std::vector<cv::Point>>::iterator contours_in_avg_iter = contours_in_avg->begin();
         for(; contours_in_avg_iter != contours_in_avg->end(); contours_in_avg_iter++)
         {
-            all_points_in_all_contours.insert(all_points_in_all_contours.end(),
+            all_points_in_all_contours_of_SSEG.insert(all_points_in_all_contours_of_SSEG.end(),
                     contours_in_avg_iter->begin(), contours_in_avg_iter->end());
         }
-        avg_input_sseg.setTo(0);
         cv::drawContours(avg_input_sseg, *contours_in_avg, -1, cv::Scalar(255), CV_FILLED, 8);
         delete contours_in_avg;
         contours_in_avg = nullptr;
-
-		if(all_points_in_all_contours.empty() == false)
-		{
+//_______________________________________________________________________________________
 		
+		
+		if(all_points_in_all_contours_of_SSEG.empty() == false)
+		{
 			consoleOutput.Level4() << "about to crop for CSEG - step 0" << std::endl;
-			if(all_points_in_all_contours.empty()){for(int jj=0;jj<10;jj++){std::cout<<"===============================================CSEGCROPERROR_001"<<std::cout;}}
 			
-			cv::Rect RectToCropTo = cv::boundingRect(all_points_in_all_contours);
-			
-			consoleOutput.Level4() << "about to crop for CSEG - step 1" << std::endl;
-			
+			cv::Rect RectToCropTo = cv::boundingRect(all_points_in_all_contours_of_SSEG);
 			cv::Mat cropped_region(cropped_target_image, RectToCropTo);
-			
-			consoleOutput.Level4() << "about to crop for CSEG - step 2" << std::endl;
-			
 			cv::Mat cseg_copied_back_to_fullsize(cv::Size(avg_input_sseg.cols, avg_input_sseg.rows), CV_8U, cv::Scalar(0));
 			
-			consoleOutput.Level4() << "about to crop for CSEG - step 3" << std::endl;
-			
 			cv::Mat submatrix_of_fullsize_that_represents_crop = cseg_copied_back_to_fullsize(RectToCropTo);
-
-
+			
+			
 			consoleOutput.Level4() << "finished cropping for CSEG, about to iterate through settings" << std::endl;
 
 //=======================================================================

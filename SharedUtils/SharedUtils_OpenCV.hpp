@@ -26,6 +26,15 @@ int GetContourOfGreatestArea(std::vector<std::vector<cv::Point>> & contours,
                             double* returned_area_of_largest=nullptr,
                             double* returned_total_area=nullptr);
 
+int GetAreaIntersectionOf_CSEG_in_the_bounding_convex_polygon_of_SSEG(cv::Mat & image_where_contours_came_from,
+									std::vector<cv::Point> & contour__SSEG,
+									std::vector<std::vector<cv::Point>> & contours__CSEG,
+									int& returned_area_of_CSEG);
+
+int GetIntersectionAreaOfContours(	cv::Mat & image_where_contours_came_from,
+									std::vector<std::vector<cv::Point>> & first_contours,
+									std::vector<std::vector<cv::Point>> & second_contours);
+
 void saveImage(cv::Mat& img, std::string filename);
 
 void Rotate_CV_Mat(cv::Mat& src, double angle, cv::Mat& dst);

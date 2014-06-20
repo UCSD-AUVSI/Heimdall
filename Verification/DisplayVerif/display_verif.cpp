@@ -14,6 +14,7 @@ using std::endl;
 
 const bool kSaveImages = true;
 const bool kSaveSegs = true;
+const bool kSaveCrops_OnlyWhenReported = true;
 
 const bool kShowImages = false;
 const bool kShowIfSsegCsegSuccess = false;
@@ -63,8 +64,10 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     std::string name_of_input_crop = std::to_string(imdata->id) + "_" + std::to_string(imdata->cropid);
     if(kSaveImages && check_if_directory_exists(output_folder)) {
         if(imdata->image_data->size()){
-            cv::Mat image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor) + ".jpg");
+			if(kSaveCrops_OnlyWhenReported==false || both_cseg_and_sseg_succeeded) {
+				cv::Mat image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
+				saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor) + ".jpg");
+			}
         }
         if(kSaveSegs){   
             int count = 0;
