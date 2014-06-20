@@ -160,6 +160,9 @@ double to_degrees(double radians);
 double to_radians(double degrees);
 
 std::string ConvertOrientationToString(double orientation);
+
+//these expect values to be normalized to the range 0 to 255
 std::string ConvertColorToString(float r, float g, float b);
+std::vector<float> ConvertOneColorPoint(float r, float g, float b, int new_colorspace__from_bgr_to_this);
 
 #endif
