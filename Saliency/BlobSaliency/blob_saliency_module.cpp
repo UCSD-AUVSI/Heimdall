@@ -33,15 +33,6 @@ void Blob_Saliency_Module::do_saliency(cv::Mat input_image, imgdata_t *imdata){
     }
 }
 
-//Helper functions and variables for trig functions
-const double kPI = 4 * atan(1);
-double to_degrees(double radians){
-    return radians * 180 / kPI;
-}
-double to_radians(double degrees){
-    return degrees * kPI / 180;
-}
-
 // Calculate pixels per feet (resolution) of given image, AFTER scaling
 double calculate_px_per_feet(double horiz_cols, double altitude, double scalefactor){
     cout << "alt: " << altitude << endl;

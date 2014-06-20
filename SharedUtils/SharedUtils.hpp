@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <vector>
 #include <typeinfo>
-
+#include <cmath>
 
 
 #ifndef M_PI
@@ -153,6 +153,11 @@ std::string get_typeid_name_of_class(const T& t) {
 
     return demangle_typeid_name(typeid(t).name());
 }
+
+//Helper functions and variables for trig functions
+const double kPI = 4 * atan(1);
+double to_degrees(double radians);
+double to_radians(double degrees);
 
 std::string ConvertOrientationToString(double orientation);
 std::string ConvertColorToString(double r, double g, double b);

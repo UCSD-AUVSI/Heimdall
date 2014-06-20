@@ -29,7 +29,7 @@ int kMinSetSize = 5;
 int kMinGroupSize = 4;
 int kGroupDegreeSeparation = 30;
 
-char OCRModuleAlgorithm_GOCR::ProcessCandidates() {
+std::pair<char, int> OCRModuleAlgorithm_GOCR::ProcessCandidates() {
 
     // Mapping of individual characters to ALL of their angle values
     std::map<char, std::vector<int>> char_map;
@@ -82,7 +82,7 @@ char OCRModuleAlgorithm_GOCR::ProcessCandidates() {
 
     // No entries remain, we don't know the character
     if(char_map.empty()) {
-        return '_';
+        return std::pair<char, int>('_', -1);
     }
 
     // Separate each character's degree list into groups
@@ -145,26 +145,51 @@ char OCRModuleAlgorithm_GOCR::ProcessCandidates() {
         cout << endl;
     }
 
-    char retchar;
-    int retcharcount = 0;
-
-    // Simple algorithm for deciding retchar: whichever has the most hits wins
+    std::map <char, std::pair<int, double>> final_map;
     for(std::pair<char, std::vector<std::vector<int>>> group : group_map){
-        int currcharcount = 0;
-        for(std::vector<int> list : group.second){
-            currcharcount += list.size();
-        }
-        if(currcharcount > retcharcount){
-            retchar = group.first;
-            retcharcount = currcharcount;
+        if (group.second.size() > NumberOfOrientations(group.first)) {
+            // Ignore any characters with more groups than they should have
+            continue;
+        } else {
+            // Get total number of appearances of this char
+            int num_appearances = 0;
+            for(std::vector<int> list : group.second){
+                num_appearances += list.size();
+            }
+
+            // Add all orientations of first group of angles
+            // for this character together
+            double orientation = std::accumulate(
+                    group.second.front().begin(), 
+                    group.second.front().end(), 0.0);
+
+            // Divide by number of orientations to get average orientation
+            orientation /= group.second.front().size();
+
+            std::pair<int, double> num_orient_pair(num_appearances, orientation);
+
+            // Add this pairing to the map
+            final_map[group.first] = num_orient_pair;
         }
     }
 
-    cout << "rcc is: " << retcharcount << endl;
-    if (retcharcount) {
-        return retchar;
+    char retchar = '\0';
+    int retcharcount = 0;
+    int orientation = -1;
+
+    // Simple algorithm for deciding retchar: whichever has the most hits wins
+    for(std::pair<char, std::pair<int, double>> cand : final_map){
+        if (std::get<0>(cand.second) > retcharcount) {
+            retcharcount = std::get<0>(cand.second);
+            retchar = cand.first;
+            orientation = (int) std::get<1>(cand.second);
+        }
+    }
+
+    if (retchar != '\0') {
+        return std::pair<char, int>(retchar, orientation);
     } else {
-        return '_';
+        return std::pair<char, int>('_', -1);
     }
 }
 

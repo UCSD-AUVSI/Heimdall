@@ -31,9 +31,15 @@ void GOCRBackboneInterface :: execute(imgdata_t *imdata, std::string args) {
         
         imdata->character = "";
         
-        char output = global_GOCR_module_instance->ProcessCandidates();
-        if(output != '_' && output != '\0') {
-            imdata->character += output;
+        std::pair<char,int> output = global_GOCR_module_instance->ProcessCandidates();
+        char outchar = std::get<0>(output);
+        int orientation = std::get<1>(output);
+
+        if(outchar != '_' && outchar != '\0') {
+            imdata->character += outchar;
+            imdata->targetorientation = orientation + to_degrees(imdata->planeheading + kPI);
+            while(imdata->targetorientation < 0) imdata->targetorientation += 360;
+            while(imdata->targetorientation >= 360) imdata->targetorientation -= 360;
         }
 	}
 

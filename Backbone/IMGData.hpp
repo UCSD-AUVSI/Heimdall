@@ -40,9 +40,9 @@ struct imgdata_t{
 	std::string scolor, ccolor;
 
 	double planelat, planelongt, planealt;
-    double planeroll, planepitch, planeheading;
+    double planeroll, planepitch, planeheading; // Heading: Radians
 	double targetlat, targetlongt;
-	double targetorientation;
+	double targetorientation; // Degrees
 
     imgdata_t *next;
 

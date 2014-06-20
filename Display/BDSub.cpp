@@ -8,6 +8,7 @@
 #include "Display/BDSub.hpp"
 #include "Backbone/Backbone.hpp"
 #include "Backbone/IMGData.hpp"
+#include "SharedUtils/SharedUtils.hpp"
 
 using std::cout;
 using std::endl;
@@ -35,7 +36,7 @@ void BDSub :: DoWork() {
         out << imdata->ccolor << endl;
         out << imdata->targetlat << endl;
         out << imdata->targetlongt << endl;
-        out << imdata->targetorientation << endl;
+        out << ConvertOrientationToString(imdata->targetorientation) << endl;
         out.close();
 
         delete imdata;

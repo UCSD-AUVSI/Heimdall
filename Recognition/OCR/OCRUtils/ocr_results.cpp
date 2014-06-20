@@ -32,6 +32,15 @@ bool letter_is_difficult_and_easily_mixed_up(char letter)
 	return (letters_that_are_easily_mixed_up.find(letter) != letters_that_are_easily_mixed_up.npos);
 }
 
+int NumberOfOrientations(char letter) {
+    if (letter_has_only_one_orientation(letter)) {
+        return 1;
+    } else if (letter_has_two_orientations(letter)) {
+        return 2;
+    } else {
+        return 360;
+    }
+}
 
 std::string OCR_Result::GetCharacterAsString()
 {

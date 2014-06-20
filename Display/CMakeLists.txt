@@ -10,6 +10,7 @@ add_executable(BDSub ${bdsub_source_files})
 target_link_libraries(
     BDSub 
     backbone 
+    sharedutils
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )

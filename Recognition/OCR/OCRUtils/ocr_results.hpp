@@ -11,6 +11,7 @@ double AverageTwoAngles(double angle1, double angle2);
 bool letter_has_only_one_orientation(char letter);
 bool letter_has_two_orientations(char letter);
 bool letter_is_difficult_and_easily_mixed_up(char letter);
+int NumberOfOrientations(char letter);
 
 
 class OCR_Result

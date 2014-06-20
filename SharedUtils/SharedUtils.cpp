@@ -298,6 +298,14 @@ std::string demangle(const char* name) {
 }
 #endif
 
+//Helper functions and variables for trig functions
+double to_degrees(double radians){
+    return radians * 180 / kPI;
+}
+double to_radians(double degrees){
+    return degrees * kPI / 180;
+}
+
 std::string ConvertOrientationToString(double orientation) {
     std::map<double, std::string> orient_map = {
         {0,     "N"},

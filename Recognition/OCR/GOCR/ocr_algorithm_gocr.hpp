@@ -21,7 +21,7 @@ class OCRModuleAlgorithm_GOCR {
         // or if all data at all angles is returned.
         bool do_OCR(cv::Mat letter_binary_mat);
 
-        char ProcessCandidates(); 
+        std::pair<char, int> ProcessCandidates();
 
     private:
         void RotateAndRunOCR(cv::Mat matsrc, double angle_amount);
