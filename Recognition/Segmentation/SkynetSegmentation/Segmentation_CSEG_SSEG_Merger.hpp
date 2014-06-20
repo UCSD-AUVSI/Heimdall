@@ -13,5 +13,8 @@ public:
         std::vector<cv::Scalar>* input_sseg_colors,
         std::vector<cv::Mat>* input_CSEGs,
         std::vector<cv::Scalar>* input_cseg_colors,
-		float HistSeg_CROP_RESIZE_AMOUNT);
+		float HistSeg_CROP_RESIZE_AMOUNT,
+        std::string* folder_path_of_output_saved_images=nullptr,
+		bool save_images_and_results=false,
+		std::string* name_of_crop=nullptr);
 };

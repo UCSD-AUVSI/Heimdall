@@ -169,7 +169,7 @@ cv::Mat Average_Several_SingleChannel_CVMats(std::vector<cv::Mat>* input_mats, f
 
             //============================================
             consoleOutput.Level4() << std::string(", final ");
-            consoleOutput.Level2() << std::string("SEG averaging normed err: ") << to_sstring(single_total_error_value) << std::endl;
+            consoleOutput.Level2() << std::string("averaging normed err: ") << to_sstring(single_total_error_value) << ",  message: " << error_msg_comment << std::endl;
             //============================================
 
 

@@ -18,7 +18,7 @@ const bool kSaveSegs = true;
 const bool kShowImages = false;
 const bool kShowIfSsegCsegSuccess = false;
 
-const std::string output_folder("../../../output_images");
+const std::string output_folder("../../output_images");
 
 std::fstream* outfile_verif_results = nullptr;
 bool outfile_verif_results_has_been_opened = false;
@@ -64,7 +64,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     if(kSaveImages && check_if_directory_exists(output_folder)) {
         if(imdata->image_data->size()){
             cv::Mat image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
-            saveImage(image, output_folder + "/" + name_of_input_crop + "__crop.jpg");
+            saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor) + ".jpg");
         }
         if(kSaveSegs){   
             int count = 0;

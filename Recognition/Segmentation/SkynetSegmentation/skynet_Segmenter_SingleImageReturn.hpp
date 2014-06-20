@@ -23,6 +23,7 @@ namespace Skynet {
 		cv::Mat findShape(cv::Mat colorImg,
                         const Segmenter_Module_Settings & attempt_settings,
                         float crop_was_resized_how_much,
+                        float input_MINIMUM_SPECK_SIZE_THRESHOLD,
                         cv::Scalar* input_color_of_previously_found_shapeblob,
                         cv::Scalar* returned_color_of_blob,
                         cv::Mat* mask_of_returned_shape_blob,

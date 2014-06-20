@@ -64,6 +64,7 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
             cv::Mat foundshape_filled_binary = my_segmenter_singleimage_algorithm->findShape(cropped_target_image,
                             *settings_iter,
                             HistSeg_CROP_RESIZE_AMOUNT,
+                            settings_iter->HistSeg_MINIMUM_SPECK_SIZE_THRESHOLD_SSEG,
                             nullptr, //this would be a set of input colors to avoid, but we don't know what to avoid (this is for CSEG)
                             &returned_blob_color,
                             &foundshape_blob_returned_mask,
@@ -164,7 +165,7 @@ void Segmentation_SSEG_MultiReturn::DoModule(cv::Mat cropped_target_image,
         if(save_images_and_results && folder_path_of_output_saved_images != nullptr) {
             saveImage(avg_shape,
                 *folder_path_of_output_saved_images + std::string("/") +
-                (*name_of_crop) + std::string("__SSEG_color_is_") + to_sstring(avg_color) + std::string(".png"));
+                (*name_of_crop) + std::string("__SSEG_right_after_SSEG_before_merge_with_CSEG.png"));
         }
 #endif
 #if 0
