@@ -1,4 +1,6 @@
 set(sharedutils_source_files
+	clustering_opencv.cpp
+	clustering_opencv.hpp
 	cvplot.cpp
 	cvplot.h
 	exif.cpp
@@ -13,6 +15,7 @@ set(sharedutils_source_files
 	)
 
 add_subdirectory(gocr)
+add_subdirectory(clustering)
 
 add_library(sharedutils ${sharedutils_source_files})
 

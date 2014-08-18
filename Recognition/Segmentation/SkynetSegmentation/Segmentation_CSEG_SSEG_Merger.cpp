@@ -190,7 +190,7 @@
 				float fractional_area_of_CSEG_compared_to_SSEG = ((float)(area_of_CSEG)) / ((float)(area_of_SSEG));
 				consoleOutput.Level2() << std::endl << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ fractional area of CSEG (calculation without contours): " << to_sstring(fractional_area_of_CSEG_compared_to_SSEG) << std::endl << std::endl;
 				
-				if(fractional_area_of_CSEG_compared_to_SSEG < 0.055f || fractional_area_of_CSEG_compared_to_SSEG > 0.31f)
+				if(fractional_area_of_CSEG_compared_to_SSEG < 0.0f || fractional_area_of_CSEG_compared_to_SSEG > 0.4f)
 				{
 					consoleOutput.Level1() << std::endl << std::string("the merger module tossed the segs because the CSEG was either too small or too large compared to the SSEG!") << std::endl;
 					input_SSEGs->clear();
@@ -200,7 +200,7 @@
 #endif
 
 //this may need to be left out (here line #202)
-#if 1				
+#if 1
 			//=================================================================================
 			//next: see how much the CSEG and SSEG intersect, compared to the area of the CSEG;
 			//				ideally the CSEG would be 100% inside the SSEG

@@ -10,6 +10,17 @@
 #include <string>
 
 
+float GetColorEuclideanLength(myColor_3f input)
+{
+	return sqrt(input[0]*input[0] + input[1]*input[1] + input[2]*input[2]);
+}
+float GetColorEuclideanLength(myColor_3f c1, myColor_3f c2)
+{
+	return sqrt(  pow(c1[0]-c2[0],2)
+				+ pow(c1[1]-c2[1],2)
+				+ pow(c1[2]-c2[2],2));
+}
+
 /**
  * This function can manipulate color spaces/channels of cv::Mat.
  * For instance, extracting just the AB channels of color space LAB (a very useful manipulation),

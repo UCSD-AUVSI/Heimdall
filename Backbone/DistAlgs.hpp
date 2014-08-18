@@ -14,6 +14,7 @@
 #include "GUISaliency/GUISaliency.hpp"
 
 #include "Recognition/Segmentation/stub_seg.hpp"
+#include "Recognition/Segmentation/ClusterSegmentation/ClusterSeg_BackboneInterface.hpp"
 #include "Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.hpp"
 #include "GUIRec/GUIRec.hpp"
 

@@ -37,6 +37,7 @@ add_subdirectory(Publish)
 add_subdirectory(Recognition)
 add_subdirectory(Saliency)
 add_subdirectory(SharedUtils)
+add_subdirectory(TruthViewer)
 add_subdirectory(Verification)
 
 FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/debug)

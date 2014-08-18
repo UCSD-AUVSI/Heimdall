@@ -8,6 +8,17 @@
 #include <opencv2/features2d/features2d.hpp>
 
 
+typedef float			 myColor_1f;
+typedef cv::Vec<float,2> myColor_2f;
+typedef cv::Vec<float,3> myColor_3f;
+typedef unsigned char	 		 myColor_1ub;
+typedef cv::Vec<unsigned char,2> myColor_2ub;
+typedef cv::Vec<unsigned char,3> myColor_3ub;
+
+float GetColorEuclideanLength(myColor_3f input);
+float GetColorEuclideanLength(myColor_3f c1, myColor_3f c2);
+
+
 void ConvertMat_UsingSettings(cv::Mat & source_mat, cv::Mat & destination_mat, int preprocess_CV_conversion_type, bool const*const which_channels_to_keep, bool delete_unwanted_channels);
 
 std::string GetNameOfCVColorSpace(int CV_colorspace_conversion_type);

@@ -1,0 +1,22 @@
+Image: img0000.jpg
+Image: img0001.jpg
+  Target:
+	shape: Square
+	shape_color: white
+	character: T
+	character_color: pink
+	pos_x: 300
+	pos_y: 200
+	box_min_width: 100
+	box_min_height: 100
+Image: img0002.jpg
+  Target:
+	shape: Triangle
+	shape_color: red
+	character: Q
+	character_color: blue
+	pos_x: 2700
+	pos_y: 1100
+	box_min_width: 110
+	box_min_height: 112
+Image: img0003.jpg
