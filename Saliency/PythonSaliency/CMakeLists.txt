@@ -1,0 +1,3 @@
+
+add_subdirectory(Canny3D)
+add_subdirectory(CPlusPlus_Heimdall_Interface)

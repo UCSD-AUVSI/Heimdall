@@ -50,9 +50,9 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     if(both_cseg_and_sseg_succeeded && save_output_file) {
         cout << "==============================wrote the below results to file" << endl;
         (*outfile_verif_results) << "--------------------------------" << endl;
-        (*outfile_verif_results) << "target #" << imdata->id << ", " << imdata->cropid << endl;
-        (*outfile_verif_results) << "shape: " << imdata->shape << endl;
-        (*outfile_verif_results) << "scolor: " << imdata->scolor << endl;
+        (*outfile_verif_results) << "target# " << imdata->id << ", " << imdata->cropid << endl;
+        (*outfile_verif_results) << "shape:  " << imdata->shape << endl;
+        (*outfile_verif_results) << "scolor:  " << imdata->scolor << endl;
         (*outfile_verif_results) << "char:  " << imdata->character << endl;
         (*outfile_verif_results) << "ccolor:  " << imdata->ccolor << endl;
         (*outfile_verif_results) << "lat:  " << imdata->targetlat << endl;

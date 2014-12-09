@@ -11,6 +11,7 @@
 #include "Saliency/stub_saliency.hpp"
 #include "Saliency/SSaliency/ssaliency.hpp"
 #include "Saliency/BlobSaliency/blob_saliency.hpp"
+#include "Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.hpp"
 #include "GUISaliency/GUISaliency.hpp"
 
 #include "Recognition/Segmentation/stub_seg.hpp"
@@ -24,6 +25,9 @@
 #include "Recognition/OCR/stub_ocr.hpp"
 #include "Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp"
 #include "Recognition/OCR/GOCR/GOCR_BackboneInterface.hpp"
+
+#include "Recognition/ColorClassifier/stub_colorclassifier.hpp"
+#include "Recognition/ColorClassifier/Classifier2014/colorclassifier2014.hpp"
 
 #include "Verification/stub_verif.hpp"
 #include "Verification/DisplayVerif/display_verif.hpp"

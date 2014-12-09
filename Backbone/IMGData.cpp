@@ -16,8 +16,9 @@ void setDone(imgdata_t *data, AlgClass alg){
         case SEG:           data->segDone = true;           break;
         case SREC:          data->sDone = true;             break;
         case OCR:           data->cDone = true;             break;
+        case COLORCLASS:    data->cclDone = true;             break;
         case VERIF:         data->verified = true;          break;
-    }   
+    }
 }
 
 void img_print(imgdata_t* data){
@@ -27,6 +28,7 @@ void img_print(imgdata_t* data){
     cout << "SEGD: "            << data->segDone << endl;
     cout << "SD: "              << data->sDone << endl;
     cout << "CD: "              << data->cDone << endl;
+    cout << "CCLD: "            << data->cclDone << endl;
     cout << "VER: "             << data->verified << endl << endl;
 }
 

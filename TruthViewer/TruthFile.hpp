@@ -5,6 +5,7 @@
 
 extern const std::vector</*const*/ std::string> truth_file_target_entry_keywords;
 
+
 class TruthFile_TargetInImage
 {
 public:
@@ -30,3 +31,5 @@ public:
 
 
 bool LoadTruthFile(std::string truthFilename, TruthFile & returnedTruth);
+
+std::string GetTruthEntryValue(std::string entryName, TruthFile_TargetInImage target);

@@ -9,6 +9,7 @@ enum AlgClass{
     SEG,
     SREC,
     OCR,
+    COLORCLASS,
     VERIF
 };
 

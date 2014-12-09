@@ -432,8 +432,94 @@ void saveImage(cv::Mat& img, std::string filename)
 
 void Rotate_CV_Mat(cv::Mat& src, double angle, cv::Mat& dst)
 {
-    int len = std::max(src.cols, src.rows);
-    cv::Point2f pt(len/2., len/2.);
-    cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
-    cv::warpAffine(src, dst, r, cv::Size(len, len));
+	int len = std::max(src.cols, src.rows);
+	cv::Point2f pt(len/2., len/2.);
+	cv::Mat r = cv::getRotationMatrix2D(pt, angle, 1.0);
+	cv::warpAffine(src, dst, r, cv::Size(len, len));
 }
+
+void cv_convertToFloatingType(cv::Mat & processMe)
+{
+	if(processMe.channels() == 1) {
+		processMe.convertTo(processMe,CV_32FC1);
+	} else if(processMe.channels() == 2) {
+		processMe.convertTo(processMe,CV_32FC2);
+	} else if(processMe.channels() == 3) {
+		processMe.convertTo(processMe,CV_32FC3);
+	}
+}
+
+void cv_matchTemplate_ExpectingNearlyExactMatch(cv::Mat bigImage, cv::Mat littleTemplate, cv::Mat & resultOutput)
+{
+	assert(bigImage.rows > littleTemplate.rows);
+	assert(bigImage.cols > littleTemplate.cols);
+	assert(bigImage.type() == littleTemplate.type());
+	assert(bigImage.channels() == littleTemplate.channels());
+	assert( bigImage.type() == CV_8UC1 ||
+			bigImage.type() == CV_8UC2 ||
+			bigImage.type() == CV_8UC3);/* ||
+			bigImage.type() == CV_32FC1 ||
+			bigImage.type() == CV_32FC2 ||
+			bigImage.type() == CV_32FC3);*/
+	
+	cv_convertToFloatingType(littleTemplate);
+	cv_convertToFloatingType(bigImage);
+	
+	/*if(bigImage.type() == CV_8UC1) {
+		bigImage.convertTo(bigImage,CV_32SC1); //signed 32-bit int
+	} else if(bigImage.type() == CV_8UC2) {
+		bigImage.convertTo(bigImage,CV_32SC2);
+	} else if(bigImage.type() == CV_8UC3) {
+		bigImage.convertTo(bigImage,CV_32SC3);
+	}
+	if(littleTemplate.type() == CV_8UC1) {
+		littleTemplate.convertTo(littleTemplate,CV_32SC1);
+	} else if(littleTemplate.type() == CV_8UC2) {
+		littleTemplate.convertTo(littleTemplate,CV_32SC2);
+	} else if(littleTemplate.type() == CV_8UC3) {
+		littleTemplate.convertTo(littleTemplate,CV_32SC3);
+	}
+	
+	/*std::cout << "littleTemplate.channels() == " << littleTemplate.channels() << std::endl;
+	std::cout << "bigImage.channels() == " << bigImage.channels() << std::endl;
+	std::cout << "littleTemplate.at<float>(0,0,0) == " << littleTemplate.at<cv::Vec3f>(0,0)[0] << std::endl;
+	std::cout << "littleTemplate.at<float>(0,0,1) == " << littleTemplate.at<cv::Vec3f>(0,0)[1] << std::endl;
+	std::cout << "bigImage.at<float>(0,0,0) == " << bigImage.at<float>(0,0,0) << std::endl;
+	std::cout << "bigImage.at<float>(0,0,1) == " << bigImage.at<float>(0,0,1) << std::endl;*/
+	
+	int nchannels = littleTemplate.channels();
+	
+	resultOutput = cv::Mat(bigImage.rows - littleTemplate.rows + 1, bigImage.cols - littleTemplate.cols + 1, CV_32F);
+	float thisdiff;
+	float thisresult;
+	
+	if(nchannels == 3) {
+		for(int ii=0; ii<resultOutput.rows; ii++) {
+			for(int jj=0; jj<resultOutput.cols; jj++) {
+				for(int iT=0; iT<littleTemplate.rows; iT++) {
+					for(int jT=0; jT<littleTemplate.cols; jT++) {
+						for(int kk=0; kk<nchannels; kk++) {
+							thisdiff = littleTemplate.at<cv::Vec3f>(iT,jT)[kk] - bigImage.at<cv::Vec3f>(ii+iT,jj+jT)[kk];
+							thisresult = (resultOutput.at<float>(ii,jj) += (thisdiff*thisdiff));
+						}
+						
+						//this skips clearly falsly matching templates,
+						//but if it takes forever, a correct match will also take forever!!
+						
+						if(thisresult > 200000.0f) {
+							iT = littleTemplate.rows;
+							jT = littleTemplate.cols;
+						}
+					}
+				}
+			}
+			//if(ii % 10 == 0)
+				std::cout << "rows done: " << ii << std::endl;
+		}
+	}
+}
+
+
+
+
+

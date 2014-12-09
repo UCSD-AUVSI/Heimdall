@@ -15,11 +15,13 @@
 #include "Backbone/IMGData.hpp"
 #include "Backbone/DistClient.hpp"
 #include "Backbone/PortHandling.hpp"
+#include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/GlobalVars.hpp"
 
 #include "Verification/DisplayVerif/display_verif.hpp" //for closing the results text file
-
 using std::cout;
 using std::endl;
+
 
 DistClient :: DistClient(std::string addr, void (*workfunc)(imgdata_t*, std::string), AlgClass alg_class, std::string arguments){
     func = workfunc;
@@ -124,9 +126,29 @@ void DistClient :: usage(){
     cout << "E.g. --ocr TESS_OCR [\"--arguments value --arguments_2 value_2\"]" << endl << endl;
 }
 
-int main(int argc, char* argv[]){
-    int i = 1;
 
+static std::string GetPathToHClientExecutable(const char* argv0) {
+	std::string fullpath = GetPathOfExecutable(argv0);
+	if(fullpath.substr(fullpath.size()-8) != std::string("/HClient")) {
+		std::cout<<"WARNING: HEIMDALL CLIENT WAS NOT CALLED \"HClient\" ???? error finding path to executable"<<std::endl;
+	}
+	fullpath.erase(fullpath.size()-8);
+	return fullpath;
+}
+
+
+int main(int argc, char* argv[]) {
+	if(argc > 0 && path_to_HClient_executable == nullptr && path_to_HeimdallBuild_directory == nullptr) {
+		path_to_HClient_executable = new std::string(GetPathToHClientExecutable(argv[0]));
+		std::cout << "HClient launched from: \"" << (*path_to_HClient_executable) << "\"" << std::endl;
+		path_to_HeimdallBuild_directory = new std::string(*path_to_HClient_executable);
+		if(path_to_HeimdallBuild_directory->substr(path_to_HeimdallBuild_directory->size()-4) != std::string("/bin")) {
+			std::cout << "WARNING: HEIMDALL BUILD DIRECTORY DOES NOT CONTAIN A \"bin\" FOLDER??????" << std::endl;
+		}
+		path_to_HeimdallBuild_directory->erase(path_to_HeimdallBuild_directory->size()-4);
+	}
+    int i = 1;
+	
     std::string addr = "localhost"; //Default Server Address 
 
 

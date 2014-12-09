@@ -16,7 +16,7 @@ std::mutex store_lock;
 static std::map<std::pair<int,int>, unsigned char *> store;
 
 bool img_check(imgdata_t *data){
-    return (data->sDone == data->cDone);
+    return (data->sDone == data->cDone && data->cDone == data->cclDone);
 }
 
 void saveLargerString(std::string &str1, std::string &str2){
@@ -34,6 +34,7 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
     first->segDone          |= second->segDone;
     first->sDone            |= second->sDone;
     first->cDone            |= second->cDone;
+    first->cclDone          |= second->cclDone;
     first->verified         |= second->verified;
 
     saveLargerString(first->shape, second->shape);

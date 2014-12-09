@@ -78,23 +78,14 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
 		}
 
 
-        //TODO: give color information to the message (imdata)
-        //this may require writing a function that can convert a table of numeric RGB color values to their names as strings
         if(returned_SSEGs.empty() == false)
         {
             for(std::vector<cv::Scalar>::iterator iter_sseg_color = returned_SSEG_colors.begin();
                     iter_sseg_color != returned_SSEG_colors.end(); iter_sseg_color++)
             {
-                imdata->scolor = ConvertColorToString(
-                        (*iter_sseg_color)[2],
-                        (*iter_sseg_color)[1],
-                        (*iter_sseg_color)[0]);
-				
-                /*std::cout << std::string("color found by SSEG in \'BGR\' colorspace: ")
-                    << to_sstring((*iter_sseg_color)[0]) << std::string(", ")
-                    << to_sstring((*iter_sseg_color)[1]) << std::string(", ")
-                    << to_sstring((*iter_sseg_color)[2]) << std::endl;*/
-				consoleOutput.Level2() << "color found by SSEG: " << to_sstring(imdata->scolor) << std::endl;
+				imdata->scolorR = (*iter_sseg_color)[2];
+				imdata->scolorG = (*iter_sseg_color)[1];
+				imdata->scolorB = (*iter_sseg_color)[0];
             }
         }
         if(returned_CSEGs.empty() == false)
@@ -102,16 +93,9 @@ void SkynetSeg :: execute(imgdata_t *imdata, std::string args)
             for(std::vector<cv::Scalar>::iterator iter_cseg_color = returned_CSEG_colors.begin();
                     iter_cseg_color != returned_CSEG_colors.end(); iter_cseg_color++)
             {
-                imdata->ccolor = ConvertColorToString(
-                        (*iter_cseg_color)[2],
-                        (*iter_cseg_color)[1],
-                        (*iter_cseg_color)[0]);
-                        
-                /*std::cout << std::string("color found by CSEG in \'BGR\' colorspace: ")
-                    << to_sstring((*iter_cseg_color)[0]) << std::string(", ")
-                    << to_sstring((*iter_cseg_color)[1]) << std::string(", ")
-                    << to_sstring((*iter_cseg_color)[2]) << std::endl;*/
-				consoleOutput.Level2() << "color found by CSEG: " << to_sstring(imdata->ccolor) << std::endl;
+				imdata->ccolorR = (*iter_cseg_color)[2];
+				imdata->ccolorG = (*iter_cseg_color)[1];
+				imdata->ccolorB = (*iter_cseg_color)[0];
             }
         }
 	}

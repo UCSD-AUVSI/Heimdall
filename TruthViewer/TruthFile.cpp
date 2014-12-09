@@ -1,6 +1,7 @@
 #include "TruthFile.hpp"
 #include <iostream>
 #include <fstream>
+#include "SharedUtils/SharedUtils.hpp"
 
 
 /*extern*/ const std::vector</*const*/ std::string> truth_file_target_entry_keywords = {
@@ -15,6 +16,25 @@
 };
 static const std::string image_entry_keyword = "Image: ";
 static const std::string target_entry_keyword = "  Target:";
+
+
+std::string GetTruthEntryValue(std::string entryName, TruthFile_TargetInImage target)
+{
+	std::string firstChars = entryName.substr(entryName.size()-1);
+	if(firstChars != std::string(":")) {
+		firstChars = entryName.substr(entryName.size()-2);
+		if(firstChars != std::string(": ")) {
+			entryName = (entryName + ":");
+		}
+	}
+	for(int i=0; i<truth_file_target_entry_keywords.size(); i++) {
+		if(contains_substr_i(truth_file_target_entry_keywords[i], entryName)) {
+			return target.entry_values[i];
+		}
+	}
+	std::cout << "ERROR in TruthFile.cpp, GetTruthEntryValue(): could not find truth entry \"" << entryName << "\"" << std::endl;
+	return std::string();
+}
 
 
 TruthFile_TargetInImage::TruthFile_TargetInImage() {

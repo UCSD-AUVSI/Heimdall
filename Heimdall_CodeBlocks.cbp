@@ -7,7 +7,7 @@
 		<Option execution_dir="build" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="Recognition/OCR/;SharedUtils/;Recognition/;SharedUtils/;Recognition/;SharedUtils/;Recognition/OCR/GOCR/;SharedUtils/;Recognition/OCR/OCRUtils/;SharedUtils/;Recognition/Segmentation/SkynetSegmentation/;SharedUtils/;Recognition/Segmentation/ClusterSegmentation/;SharedUtils/;Recognition/Segmentation/;SharedUtils/;Recognition/OCR/TesseractOCR/;SharedUtils/;Recognition/Test/;SharedUtils/;SharedUtils/;Recognition/Segmentation/ClusterSegmentation/;SharedUtils/clustering/;Backbone/;Display/BigDog/;EmergentSearch/PopUpStalker/;EmergentSearch/;ShapeRec/;Orthorect/;Saliency/;Publish/;Display/Test/;Verification/;ImagePush/FilePush/;ImagePush/FolderPush/;ImagePush/;ImagePush/FolderWatch/;Orthorect/Test/;Publish/Test/;TruthViewer/;" />
+		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonCanny3D/;Saliency/PythonCanny3D/CPP_ModuleInterface/;Saliency/PythonCanny3D/Test/;" />
 		<Build>
 			<Target title="Release">
 				<Option output="Heimdall_CodeBlocks" prefix_auto="0" extension_auto="0" />
@@ -244,6 +244,18 @@
 		<Unit filename="Recognition/CMakeLists.txt">
 			<Option virtualFolder="Recognition/" />
 		</Unit>
+		<Unit filename="Recognition/ColorClassifier/Classifier2014/colorclassifier2014.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/ColorClass2014/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/Classifier2014/colorclassifier2014.hpp">
+			<Option virtualFolder="Recognition/ColorClassification/ColorClass2014/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/stub_colorclassifier.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/stub_colorclassifier.hpp">
+			<Option virtualFolder="Recognition/ColorClassification/" />
+		</Unit>
 		<Unit filename="Recognition/OCR/CMakeLists.txt">
 			<Option virtualFolder="Recognition/OCR/" />
 		</Unit>
@@ -431,49 +443,49 @@
 			<Option virtualFolder="Recognition/Segmentation/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_BackboneInterface.cpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_BackboneInterface.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_ModuleMain.cpp">
-			<Option virtualFolder="Verification/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_ModuleMain.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_SingleImgAlg_Turning.cpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_SingleImgAlg_Turning.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_SingleImgAlg_template.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_Results.cpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_Results.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_TurningAlgorithm.cpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_TurningAlgorithm.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/test_data_results_shaperec.cpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/test_data_results_shaperec.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/stub_srec.cpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/" />
 		</Unit>
 		<Unit filename="Recognition/ShapeRec/stub_srec.hpp">
-			<Option virtualFolder="ShapeRec/" />
+			<Option virtualFolder="Recognition/ShapeRec/" />
 		</Unit>
 		<Unit filename="Recognition/Test/CMakeLists.txt">
 			<Option virtualFolder="Recognition/Test/" />
@@ -488,40 +500,64 @@
 			<Option virtualFolder="Recognition/Test/" />
 		</Unit>
 		<Unit filename="Saliency/BlobSaliency/Test/TestBlobSaliency.cpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/BlobSaliency/blob_saliency.cpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/BlobSaliency/blob_saliency.hpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/BlobSaliency/blob_saliency_module.cpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/BlobSaliency/blob_saliency_module.hpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/BlobSaliency/blob_saliency_module_template.hpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PyCanny3D_ModuleInterface.cpp">
+			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PyCanny3D_ModuleInterface.hpp">
+			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PythonSaliency.cpp">
+			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PythonSaliency.hpp">
+			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonCanny3D/Test/TestPythonCanny3D.cpp">
+			<Option virtualFolder="Saliency/PythonCanny3D/Test/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.cpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.hpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/tester_main.cpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
 		</Unit>
 		<Unit filename="Saliency/SSaliency/Test/TestSSaliency.cpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/SSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/SSaliency/saliency_module_C_SBD.cpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/SSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/SSaliency/saliency_module_C_SBD.hpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/SSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/SSaliency/saliency_module_template.hpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/SSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/SSaliency/ssaliency.cpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/SSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/SSaliency/ssaliency.hpp">
-			<Option virtualFolder="Saliency/" />
+			<Option virtualFolder="Saliency/SSaliency/" />
 		</Unit>
 		<Unit filename="Saliency/stub_saliency.cpp">
 			<Option virtualFolder="Saliency/" />
@@ -530,6 +566,9 @@
 			<Option virtualFolder="Saliency/" />
 		</Unit>
 		<Unit filename="SharedUtils/CMakeLists.txt">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/GlobalVars.hpp">
 			<Option virtualFolder="SharedUtils/" />
 		</Unit>
 		<Unit filename="SharedUtils/OS_FolderBrowser_tinydir.h">
@@ -605,10 +644,16 @@
 			<Option virtualFolder="Verification/" />
 		</Unit>
 		<Unit filename="Verification/DisplayVerif/display_verif.cpp">
-			<Option virtualFolder="Verification/" />
+			<Option virtualFolder="Verification/DisplayVerif/" />
 		</Unit>
 		<Unit filename="Verification/DisplayVerif/display_verif.hpp">
-			<Option virtualFolder="Verification/" />
+			<Option virtualFolder="Verification/DisplayVerif/" />
+		</Unit>
+		<Unit filename="Verification/PlaneVerif/plane_verif.cpp">
+			<Option virtualFolder="Verification/PlaneVerif/" />
+		</Unit>
+		<Unit filename="Verification/PlaneVerif/plane_verif.hpp">
+			<Option virtualFolder="Verification/PlaneVerif/" />
 		</Unit>
 		<Unit filename="Verification/stub_verif.cpp">
 			<Option virtualFolder="Verification/" />

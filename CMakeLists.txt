@@ -10,6 +10,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 find_package(ZeroMQ REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Qt5Widgets)
+FIND_PACKAGE(PythonLibs 2.7)
 
 # if on MAC then use clang++ with libc++
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

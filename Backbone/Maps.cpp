@@ -18,6 +18,7 @@ const std::map<std::string, AlgClass> alg_class_str_map =
     {"seg",         SEG},
     {"srec",        SREC},
     {"ocr",         OCR},
+    {"color",       COLORCLASS},
     {"verif",       VERIF}
 };
 
@@ -25,10 +26,10 @@ const std::map<std::string, AlgClass> alg_class_str_map =
 // Order is LTR ({} -> {})
 const std::map<std::vector<AlgClass>, std::vector<AlgClass>> alg_class_dependency_map =
 {
-    {{IMAGES},      {ORTHORECT}},
-    {{ORTHORECT},   {SALIENCY}},
-    {{SALIENCY},    {SEG}},
-    {{SEG},         {SREC, OCR}},
-    {{SREC, OCR},   {VERIF}},
-    {{VERIF},       {}}
+    {{IMAGES},                 {ORTHORECT}},
+    {{ORTHORECT},              {SALIENCY}},
+    {{SALIENCY},               {SEG}},
+    {{SEG},                    {SREC, OCR, COLORCLASS}},
+    {{SREC, OCR, COLORCLASS},  {VERIF}},
+    {{VERIF},                  {}}
 };

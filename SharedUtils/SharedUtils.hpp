@@ -111,6 +111,12 @@ inline std::string char_to_string(const char & input)
 	return std::string(tempstr);
 }
 
+#ifndef MIN
+#define MIN(xxxxx,yyyyy) ((xxxxx) < (yyyyy) ? (xxxxx) : (yyyyy))
+#endif
+#ifndef MAX
+#define MAX(xxxxx,yyyyy) ((xxxxx) > (yyyyy) ? (xxxxx) : (yyyyy))
+#endif
 
 #ifndef __stricmp
 
@@ -125,11 +131,21 @@ inline std::string char_to_string(const char & input)
 #endif
 
 
+std::string GetPathOfExecutable(const char* argv0);
+
+bool contains_substr_i(std::string theStr, std::string containsThis, int* position=nullptr);
+std::string replace_substr_in_string(std::string inputstr, std::string old_str_to_be_replaced, std::string new_str);
+std::string replace_char_in_string(std::string inputstr, char old_char_to_be_replaced, char new_char);
+
+std::string fixPathRedundancies(std::string path_to_fix);
 
 std::string get_chars_before_delim(const std::string & thestr, char delim);
 
-//returns the chars after the delim, maybe including the delim (determined by the boolean)
+//returns the chars after the LAST INSTANCE OF THE delim, maybe including the delim (determined by the boolean)
 std::string trim_chars_after_delim(std::string & thestr, char delim, bool include_delim_in_returned_trimmed_end);
+
+//returns the chars after the FIRST INSTANCE OF THE delim, maybe including the delim (determined by the boolean)
+std::string trim_chars_after_first_instance_of_delim(std::string & thestr, char delim, bool include_delim_in_returned_trimmed_end);
 
 std::string get_extension_from_filename(const std::string & filename);
 std::string eliminate_extension_from_filename(std::string & filename);
@@ -161,8 +177,7 @@ double to_radians(double degrees);
 
 std::string ConvertOrientationToString(double orientation);
 
-//these expect values to be normalized to the range 0 to 255
-std::string ConvertColorToString(float r, float g, float b);
+//expects values to be normalized to the range 0 to 255
 std::vector<float> ConvertOneColorPoint(float r, float g, float b, int new_colorspace__from_bgr_to_this);
 
 #endif

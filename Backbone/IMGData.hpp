@@ -34,9 +34,12 @@ struct imgdata_t{
 	bool segDone;
 	bool sDone;
 	bool cDone;
+	bool cclDone;
 	bool verified;
 	
 	std::string shape, character;
+	uint8_t scolorR, scolorG, scolorB;
+	uint8_t ccolorR, ccolorG, ccolorB;
 	std::string scolor, ccolor;
 
 	double planelat, planelongt, planealt;
@@ -66,8 +69,12 @@ struct imgdata_t{
 		segDone(false),
 		sDone(false),
 		cDone(false),
+		cclDone(false),
 		verified(false),
 		
+		scolorR(0), scolorG(0), scolorB(0),
+		ccolorR(0), ccolorG(0), ccolorB(0),
+	
 		shape(""),
 		character(""),
 		scolor(""),

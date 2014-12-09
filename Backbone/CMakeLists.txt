@@ -45,6 +45,7 @@ target_link_libraries(
     seg
     ocr
     shaperec
+	colorclass
     guirec
     guisaliency
     imagepush

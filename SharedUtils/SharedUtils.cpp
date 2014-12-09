@@ -5,12 +5,24 @@
  */
 
 #include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/GlobalVars.hpp"
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
 #include <map>
 #include <vector>
+#include <unistd.h>
+#ifndef _getcwd
+#define _getcwd getcwd
+#endif
+
+//--------------------------------------------------------------------------
+// Global Variables, from "GlobalVars.hpp"
+
+/*extern*/ std::string* path_to_HeimdallBuild_directory = nullptr;
+/*extern*/ std::string* path_to_HClient_executable = nullptr;
+//--------------------------------------------------------------------------
 
 
 //-------------------------------------
@@ -60,6 +72,12 @@ std::ostream& OutputMessageHandler::Level4()
 		return std::cout;
 	return unprinted_output_stops_here;
 }
+std::ostream& OutputMessageHandler::Level(int given_level)
+{
+	if(AcceptableOutputLevel >= given_level)
+		return std::cout;
+	return unprinted_output_stops_here;
+}
 //-------------------------------------
 
 
@@ -103,6 +121,92 @@ double GetMeanAngle(std::vector<double> & the_angles)
 }
 
 
+std::string GetPathOfExecutable(const char* argv0)
+{
+	std::string fullpath;
+	std::string argv0str = replace_char_in_string(argv0, '\\', '/');
+	if(argv0str[0] == '/') {
+		fullpath = argv0str; //launched using absolute path
+	}
+	else {
+		char cwd[4096];		//launched using relative path
+		memset(&(cwd[0]),0,4096);
+		if(_getcwd(cwd, sizeof(cwd)) == nullptr) {
+			std::cout<<"WARNING: getcwd() error... possibly executable directory is way too long?"<<std::endl;
+			return "";
+		} else {
+			fullpath = std::string(cwd) + std::string("/") + argv0str;
+		}
+	}
+	return fixPathRedundancies(fullpath);
+}
+
+
+bool contains_substr_i(std::string theStr, std::string containsThis, int* position/*=nullptr*/)
+{
+	int imax = (theStr.size() - containsThis.size() + 1);
+	for(int i=0; i<imax; i++) {
+		if(!__stricmp(theStr.substr(i,containsThis.size()).c_str(), containsThis.c_str())) {
+			if(position != nullptr) {
+				(*position) = i;
+			}
+			return true;
+		}
+	}
+	if(position != nullptr) {
+		(*position) = -1;
+	}
+	return false;
+}
+
+
+std::string replace_substr_in_string(std::string inputstr, std::string old_str_to_be_replaced, std::string new_str) {
+	if(old_str_to_be_replaced.empty())
+		return std::string();
+	size_t start_pos = 0;
+	while((start_pos = inputstr.find(old_str_to_be_replaced, start_pos)) != std::string::npos) {
+		inputstr.replace(start_pos, old_str_to_be_replaced.length(), new_str);
+		start_pos += new_str.length(); // In case 'new_str' contains 'old_str', like replacing 'x' with 'yx'
+	}
+	return inputstr;
+}
+
+
+std::string replace_char_in_string(std::string inputstr, char old_char_to_be_replaced, char new_char) {
+	for(int ii=0; ii<inputstr.size(); ii++) {
+		if(inputstr[ii] == old_char_to_be_replaced) {
+			inputstr[ii] = new_char;
+		}
+	}
+	return inputstr;
+}
+
+
+std::string fixPathRedundancies(std::string path_to_fix)
+{
+	int foundpos;
+	while(contains_substr_i(path_to_fix, "../", &foundpos)) {
+		while((path_to_fix.size() > (foundpos+3)) && path_to_fix.substr(foundpos+3,3) == "../") {
+			foundpos += 3;
+		}
+		int foundpos2 = path_to_fix.find_first_of('/',foundpos+3);
+		if(foundpos2 != path_to_fix.npos) {
+			path_to_fix.erase(foundpos,(foundpos2-foundpos+1));
+		}
+		else {
+			break;
+		}
+	}
+	while(contains_substr_i(path_to_fix,"/./")) {
+		path_to_fix = replace_substr_in_string(path_to_fix,"/./","/");
+	}
+	while(contains_substr_i(path_to_fix,"//")) {
+		path_to_fix = replace_substr_in_string(path_to_fix,"//","/");
+	}
+	return path_to_fix;
+}
+
+
 std::string get_chars_before_delim(const std::string & thestr, char delim)
 {
     size_t lastDelimPos = thestr.find_last_of(delim);
@@ -119,21 +223,33 @@ std::string get_chars_before_delim(const std::string & thestr, char delim)
 std::string trim_chars_after_delim(std::string & thestr, char delim, bool include_delim_in_returned_trimmed_end)
 {
     size_t lastDelimPos = thestr.find_last_of(delim);
-
     if(lastDelimPos > 0 && lastDelimPos < thestr.size())
     {
         std::string returned_extension;
-
         if(include_delim_in_returned_trimmed_end)
             returned_extension = thestr.substr(lastDelimPos);
         else
             returned_extension = thestr.substr(lastDelimPos+1);
-
         thestr.erase(thestr.begin()+lastDelimPos, thestr.end());
-
         return returned_extension;
     }
     return "";
+}
+
+//returns the chars after the FIRST INSTANCE OF THE delim, maybe including the delim (determined by the boolean)
+std::string trim_chars_after_first_instance_of_delim(std::string & thestr, char delim, bool include_delim_in_returned_trimmed_end)
+{
+	size_t lastDelimPos = thestr.find_first_of(delim);
+	if(lastDelimPos > 0 && lastDelimPos < thestr.size()) {
+		std::string returned_extension;
+		if(include_delim_in_returned_trimmed_end)
+			returned_extension = thestr.substr(lastDelimPos);
+		else
+			returned_extension = thestr.substr(lastDelimPos+1);
+		thestr.erase(thestr.begin()+lastDelimPos, thestr.end());
+		return returned_extension;
+	}
+	return "";
 }
 
 
@@ -338,101 +454,7 @@ std::string ConvertOrientationToString(double orientation) {
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 typedef cv::Vec<float, 3> MyPixelColorType;
-#define Print3ElementVectorCol(INPVEC) std::string("(")<<to_sstring(INPVEC[0])<<std::string(",")<<to_sstring(INPVEC[1])<<std::string(",")<<to_sstring(INPVEC[2])<<std::string(")")
 
-
-//NOTE: expects input colors to be normalized as 0-255
-//it won't work well otherwise!
-std::string ConvertColorToString(float r, float g, float b)
-{
-	std::vector<float> given_color_in_CIElab = ConvertOneColorPoint(r,g,b,CV_BGR2Lab);
-	
-    std::map<std::string, std::vector<float>> color_map = {
-        {"Black",		{0,     0,     0    }},
-        //{"Gray",		{127.5, 127.5, 127.5}},
-        {"White",		{255,   255,   255  }},
-
-        {"Red",			{200, 0,   0  }},
-        {"Red",			{200, 20, 20  }},
-        {"Red",			{255, 0,   0  }},
-        {"Red",			{255, 20, 20  }},
-        {"Dark Red",	{120, 0,   0  }},
-        {"Dark Red",	{120, 20, 20  }},
-        
-        {"Green",		{0,   255, 0  }},
-        {"Green",		{20,  255, 20 }},
-        {"Green",		{0,   180, 0  }},
-        {"Green",		{20,  180, 20 }},
-        {"Dark Green",	{0,   120, 0  }},
-        {"Dark Green",	{20,   120, 20  }},
-        
-        {"Blue",		{0,   0,   255}},
-        {"Blue",		{20, 20,   255}},
-        {"Blue",		{20, 20,   200}},
-        {"Blue",		{0,   0,   200}},
-        {"Dark Blue",	{0,   0,   120}},
-        {"Dark Blue",	{20, 20,   120}},
-
-        {"Yellow",		{200, 200, 20 }},
-        {"Yellow",		{200, 200, 0  }},
-        {"Yellow",		{255, 255, 20 }},
-        {"Yellow",		{255, 255, 0  }},
-        
-        {"Fuchsia",		{255, 0,   255}},
-        {"Aqua",		{0,   255, 255}},
-
-        {"Orange",		{255,   127.5, 0    }},
-        {"Orange",		{207,   110,  16    }},
-        {"Orange",		{237,   142,  50    }},
-        
-        //{"Maroon",		{127.5, 0,     0    }}, //renamed "dark red"
-        {"Purple",		{127.5, 0,     127.5}},
-        {"Olive",		{122,   122,   0    }},
-        {"Teal",		{0,     127.5, 127.5}},
-    };
-    
-    //-----------------------------------------------
-    //-----------------------------------------------
-    std::map<std::string, std::vector<float>>::iterator red_iter;
-    red_iter = color_map.begin();
-    red_iter++;
-    red_iter++;
-    std::vector<float> ref_color__red = ConvertOneColorPoint(red_iter->second[0],
-															 red_iter->second[1],
-															 red_iter->second[2],
-															 CV_BGR2Lab);
-	consoleOutput.Level3() << "red (255,0,0) in CIELab == " << Print3ElementVectorCol(ref_color__red) <<std::endl;
-	consoleOutput.Level3() << "given input color in CIELab == " << Print3ElementVectorCol(given_color_in_CIElab) <<std::endl;
-    //-----------------------------------------------
-    //-----------------------------------------------
-															 
-    
-    
-    float distance = 100000.0f;
-    std::string color = "";
-
-    for(auto &x: color_map){
-		std::vector<float> ref_color_in_CIELab = ConvertOneColorPoint(x.second[0],
-																	  x.second[1],
-																	  x.second[2],
-																	  CV_BGR2Lab);
-        float curr_dist = sqrt( 
-                pow(ref_color_in_CIELab[0] - given_color_in_CIElab[0], 2) +
-                pow(ref_color_in_CIELab[1] - given_color_in_CIElab[1], 2) +
-                pow(ref_color_in_CIELab[2] - given_color_in_CIElab[2], 2));
-
-        if (curr_dist < distance) {
-            distance = curr_dist;
-            color = x.first;
-        }
-    }
-    
-    //consoleOutput.Level3() << "@@@@@@@@@@@@@@@@@@@@@@@ color given to color namer: " << std::endl << given_color_in_CIElab << std::endl;
-    //consoleOutput.Level3() << to_sstring(given_color_in_CIElab.at<MyPixelColorType>(0,0)[0]) << "," << to_sstring(given_color_in_CIElab.at<MyPixelColorType>(0,0)[1]) << "," << to_sstring(given_color_in_CIElab.at<MyPixelColorType>(0,0)[2]) << std::endl;
-    //consoleOutput.Level3() << "and said it was " << color << std::endl << "@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-
-    return color;
-}
 
 //expects values to be normalized to the range 0 to 255
 std::vector<float> ConvertOneColorPoint(float r, float g, float b, int new_colorspace__from_bgr_to_this)
@@ -449,42 +471,3 @@ std::vector<float> ConvertOneColorPoint(float r, float g, float b, int new_color
 			input_color_in_CIElab.at<MyPixelColorType>(0,0)[2]};
 }
 
- /*
-    //these are RGB
-    std::map<std::string, std::vector<double>> color_map = {
-        {"Black",   {0, 0, 0}},
-        {"White",   {255, 255, 255}},
-
-        {"Red",     {255, 0, 0}},
-        {"Green",   {0, 255, 0}},
-        {"Blue",    {0, 0, 255}},
-
-        {"Yellow",  {255, 255, 0}},
-        {"Fuchsia", {255, 0, 255}},
-        {"Aqua",    {0, 255, 255}},
-
-        {"Orange",  {255, 128, 0}},
-        {"Maroon",  {128, 0, 0}},
-        {"Purple",  {128, 0, 128}},
-        {"Olive",   {128, 128, 0}},
-        {"Teal",    {0, 128, 128}},
-    };
-    //below are CIELab
-        {"Black",	{0, 0, 0}},
-        {"Gray",	{50, 0, 0}},
-        {"White",	{100, 0, 0}},
-
-        {"Red",		{53.2406, 80.0942, 67.2015}},
-        {"Green",	{87.7351, -86.1813, 83.1775}},
-        {"Blue",	{32.2957, 79.187, -107.862}},
-
-        {"Yellow",	{97.1395, -21.5524, 94.4758}},
-        {"Fuchsia",	{60.3235, 98.2352, -60.8255}},
-        {"Aqua",	{91.1133, -48.0886, -14.131}},
-
-        {"Orange",	{66.9565, 43.0733, 73.9576}},
-        {"Maroon",	{25.4184, 47.9108, 37.9052}},
-        {"Purple",	{29.6552, 58.7624, -36.3846}},
-        {"Olive",	{51.6779, -12.8922, 56.5136}},
-        {"Teal",	{48.0731, -28.7656, -8.45287}},
-    */

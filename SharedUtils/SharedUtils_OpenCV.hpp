@@ -49,3 +49,9 @@ int GetIntersectionAreaOfContours(	cv::Mat & image_where_contours_came_from,
 void saveImage(cv::Mat& img, std::string filename);
 
 void Rotate_CV_Mat(cv::Mat& src, double angle, cv::Mat& dst);
+
+void cv_convertToFloatingType(cv::Mat & processMe);
+void cv_matchTemplate_ExpectingNearlyExactMatch(cv::Mat bigImage, cv::Mat littleTemplate, cv::Mat & resultOutput);
+
+
+
