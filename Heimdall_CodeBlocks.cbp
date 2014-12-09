@@ -7,7 +7,7 @@
 		<Option execution_dir="build" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonCanny3D/;Saliency/PythonCanny3D/CPP_ModuleInterface/;Saliency/PythonCanny3D/Test/;" />
+		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D-Test/;" />
 		<Build>
 			<Target title="Release">
 				<Option output="Heimdall_CodeBlocks" prefix_auto="0" extension_auto="0" />
@@ -517,20 +517,20 @@
 		<Unit filename="Saliency/BlobSaliency/blob_saliency_module_template.hpp">
 			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
-		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PyCanny3D_ModuleInterface.cpp">
-			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
 		</Unit>
-		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PyCanny3D_ModuleInterface.hpp">
-			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
 		</Unit>
-		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PythonSaliency.cpp">
-			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
 		</Unit>
-		<Unit filename="Saliency/PythonCanny3D/CPP_ModuleInterface/PythonSaliency.hpp">
-			<Option virtualFolder="Saliency/PythonCanny3D/CPP_ModuleInterface/" />
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
 		</Unit>
-		<Unit filename="Saliency/PythonCanny3D/Test/TestPythonCanny3D.cpp">
-			<Option virtualFolder="Saliency/PythonCanny3D/Test/" />
+		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/TestPythonCanny3D.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D-Test/" />
 		</Unit>
 		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.cpp">
 			<Option virtualFolder="Saliency/ResultsTruthTester/" />
