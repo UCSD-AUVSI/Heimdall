@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
-
 using std::cout;
 using std::endl;
 
@@ -16,8 +15,10 @@ using std::endl;
 #include "opencv2/opencv.hpp"
 
 #include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/GlobalVars.hpp"
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "SharedUtils/exif.h"
+
 
 int FolderPush::sendcount = 0, FolderPush::delay = 100;
 
@@ -27,6 +28,8 @@ bool FolderPush::send = true, FolderPush::pause = false,
 const bool kUseEXIFForInfo = false;
 
 std::vector<std::string> * FolderPush::file_list = new std::vector<std::string>();
+std::vector<std::string> * FolderPush::file_list_backup = new std::vector<std::string>();
+
 
 void FolderPush :: usage(){
 	cout << "Usage: --images FOLDER_PUSH [OPTIONS]..."  << endl;
@@ -74,6 +77,7 @@ int FolderPush :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_d
 			if(filename_extension_is_image_type(get_extension_from_filename(std::string(file.name)))) {
                 num_files_found++;
                 FolderPush::file_list -> push_back(std::string(file.path));
+                FolderPush::file_list_backup->push_back(std::string(file.path));
 			}
 		}
 		tinydir_next(&dir);
@@ -85,10 +89,12 @@ int FolderPush :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_d
 void FolderPush :: execute(imgdata_t *imdata, std::string args){
     //Return immediately if not sending
     if(!FolderPush::send){
+		//cout<<"FOLDERPUSH: !SEND"<<endl;
         std::chrono::milliseconds dura(FolderPush::delay);
         std::this_thread::sleep_for(dura);
         return;
     }
+	//cout<<"FOLDERPUSH: SENDING SOMETHING"<<endl;
     
     //Pause before continuing, to prevent pushing too fast
     if(FolderPush::pause){
@@ -106,6 +112,8 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
 
         FolderPush::pause = true;
         FolderPush::first_send = false;
+        
+        globalNumImagesInExperiment = FolderPush::file_list->size();
     }
     
     //If we are finished with all files, we are done sending
@@ -123,6 +131,11 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
 
     cout << "Running with following parameters: \n" << endl;
     cout << "Image: " << image << endl;
+    
+    //get image filename for debugging
+    std::string justTheImageName(replace_char_in_string(image,'\\','/'));
+    justTheImageName = trim_chars_after_delim(justTheImageName, '/', false);
+    imdata->name_of_original_image_file_for_debugging = justTheImageName;
 
     //Check if image exists
     if(FILE *file = fopen(image.c_str(), "rb")){

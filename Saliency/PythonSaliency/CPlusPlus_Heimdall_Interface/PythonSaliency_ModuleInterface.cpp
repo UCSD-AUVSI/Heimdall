@@ -9,9 +9,15 @@
 #include "Backbone/IMGData.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+#include "SharedUtils/GlobalVars.hpp"
+#include "Saliency/ResultsTruthTester/SaliencyResultsTruthTester.hpp"
+
 #include "PythonSaliency.hpp"
 using std::cout;
 using std::endl;
+
+int PythonSaliency::lastLocalExperimentNum = 0;
 
 
 void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
@@ -31,10 +37,24 @@ void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
 					<< "  if Canny3D is the PythonSaliency module you wish to run." << std::endl;
 		failure = true;
 	}
+	int spacepos;
+	if(str_contains_char(args,' ',&spacepos)) {
+		std::string second_arg = trim_chars_after_first_instance_of_delim(args, ' ', false);
+		cout<<"PYTHON SALIENCY RECEIVED TWO ARGUMENTS; SECOND ARG IS: \""<<second_arg<<"\""<<endl;
+		if(second_arg == "EXPERIMENT") {
+			cout<<"---- SALIENCY (PYTHON) EXPERIMENTAL MODE SET"<<endl;
+			globalExperimentResultsCalculatorFunc = SaliencyExperimentResultsCalculator;
+			
+			if(lastLocalExperimentNum < globalExperimentNum) {
+				cout<<"NEW EXPERIMENT DETECTED: UPDATING PYTHON VARIABLES..."<<endl;
+				lastLocalExperimentNum = globalExperimentNum;
+			}
+		}
+	}
 	
 	cv::Mat fullsizeImage;
 	std::vector<cv::Mat> foundCrops;
-	std::vector<std::pair<double,double>> cropGeolocations; //TODO
+	std::vector<std::pair<double,double>> cropGeolocations;
 	
 	if(failure == false) {
 		fullsizeImage = cv::imdecode(*imdata->image_data, CV_LOAD_IMAGE_COLOR);
@@ -45,6 +65,9 @@ void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
 		
 		//-----------------------------------------------------------------------------------------------------------
 		/*for(int jj=0; jj<foundCrops.size(); jj++) {
+			std::cout<<"crop "<<jj<<" found at "<<cropGeolocations[jj].first<<","<<cropGeolocations[jj].second<<std::endl;
+		}/*
+		for(int jj=0; jj<foundCrops.size(); jj++) {
 			cv::imshow(std::string("crop")+to_istring(jj), foundCrops[jj]);
 		}
 		cv::waitKey(0);
@@ -54,6 +77,7 @@ void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
 	
 	//after saliency is done with the fullsize image, remove that fullsize image from the message's images vector
 	imdata->image_data->clear();
+	imdata->num_crops_in_this_image = foundCrops.size();
 	
 	if(failure == false) {
 		std::vector<int> param = std::vector<int>(2);

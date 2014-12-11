@@ -1,30 +1,23 @@
 #include <iostream>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
+#include "SaliencyExperimentResults.hpp"
 
-class ResultsData
-{
-public:
-	int numFailures_DetectionFailures;
-	int numFailures_PaddingFailures;
-	int numFailures_TooBig;
-	int numCloseCallsForCroppingFailures;
-	int numSuccesses;
-	int numFileErrors;
-	int numDetectedThings;
-	int numTruthTargets;
-	
-	ResultsData() :
-		numFailures_DetectionFailures(0),
-		numFailures_PaddingFailures(0),
-		numFailures_TooBig(0),
-		numCloseCallsForCroppingFailures(0),
-		numSuccesses(0),
-		numFileErrors(0),
-		numDetectedThings(0),
-		numTruthTargets(0) {}
-};
 
-ResultsData TestFolderWithCrops(std::string truthFilename, std::string truthImageFileFolder, std::string folderWithCrops,
-						int desiredMinPaddingPixels, double desiredMaxCropLengthRatioToTargetLength,
-						bool cropCoordinatesAreInFilename);
+SaliencyOutput
+	ReadFolderWithCrops(std::string truthImageFileFolder,
+						std::string folderWithCrops,
+						bool cropCoordinatesAreInFilename,
+						bool compress=true);
+
+
+#ifndef imgdata_t
+class imgdata_t;
+#endif
+#ifndef ExperimentResultsData
+class ExperimentResultsData;
+#endif
+void SaliencyExperimentResultsCalculator(std::vector<imgdata_t*> imgResults,
+										ExperimentResultsData* calculatedResults);
+										
+

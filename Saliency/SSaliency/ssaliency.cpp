@@ -64,6 +64,8 @@ void SSaliency :: execute(imgdata_t *imdata, std::string args){
 							<< to_istring(global_SSaliency_module_instance->returned_cropped_images.size())
 							<< " crops" << std::endl;
 	
+	imdata->num_crops_in_this_image = global_SSaliency_module_instance->returned_cropped_images.size();
+	
     imgdata_t *curr_imdata = imdata;
     int i = 0;
     while(i < global_SSaliency_module_instance->returned_cropped_images.size())

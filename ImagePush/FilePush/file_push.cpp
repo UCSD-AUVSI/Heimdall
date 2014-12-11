@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
-
 using std::cout;
 using std::endl;
 
@@ -12,12 +11,16 @@ using std::endl;
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 #include "Backbone/IMGData.hpp"
+#include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/GlobalVars.hpp"
 
 #include "opencv2/opencv.hpp"
+
 
 int FilePush::sendcount = 0;
 
 bool FilePush::send = true, FilePush::pause = false;
+
 
 std::vector<std::string>& FilePush :: split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
@@ -55,10 +58,13 @@ void FilePush :: processArguments(std::string args, std::string& image){
 
 void FilePush :: execute(imgdata_t *imdata, std::string args){
     if(!FilePush::send){
+		//cout<<"FILEPUSH: !SEND"<<endl;
         std::chrono::milliseconds dura(5000);
         std::this_thread::sleep_for(dura);
         return;
     }
+	//cout<<"FILEPUSH: SENDING SOMETHING?"<<endl;
+    globalNumImagesInExperiment = 1;
 
     if(FilePush::pause){
         std::chrono::milliseconds dura(5000);
@@ -68,6 +74,11 @@ void FilePush :: execute(imgdata_t *imdata, std::string args){
     std::string image = "./foo.jpg";
 
     FilePush::processArguments(args, image);
+    
+    //get image filename for debugging
+    std::string justTheImageName(replace_char_in_string(image,'\\','/'));
+    justTheImageName = trim_chars_after_delim(justTheImageName, '/', false);
+    imdata->name_of_original_image_file_for_debugging = justTheImageName;
 
     //Check if image exists
     if(FILE *file = fopen(image.c_str(), "r")){

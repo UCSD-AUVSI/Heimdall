@@ -4,9 +4,10 @@
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
-#include "TruthViewer/TruthFile.hpp"
 #include "SaliencyResultsTruthTester.hpp"
 #include <thread>
+using std::cout;
+using std::endl;
 
 static void SingleThreadMatchTemplateToChannel(cv::Mat origImgChannel, cv::Mat templateImgChannel, float pixelsInCrop,
 										float * returned_minVal, int * returned_pt_X, int * returned_pt_Y)
@@ -29,14 +30,14 @@ static void SingleThreadMatchTemplateToChannel(cv::Mat origImgChannel, cv::Mat t
 }
 
 
-static bool GetCropCoordinatesWithoutFilename(cv::Mat cropImage, cv::Mat cropOrigImage, float pixelsInCrop, cv::Rect & cropRect, float & totalMinVal)
+static bool GetCropCoordinatesWithoutFilename(cv::Mat cropImage, cv::Mat cropSourceImage, float pixelsInCrop, cv::Rect & cropRect, float & totalMinVal)
 {
 	std::vector<cv::Mat> crImageChannels(3);
-	std::vector<cv::Mat> crOrigImageChannels(3);
+	std::vector<cv::Mat> crSourceImageChannels(3);
 	std::vector<cv::Rect> threeRects;
 	threeRects.resize(3);
 	cv::split(cropImage, crImageChannels);
-	cv::split(cropOrigImage, crOrigImageChannels);
+	cv::split(cropSourceImage, crSourceImageChannels);
 	
 	//multithreaded template matching (three threads, one for each channel)
 	static std::vector<std::thread*> threads_for_channels(3, nullptr);
@@ -48,7 +49,7 @@ static bool GetCropCoordinatesWithoutFilename(cv::Mat cropImage, cv::Mat cropOri
 	
 	for(int kk=0; kk<3; kk++) {
 		threads_for_channels[kk] = new std::thread(SingleThreadMatchTemplateToChannel,
-											crOrigImageChannels[kk],
+											crSourceImageChannels[kk],
 											crImageChannels[kk],
 											pixelsInCrop,
 											&(minVals[kk]),
@@ -117,168 +118,99 @@ static bool GetCropCoordsFromFilename(std::string fname, cv::Mat cropImage, cv::
 }
 
 
-ResultsData TestFolderWithCrops(std::string truthFilename, std::string truthImageFileFolder, std::string folderWithCrops,
-						int desiredMinPaddingPixels, double desiredMaxCropLengthRatioToTargetLength,
-						bool cropCoordinatesAreInFilename)
+SaliencyOutput
+	ReadFolderWithCrops(std::string truthImageFileFolder,
+						std::string folderWithCrops,
+						bool cropCoordinatesAreInFilename,
+						bool compress/*=true*/)
 {
 	const int default_console_verbosity = 4;
-	
-	
-	TruthFile loadedTruthFile;
-	if(LoadTruthFile(truthFilename, loadedTruthFile) == false) {
-		consoleOutput.Level0() << "ERROR: COULD NOT LOAD TRUTH FILE \"" << truthFilename << "\"" << std::endl;
-		return ResultsData();
-	}
-	
 	const int dcv = default_console_verbosity;
-	ResultsData results;
 	
-	for(int ii=0; ii<loadedTruthFile.images.size(); ii++) {
-		results.numTruthTargets += loadedTruthFile.images[ii].targets_in_image.size();
+	if(truthImageFileFolder[truthImageFileFolder.size()-1] != '/') {
+		truthImageFileFolder = (truthImageFileFolder + std::string("/"));
 	}
 	
+	SaliencyOutput salOut;
 	tinydir_dir dir;
 	std::string filename,filenameExtension;
-	std::string cropOriginalImageFile;
+	std::string cropSourceImageFile;
+	int numFileErrors = 0;
+	int numFilesScanned = 0;
 	
 	tinydir_open(&dir, folderWithCrops.c_str());
 	
 	/*
 		Loop over the crops in the folder
 		For each crop, get its corresponding original image, and figure out where in the image it came from
-		Then see if where it came from matches a target!
 	*/
 	while(dir.has_next) {
 		tinydir_file file;
 		tinydir_readfile(&dir, &file);
-		if(file.is_dir == false) {
-			filename = std::string(file.name);
-			if(filename.size() > 4) {
-				filenameExtension = eliminate_extension_from_filename(filename);
-				if(filename_extension_is_image_type(filenameExtension)) {
-					cropOriginalImageFile = std::string(file.name);
-					trim_chars_after_first_instance_of_delim(cropOriginalImageFile,'.',false);
-					
-					cropOriginalImageFile = (cropOriginalImageFile + std::string(".jpg"));
-					consoleOutput.Level(dcv) << "this crop: \"" << filename << "\", original image: \"" << cropOriginalImageFile << "\"" << std::endl;
-					
-					cv::Mat cropImage = cv::imread(file.path);
-					cv::Mat cropOrigImage = cv::imread(truthImageFileFolder + cropOriginalImageFile);
-					float pixelsInCrop = static_cast<float>(cropImage.rows*cropImage.cols);
-					
-					if(cropOrigImage.empty() == false && cropImage.empty() == false)
-					{
-						results.numDetectedThings++;
-						
-						float totalMinVal;
-						bool cropFileIsGood = false;
-						cv::Rect cropRect;
-						
-						if(cropCoordinatesAreInFilename == false) {
-							if(GetCropCoordinatesWithoutFilename(cropImage, cropOrigImage, pixelsInCrop, cropRect, totalMinVal)) {
-								cropFileIsGood = true;
-							}
-							else {
-								results.numFileErrors++;
-							}
-						}
-						else {
-							if(GetCropCoordsFromFilename(std::string(file.name), cropImage, cropRect)) {
-								cropFileIsGood = true;
-								totalMinVal = 0.0f;
-							}
-							else {
-								results.numFileErrors++;
-							}
-						}
-						
-						if(cropFileIsGood)
-						{
-							consoleOutput.Level(dcv) << "match amt: " << totalMinVal << ", location: " << cropRect << std::endl;
-							bool foundTheImage = false;
-							for(int ii=0; ii<loadedTruthFile.images.size(); ii++) {
-								if(!__stricmp(loadedTruthFile.images[ii].image_file.c_str(), cropOriginalImageFile.c_str())) {
-									if(foundTheImage == true) {
-										consoleOutput.Level0() << "ERROR: DUPLICATE IMAGE IN TRUTH FILE?? ~~~~~~~~~~~~~~~~~~~~" << std::endl;
-										results.numFileErrors++;
-									}
-									foundTheImage = true;
-									for(int jj=0; jj<loadedTruthFile.images[ii].targets_in_image.size(); jj++) {
-										TruthFile_TargetInImage & thisTarg(loadedTruthFile.images[ii].targets_in_image[jj]);
-										int tbX = atoi(GetTruthEntryValue("pos_x",thisTarg).c_str());
-										int tbY = atoi(GetTruthEntryValue("pos_y",thisTarg).c_str());
-										int tbW = atoi(GetTruthEntryValue("box_min_width",thisTarg).c_str());
-										int tbH = atoi(GetTruthEntryValue("box_min_height",thisTarg).c_str());
-										cv::Rect thisTargRect(tbX,tbY,tbW,tbH);
-										consoleOutput.Level(dcv) << "this target official rect: " << thisTargRect << std::endl;
-										
-										cv::Rect rectIntersect = (cropRect & thisTargRect);
-										
-										double rectIntscSize = static_cast<double>(rectIntersect.width * rectIntersect.height);
-										double closeCallRatio = (rectIntscSize / static_cast<double>(pixelsInCrop));
-										
-										consoleOutput.Level(dcv) << "rectIntersect == " << rectIntersect << std::endl;
-										if(rectIntersect.size() != thisTargRect.size()) {
-											consoleOutput.Level(dcv) << "SALIENCY FAILURE: DETECTION FAILURE ------------------------------------------------" << std::endl;
-											results.numFailures_DetectionFailures++;
-											
-											if(closeCallRatio > 0.3) {
-												results.numCloseCallsForCroppingFailures++;
-											}
-										}
-										else {
-											int padX1 = (thisTargRect.x - cropRect.x);
-											int padX2 = ((cropRect.x+cropRect.width) - (thisTargRect.x+thisTargRect.width));
-											int padY1 = (thisTargRect.y - cropRect.y);
-											int padY2 = ((cropRect.y+cropRect.height) - (thisTargRect.y+thisTargRect.height));
-											
-											consoleOutput.Level(dcv) << "padding: " << padX1 << ", " << padX2 << ", " << padY1 << ", " << padY2 << std::endl;
-											
-											int minPadding = MIN(MIN(padX1,padX2), MIN(padY1,padY2));
-											
-											if(minPadding < desiredMinPaddingPixels) {
-												results.numFailures_PaddingFailures++;
-												consoleOutput.Level0() << "SALIENCY FAILURE: NOT ENOUGH PADDING ------------ " << filename << std::endl;
-											}
-											else {
-												double sizeRatio_Width = static_cast<double>(cropRect.width) / static_cast<double>(thisTargRect.width);
-												double sizeRatio_Height = static_cast<double>(cropRect.width) / static_cast<double>(thisTargRect.width);
-												
-												double maxSizeRatio = MAX(sizeRatio_Width, sizeRatio_Height);
-												
-												if(maxSizeRatio > desiredMaxCropLengthRatioToTargetLength) {
-													results.numFailures_TooBig++;
-													consoleOutput.Level0() << "SALIENCY FAILURE: CROP IS TOO BIG ------------ " << filename << std::endl;
-												}
-												else {
-													results.numSuccesses++;
-												}
-	
-											}
-										}
-									}
-								}
-							}
-						}
-						consoleOutput.Level(dcv) << "checked " << results.numDetectedThings << " images so far" << std::endl;
+		if(file.is_dir == false && filename_extension_is_image_type(get_extension_from_filename(file.name))) {
+			cropSourceImageFile = std::string(file.name);
+			trim_chars_after_first_instance_of_delim(cropSourceImageFile,'.',false);
+			cropSourceImageFile = (cropSourceImageFile + std::string(".jpg"));
+			
+			consoleOutput.Level(dcv) << "this crop: \"" << filename << "\", original image: \"" << cropSourceImageFile << "\"" << std::endl;
+			
+			cv::Mat cropImage = cv::imread(file.path);
+			
+			if(check_if_file_exists(truthImageFileFolder+cropSourceImageFile) && cropImage.empty() == false)
+			{
+				numFilesScanned++;
+				float totalMinVal;
+				bool cropFileIsGood = false;
+				cv::Rect cropRect;
+				
+				if(cropCoordinatesAreInFilename == false) {
+					cv::Mat cropSourceImage = cv::imread(truthImageFileFolder+cropSourceImageFile);
+					if(GetCropCoordinatesWithoutFilename(cropImage, cropSourceImage, (float)(cropImage.rows*cropImage.cols), cropRect, totalMinVal)) {
+						cropFileIsGood = true;
 					}
 					else {
-						consoleOutput.Level0() << "ERROR READING CROP IMAGE, OR THE ORIGINAL IMAGE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-						results.numFileErrors++;
+						numFileErrors++;
 					}
 				}
+				else {
+					if(GetCropCoordsFromFilename(std::string(file.name), cropImage, cropRect)) {
+						cropFileIsGood = true;
+						totalMinVal = 0.0f;
+					}
+					else {
+						numFileErrors++;
+					}
+				}
+				
+				if(cropFileIsGood)
+				{
+					salOut.CropsForImage(cropSourceImageFile).push_back(cropImage);
+					salOut.LocationsForImage(cropSourceImageFile).push_back(std::pair<double,double>(cropRect.x,cropRect.y));
+					
+					consoleOutput.Level(dcv) << "match amt: " << totalMinVal << ", location: " << cropRect << endl;
+					
+					if(compress) {
+						salOut.CompressCropsSoFar();
+					}
+				}
+				consoleOutput.Level(dcv) << "scanned " << numFilesScanned << " images so far" << endl;
+			}
+			else {
+				consoleOutput.Level(0) << "ERROR READING CROP IMAGE, OR THE ORIGINAL IMAGE WAS NOT FOUND ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+				numFileErrors++;
 			}
 		}
 		tinydir_next(&dir);
 	}
 	tinydir_close(&dir);
 	
-	return results;
+	if(numFileErrors > 0) {
+		consoleOutput.Level(0) << "WARNING: THERE WERE " << numFileErrors
+					<< " ERRORS WHEN READING THE SALIENCY CROPS IN THAT FOLDER" << endl;
+	}
+	
+	return salOut;
 }
-
-
-
-
 
 /*
 Filename Specifications for crops with coordinates in file name:
@@ -308,6 +240,14 @@ seconNumber atoi(substr(cpos+3, sUnd-cpos-3))
 
 */
 
+
+void SaliencyExperimentResultsCalculator(std::vector<imgdata_t*> imgResults,
+										ExperimentResultsData* calculatedResults)
+{
+	cout<<"CALCULATING SALIENCY RESULTS"<<endl;
+	
+	//todo: generate "SaliencyOutput" from all of the imgResults
+}
 
 
 

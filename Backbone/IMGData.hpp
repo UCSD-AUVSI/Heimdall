@@ -13,6 +13,8 @@
 struct imgdata_t{
 	uint32_t id, cropid;
 	bool initialized;
+	std::string name_of_original_image_file_for_debugging;
+	int num_crops_in_this_image;
 
 	// image_data vector guaranteed to have only one row when packed/unpacked
 	std::vector<unsigned char> *image_data;
@@ -53,6 +55,8 @@ struct imgdata_t{
 		id(0),
 		cropid(0),
 		initialized(false),
+		name_of_original_image_file_for_debugging(""),
+		num_crops_in_this_image(0),
 
 		image_data(nullptr),
 		sseg_image_data(nullptr),

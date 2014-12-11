@@ -4,12 +4,19 @@ import GetCannyEdgesPython
 import EdgesToContours
 
 
-def doSaliency(fullsizeImg):
+def doSaliency(fullsizeImg, firstFourArgs):
 	
-	cThreshLow = 100
+	#imheight,imwidth = fullsizeImg.shape[:2]
+	#print "python is processing an image of size: " + str(imwidth) + "x" + str(imheight)
+	
+	'''cThreshLow = 100
 	cHighRatioTimes5 = 30
 	blurRadius = 11
-	resizePct = 20
+	resizePct = 20'''
+	cThreshLow = firstFourArgs[0]
+	cHighRatioTimes5 = firstFourArgs[1]
+	blurRadius = int(round(firstFourArgs[2]))
+	resizePct = firstFourArgs[3]
 	
 	# these settings probably don't need to be changed...
 	kernelSize = 5
@@ -24,7 +31,7 @@ def doSaliency(fullsizeImg):
 	edgeImg = GetCannyEdgesPython.GetEdges(resizedImg, blurRadius, cThreshLow, cThreshHigh, kernelSize, False)
 	
 	# find targets: uses edges to find closed blobs
-	crops = EdgesToContours.GetCroppedObjects(fullsizeImg, edgeImg, resizePct, minTargetPixelWidth, maxTargetPixelWidth, False)
+	crops = EdgesToContours.GetCroppedObjects(fullsizeImg, edgeImg, resizePct, minTargetPixelWidth, maxTargetPixelWidth, True)
 	
 	return crops
 

@@ -81,6 +81,8 @@ void BlobSaliency :: execute(imgdata_t *imdata, std::string args){
         << to_istring(global_sal_instance->return_crops.size())
         << " crops" << std::endl;
 
+	imdata->num_crops_in_this_image = global_sal_instance->return_crops.size();
+
     std::vector<int> param = std::vector<int>(2);
     param[0] = CV_IMWRITE_PNG_COMPRESSION;
     param[1] = 3; //default(3)  0-9, where 9 is smallest compressed size.

@@ -48,6 +48,7 @@ int messageSizeNeeded(imgdata_t *imdata){
 	len += imdata->character.size() + 1;
 	len += imdata->scolor.size() + 1;
 	len += imdata->ccolor.size() + 1;
+	len += imdata->name_of_original_image_file_for_debugging.size() + 1;
 
 	len += imdata->image_data_size;
 	len += imdata->sseg_image_size_count * sizeof(uint32_t);
@@ -110,6 +111,7 @@ void copyPODToArr(imgdata_t *imdata, unsigned char *arr, int &start){
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(image_data_size);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(sseg_image_size_count);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(cseg_image_size_count);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(num_crops_in_this_image);
 	
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(orthorectDone);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(saliencyDone);
@@ -150,6 +152,7 @@ void copyPODFromArray(imgdata_t *imdata, unsigned char *arr, int &start){
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(image_data_size);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(sseg_image_size_count);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(cseg_image_size_count);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(num_crops_in_this_image);
 	
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(orthorectDone);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(saliencyDone);
@@ -207,6 +210,9 @@ unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	memcpy(arr + start, imdata->ccolor.c_str(), imdata->ccolor.size() + 1);
 	start += imdata->ccolor.size() + 1;
 	
+	memcpy(arr + start, imdata->name_of_original_image_file_for_debugging.c_str(), imdata->name_of_original_image_file_for_debugging.size() + 1);
+	start += imdata->name_of_original_image_file_for_debugging.size() + 1;
+	
     memcpy(arr + start, &(*(imdata->image_data))[0], imdata->image_data_size);
     start += imdata->image_data_size;
 
@@ -263,6 +269,8 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 	start += (imdata->scolor.size() + 1);
 	imdata->ccolor = reinterpret_cast<char*>(arr+start);
 	start += (imdata->ccolor.size() + 1);
+	imdata->name_of_original_image_file_for_debugging = reinterpret_cast<char*>(arr+start);
+	start += (imdata->name_of_original_image_file_for_debugging.size() + 1);
 
     //Copy main image/image crop
     unsigned char *img_arr = new unsigned char[imdata->image_data_size];

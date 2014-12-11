@@ -41,6 +41,7 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
     saveLargerString(first->character, second->character);
     saveLargerString(first->scolor, second->scolor);
     saveLargerString(first->ccolor, second->ccolor);
+    saveLargerString(first->name_of_original_image_file_for_debugging, second->name_of_original_image_file_for_debugging);
 }
 
 // TODO: Currently, BackStore does not save image data properly

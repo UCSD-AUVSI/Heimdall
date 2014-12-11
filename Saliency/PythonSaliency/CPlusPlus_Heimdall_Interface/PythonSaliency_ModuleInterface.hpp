@@ -7,6 +7,8 @@
 class PythonSaliency : AUVSI_Algorithm{
 	public:
 		static void execute(imgdata_t *data, std::string args);
+
+		static int lastLocalExperimentNum;
 };
 
 #endif

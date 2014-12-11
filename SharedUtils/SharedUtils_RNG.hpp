@@ -47,6 +47,11 @@ public:
 	virtual int rand_int() {
 		return rand_r(&myseed);
 	}
+	
+	//THIS SHOULD BE INHERITED, BUT FOR SOME REASON ITS NOT? COMPILER ERROR?
+	virtual int rand_int(int min_value, int max_value) {
+		return min_value + (rand_int() % (max_value - min_value + 1));
+	}
 };
 
 #endif

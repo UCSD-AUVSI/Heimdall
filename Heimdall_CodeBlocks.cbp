@@ -7,7 +7,7 @@
 		<Option execution_dir="build" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D-Test/;" />
+		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D-Test/;Verification/ExperimentVerif/;" />
 		<Build>
 			<Target title="Release">
 				<Option output="Heimdall_CodeBlocks" prefix_auto="0" extension_auto="0" />
@@ -529,8 +529,17 @@
 		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.hpp">
 			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
 		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/GeneticOptimizeCanny3D.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D-Test/" />
+		</Unit>
 		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/TestPythonCanny3D.cpp">
 			<Option virtualFolder="Saliency/PythonSaliency/Canny3D-Test/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/SaliencyExperimentResults.cpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/SaliencyExperimentResults.hpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
 		</Unit>
 		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.cpp">
 			<Option virtualFolder="Saliency/ResultsTruthTester/" />
@@ -568,10 +577,22 @@
 		<Unit filename="SharedUtils/CMakeLists.txt">
 			<Option virtualFolder="SharedUtils/" />
 		</Unit>
+		<Unit filename="SharedUtils/EnableKeyPressToExit.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/EnableKeyPressToExit.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
 		<Unit filename="SharedUtils/GlobalVars.hpp">
 			<Option virtualFolder="SharedUtils/" />
 		</Unit>
 		<Unit filename="SharedUtils/OS_FolderBrowser_tinydir.h">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/PythonCVMatConvert.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/PythonCVMatConvert.h">
 			<Option virtualFolder="SharedUtils/" />
 		</Unit>
 		<Unit filename="SharedUtils/SharedUtils.cpp">
@@ -648,6 +669,12 @@
 		</Unit>
 		<Unit filename="Verification/DisplayVerif/display_verif.hpp">
 			<Option virtualFolder="Verification/DisplayVerif/" />
+		</Unit>
+		<Unit filename="Verification/ExperimentVerif/experiment_verif.cpp">
+			<Option virtualFolder="Verification/ExperimentVerif/" />
+		</Unit>
+		<Unit filename="Verification/ExperimentVerif/experiment_verif.hpp">
+			<Option virtualFolder="Verification/ExperimentVerif/" />
 		</Unit>
 		<Unit filename="Verification/PlaneVerif/plane_verif.cpp">
 			<Option virtualFolder="Verification/PlaneVerif/" />

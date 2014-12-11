@@ -22,6 +22,12 @@
 
 /*extern*/ std::string* path_to_HeimdallBuild_directory = nullptr;
 /*extern*/ std::string* path_to_HClient_executable = nullptr;
+
+/*extern*/ ExperimentResultsData* globalLatestExperimentResults = nullptr;
+/*extern*/ int globalNumImagesInExperiment = 0;
+/*extern*/ int globalExperimentNum = 0;
+
+/*extern*/ void (*globalExperimentResultsCalculatorFunc)(std::vector<imgdata_t*>, ExperimentResultsData*) = nullptr;
 //--------------------------------------------------------------------------
 
 
@@ -149,6 +155,23 @@ bool contains_substr_i(std::string theStr, std::string containsThis, int* positi
 		if(!__stricmp(theStr.substr(i,containsThis.size()).c_str(), containsThis.c_str())) {
 			if(position != nullptr) {
 				(*position) = i;
+			}
+			return true;
+		}
+	}
+	if(position != nullptr) {
+		(*position) = -1;
+	}
+	return false;
+}
+
+
+bool str_contains_char(std::string theStr, char containsThis, int* position/*=nullptr*/)
+{
+	for(int ii=0; ii<theStr.size(); ii++) {
+		if(theStr[ii] == containsThis) {
+			if(position != nullptr) {
+				(*position) = ii;
 			}
 			return true;
 		}
@@ -295,6 +318,31 @@ bool check_if_directory_exists(const std::string & dir_name)
 	}
 	tinydir_close(&dir);
 	return false;*/
+}
+
+void DeleteFilesOfTypeInFolder(std::string folder, std::string filename_extension)
+{
+	std::string thisfname;
+	std::string thisextens;
+	tinydir_dir dir;
+	tinydir_open(&dir, folder.c_str());
+	while(dir.has_next) {
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+		if(file.is_dir == false && file.name[0] != '.') {
+			thisfname = std::string(file.name);
+			//std::cout<<"found file (might delete?) "<<thisfname<<std::endl;
+			thisextens = trim_chars_after_delim(thisfname,'.',true);
+			//std::cout<<"      extension: \""<<thisextens<<"\""<<std::endl;
+			if(!__stricmp(thisextens.c_str(),filename_extension.c_str())) {
+				thisfname = std::string(file.path);
+				//std::cout<<"DELETING \""<<thisfname<<"\""<<std::endl;
+				std::remove(thisfname.c_str());
+			}
+		}
+		tinydir_next(&dir);
+	}
+	tinydir_close(&dir);
 }
 
 void TryPrintAllFileNamesInFolder(std::string folder_dir_name, std::ostream &PRINT_HERE)

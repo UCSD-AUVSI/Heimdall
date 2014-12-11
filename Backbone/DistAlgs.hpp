@@ -32,5 +32,6 @@
 #include "Verification/stub_verif.hpp"
 #include "Verification/DisplayVerif/display_verif.hpp"
 #include "Verification/PlaneVerif/plane_verif.hpp"
+#include "Verification/ExperimentVerif/experiment_verif.hpp"
 
 #endif

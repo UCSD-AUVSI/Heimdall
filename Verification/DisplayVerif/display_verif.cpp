@@ -12,8 +12,9 @@
 using std::cout;
 using std::endl;
 
+const bool kSaveCropsWithImageNames = true;
 const bool kSaveImages = true;
-const bool kSaveSegs = true;
+const bool kSaveSegs = false;
 const bool kSaveCrops_OnlyWhenReported = true;
 
 const bool kShowImages = false;
@@ -66,7 +67,12 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         if(imdata->image_data->size()){
 			if(kSaveCrops_OnlyWhenReported==false || both_cseg_and_sseg_succeeded) {
 				cv::Mat image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
-				saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor) + ".jpg");
+				if(kSaveCropsWithImageNames == false) {
+				saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor)
+								+ "_" + to_istring(imdata->targetlat) + ",,," + to_istring(imdata->targetlongt) + "_.jpg");
+				} else {
+				saveImage(image, output_folder + "/" + imdata->name_of_original_image_file_for_debugging + "_crop" + to_istring(imdata->cropid) + "_" + to_istring(imdata->targetlat) + ",,," + to_istring(imdata->targetlongt) + "_.jpg");
+				}
 			}
         }
         if(kSaveSegs){   

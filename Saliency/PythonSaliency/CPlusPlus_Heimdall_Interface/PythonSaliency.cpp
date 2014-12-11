@@ -27,32 +27,30 @@ static bool read_file_contents(std::string filename, std::string & returnedFileC
 }
 
 
+template<class T>
+bp::list std_vector_to_py_list(const std::vector<T>& v)
+{
+	bp::list l;
+	typename std::vector<T>::const_iterator it;
+	for (it = v.begin(); it != v.end(); ++it)
+		l.append(*it);   
+	return l;  
+}
+
+
 static void AddPathToPythonSys(std::string path)
 {
 	// now insert the current working directory into the python path so module search can take advantage
 	// this must happen after python has been initialised
 	
-	//boost::filesystem::path workingDir = boost::filesystem::absolute("./").normalize();
-	
-	std::cout << "adding to python path: \"" << path << "\"" << std::endl;
-	
+	//cout << "adding to python path: \"" << path << "\"" << endl;
 	PyObject* sysPath = PySys_GetObject("path");
 	PyList_Insert( sysPath, 0, PyString_FromString(path.c_str()));
-	//Py_DECREF(sysPath); -- DONT DO THIS
 	
 	//print python's search paths to confirm that it was added
 	/*PyRun_SimpleString(	"import sys\n"
 						"from pprint import pprint\n"
 						"pprint(sys.path)\n");*/
-	
-	//alternate methods, tried and had trouble with?
-	/*PyObject* sysPath = PySys_GetObject((char*)"path");
-	PyObject* prognam1 = PyString_FromString("/mywork/AUVSI/Heimdall/build");
-	PyList_Append(sysPath, prognam1);
-	Py_DECREF(prognam1);
-	/*Py_Initialize();
-	PyObject* sysPath = PySys_GetObject((char*)"path");
-	PyList_Append(sysPath, PyString_FromString("."));*/
 }
 
 
@@ -61,7 +59,8 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 					std::string pythonFunctionName,
 					cv::Mat fullsizeImage,
 					std::vector<cv::Mat> & returnedCrops,
-					std::vector<std::pair<double,double>> & returned_geolocations)
+					std::vector<std::pair<double,double>> & returned_geolocations,
+					std::vector<double> *additional_args/*=nullptr*/)
 {
 	returnedCrops.clear();
 	returned_geolocations.clear();
@@ -73,6 +72,7 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 	
 	//initialize embedded Python interpreter
 	if(!Py_IsInitialized()) {
+		cout<<"INITIALIZING PYTHON INTERPETER........"<<endl;
 		Py_Initialize();
 	}
 	if(!Py_IsInitialized()) {
@@ -109,17 +109,6 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 		}
 		
 		
-		/*NOTE: DON'T UNCOMMENT: THIS METHOD HAD MANY MORE PROBLEMS THAN JUST LOADING THE FILE INTO C++ AND USING PyRun_SimpleString()
-		try { bp::object execfile = bp::exec_file(pythonFilename.c_str(), global, global);
-		} catch(std::invalid_argument) {
-			std::cout << "PYTHON SALIENCY ERROR: PYTHON FILE \"" << pythonFilename << "\" NOT FOUND! PYTHON INTERPRETER ERROR REPORT:" << std::endl;
-			PyErr_Print(); return;
-		} catch(bp::error_already_set) {
-			std::cout << "PYTHON SALIENCY ERROR: ERROR WHILE LOADING PYTHON FILE \"" << pythonFilename << "\"! PYTHON INTERPRETER ERROR REPORT:" << std::endl;
-			PyErr_Print(); return;
-		}*/
-		
-		
 		//get handle to the function
 		bp::object pythoncvfunctionhandle;
 		try {
@@ -136,15 +125,29 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 		PyObject* givenImgCpp = cvt.toNDArray(fullsizeImage);
 		bp::object givenImgPyObj( bp::handle<>(bp::borrowed(givenImgCpp)) );
 		
+		
 		//call the Python function, return a list of crops
 		bp::object resultobj;
-		try {
-			resultobj = pythoncvfunctionhandle(givenImgPyObj);
+		if(additional_args != nullptr) {
+			bp::list extraArgs = std_vector_to_py_list<double>(*additional_args);
+			try {
+				resultobj = pythoncvfunctionhandle(givenImgPyObj, extraArgs);
+			}
+			catch(bp::error_already_set) {
+				std::cout << "PYTHON SALIENCY ERROR: error when running python file \"" << pythonFilename << "\" WITH EXTRA ARGS! PYTHON ERROR REPORT:" << std::endl;
+				PyErr_Print(); return;
+			}
 		}
-		catch(bp::error_already_set) {
-			std::cout << "PYTHON SALIENCY ERROR: error when running python file \"" << pythonFilename << "\"! PYTHON ERROR REPORT:" << std::endl;
-			PyErr_Print(); return;
+		else {
+			try {
+				resultobj = pythoncvfunctionhandle(givenImgPyObj);
+			}
+			catch(bp::error_already_set) {
+				std::cout << "PYTHON SALIENCY ERROR: error when running python file \"" << pythonFilename << "\"! PYTHON ERROR REPORT:" << std::endl;
+				PyErr_Print(); return;
+			}
 		}
+		Py_DECREF(givenImgCpp);
 		
 		
 		// extract each crop from Python to C++
@@ -152,10 +155,17 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 		int numElementsInReturnedList = ((int)bp::len(resultBPList));
 		for(int ii=0; ii<numElementsInReturnedList; ii++)
 		{
-			bp::object thisImgObj = boost::python::extract<boost::python::object>(resultBPList[ii])();
-			returnedCrops.push_back(cvt.toMat(thisImgObj.ptr()));
-			
-			returned_geolocations.push_back(std::pair<double,double>(0.0,0.0)); //TODO
+			bp::tuple thisCropTuple(resultBPList[ii]);
+			if(((int)bp::len(thisCropTuple)) == 3) {
+				bp::object thisImgObj = boost::python::extract<boost::python::object>(thisCropTuple[0])();
+				returnedCrops.push_back(cvt.toMat(thisImgObj.ptr()));
+				
+				returned_geolocations.push_back(std::pair<double,double>(bp::extract<double>(thisCropTuple[1]),bp::extract<double>(thisCropTuple[2])));
+			} else {
+				std::cout << "PYTHON SALIENCY ERROR: expects return value to be a list of tuples," << std::endl
+						<< "    where each tuple has 3 elements: (crop_image, lat, long)" << std::endl;
+				return;
+			}
 		}
 	}
 }

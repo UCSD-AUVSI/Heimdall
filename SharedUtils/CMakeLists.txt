@@ -20,9 +20,15 @@ set(sharedutilspython_source_files
 	PythonCVMatConvert.h
 	)
 
+set(EnableKeyPressToExit_source_files
+	EnableKeyPressToExit.cpp
+	EnableKeyPressToExit.hpp
+	)
+
 add_subdirectory(gocr)
 add_subdirectory(clustering)
 
+add_library(EnableKeyPressToExit ${EnableKeyPressToExit_source_files})
 add_library(sharedutils ${sharedutils_source_files})
 add_library(sharedutilspython SHARED ${sharedutilspython_source_files})
 

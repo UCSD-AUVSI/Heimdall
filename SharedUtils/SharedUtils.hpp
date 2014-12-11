@@ -117,6 +117,9 @@ inline std::string char_to_string(const char & input)
 #ifndef MAX
 #define MAX(xxxxx,yyyyy) ((xxxxx) > (yyyyy) ? (xxxxx) : (yyyyy))
 #endif
+#ifndef CLAMP
+#define CLAMP(xxxxx,minnnnn,maxxxxx) (MIN(MAX((xxxxx),(minnnnn)),(maxxxxx)))
+#endif
 
 #ifndef __stricmp
 
@@ -134,6 +137,7 @@ inline std::string char_to_string(const char & input)
 std::string GetPathOfExecutable(const char* argv0);
 
 bool contains_substr_i(std::string theStr, std::string containsThis, int* position=nullptr);
+bool str_contains_char(std::string theStr, char containsThis, int* position=nullptr);
 std::string replace_substr_in_string(std::string inputstr, std::string old_str_to_be_replaced, std::string new_str);
 std::string replace_char_in_string(std::string inputstr, char old_char_to_be_replaced, char new_char);
 
@@ -154,6 +158,8 @@ bool filename_extension_is_image_type(const std::string & filename_extension);
 
 bool check_if_file_exists(const std::string & filename);
 bool check_if_directory_exists(const std::string & dir_name);
+
+void DeleteFilesOfTypeInFolder(std::string folder, std::string filename_extension);
 
 void TryPrintAllFileNamesInFolder(std::string folder_dir_name, std::ostream &PRINT_HERE);
 int CountNumImagesInFolder(std::string folder_dir_name);

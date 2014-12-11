@@ -9,6 +9,7 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 					std::string pythonFunctionName,
 					cv::Mat fullsizeImage,
 					std::vector<cv::Mat> & returnedCrops,
-					std::vector<std::pair<double,double>> & returned_geolocations);
+					std::vector<std::pair<double,double>> & returned_geolocations,
+					std::vector<double> *additional_args=nullptr);
 
 #endif

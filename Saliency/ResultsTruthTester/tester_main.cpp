@@ -23,23 +23,23 @@ int main(int argc, char** argv)
 		consoleOutput.Level0() << "error - folder is empty" << std::endl;
 		return 1;
 	}
-	std::string truthImageFileFolder("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/");
+	std::string truthImageFileFolder("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth");
 	std::string truthFilename     (  "/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
 	
 	bool CROP_COORDINATES_ARE_IN_FILENAMES = true;
 	
-	ResultsData results = TestFolderWithCrops(truthFilename, truthImageFileFolder, folderWithCrops,
-												desiredMinPaddingPixels, desiredMaxCropLengthRatioToTargetLength,
+	SaliencyOutput output = ReadFolderWithCrops(truthImageFileFolder, folderWithCrops,
 												CROP_COORDINATES_ARE_IN_FILENAMES);
+	
+	SaliencyExperimentResults results = GetSaliencyExperimentResults(truthFilename, output);
 	
 	std::cout << "-----------------------------------------------------------------------------------------------------------------------" << std::endl;
 	std::cout << "number of actual truth targets (from truth file): " << results.numTruthTargets << std::endl;
 	std::cout << "num crops: " << results.numDetectedThings << std::endl;
 	std::cout << "num successes: " << results.numSuccesses << std::endl;
-	std::cout << "total num failures: " << (results.numFailures_DetectionFailures+results.numFailures_PaddingFailures) << std::endl;
+	std::cout << "total num failures: " << (results.numFailures_totalDetectionFailures+results.numFailures_PaddingFailures) << std::endl;
 	std::cout << "numCloseCallsForCroppingFailures: " << results.numCloseCallsForCroppingFailures << std::endl;
-	std::cout << "num detection failures / false alarms: " << results.numFailures_DetectionFailures << std::endl;
+	std::cout << "num detection failures or false alarms: " << results.numFailures_totalDetectionFailures << std::endl;
 	std::cout << "num padding failures: " << results.numFailures_PaddingFailures << std::endl;
-	std::cout << "num file errors: " << results.numFileErrors << std::endl;
 	//std::cout << "-----------------------------------------------------------------------------------------------------------------------" << std::endl;
 }

@@ -21,7 +21,7 @@ const std::map<std::string, std::vector<std::string>> alg_choice_map =
     {"srec",        {"POLYGON_SREC", "STUB_SREC", "NONE"}},
     {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "NONE"}},
     {"color",       {"COLOR2014", "STUB_COLOR", "NONE"}},
-    {"verif",       {"DISPLAY_VERIF", "PLANE_VERIF", "STUB_VERIF", "NONE"}}
+    {"verif",       {"DISPLAY_VERIF", "PLANE_VERIF", "EXPERIMENT_VERIF", "STUB_VERIF", "NONE"}}
 };
 
 //Mapping between algorithms, and the actual classes that implement them
@@ -58,6 +58,7 @@ const std::map<std::string, void (*)(imgdata_t *, std::string)> alg_func_map =
     {"STUB_VERIF",          StubVerify :: execute},
     {"DISPLAY_VERIF",       DisplayVerify :: execute},
     {"PLANE_VERIF",         PlaneVerify :: execute},
+    {"EXPERIMENT_VERIF",    ExperimentVerify :: execute},
 
     {"NONE",                0}
 };

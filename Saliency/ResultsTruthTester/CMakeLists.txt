@@ -2,6 +2,8 @@
 set(saliencytruthresults_library_source_files
 	SaliencyResultsTruthTester.cpp
 	SaliencyResultsTruthTester.hpp
+	SaliencyExperimentResults.hpp
+	SaliencyExperimentResults.cpp
 	)
 
 add_library(SaliencyResultsTruthTesterLibrary ${saliencytruthresults_library_source_files})
