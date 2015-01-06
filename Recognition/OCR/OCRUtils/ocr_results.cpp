@@ -168,7 +168,7 @@ void OCR_ResultsContainer::EliminateCharactersBelowConfidenceLevel(double minimu
 void OCR_ResultsContainer::KeepOnlyTopFractionOfCharacters(double fraction)
 {
 	SortByConfidence();
-	int num_to_keep = RoundDoubleToInteger(fraction * static_cast<double>(results.size()));
+	int num_to_keep = RoundDoubleToInt(fraction * static_cast<double>(results.size()));
 	if(num_to_keep > 0 && num_to_keep < results.size())
 		results.erase(results.begin()+num_to_keep, results.end());
 }

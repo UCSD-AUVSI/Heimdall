@@ -91,6 +91,8 @@ SaliencyExperimentResults GetSaliencyExperimentResults(std::string truthFilename
 				consoleOutput.Level(dcv) << "rectIntersect == " << rectIntersect << std::endl;
 				
 				
+//=================================================================================================================
+				
 				
 				// Does the crop contain a WHOLE target?
 				if(rectIntersect.size() != thisTargRect.size()) {

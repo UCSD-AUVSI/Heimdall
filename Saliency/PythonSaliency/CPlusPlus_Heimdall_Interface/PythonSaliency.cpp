@@ -4,6 +4,7 @@
 #include "SharedUtils/PythonCVMatConvert.h"
 #include "SharedUtils/GlobalVars.hpp"
 #include "SharedUtils/SharedUtils.hpp"
+#include "SharedUtils/PythonUtils.hpp"
 #include <fstream>
 #include <boost/python.hpp>
 namespace bp = boost::python;
@@ -11,56 +12,14 @@ using std::cout;
 using std::endl;
 
 
-static bool read_file_contents(std::string filename, std::string & returnedFileContents)
-{
-	returnedFileContents.clear();
-	std::ifstream myfile(filename);
-	if(myfile.is_open() && myfile.good()) {
-		std::string line;
-		while(std::getline(myfile,line)) {
-			returnedFileContents = (returnedFileContents + std::string("\n") + line);
-		}
-		myfile.close();
-		return true;
-	}
-	return false;
-}
 
-
-template<class T>
-bp::list std_vector_to_py_list(const std::vector<T>& v)
-{
-	bp::list l;
-	typename std::vector<T>::const_iterator it;
-	for (it = v.begin(); it != v.end(); ++it)
-		l.append(*it);   
-	return l;  
-}
-
-
-static void AddPathToPythonSys(std::string path)
-{
-	// now insert the current working directory into the python path so module search can take advantage
-	// this must happen after python has been initialised
-	
-	//cout << "adding to python path: \"" << path << "\"" << endl;
-	PyObject* sysPath = PySys_GetObject("path");
-	PyList_Insert( sysPath, 0, PyString_FromString(path.c_str()));
-	
-	//print python's search paths to confirm that it was added
-	/*PyRun_SimpleString(	"import sys\n"
-						"from pprint import pprint\n"
-						"pprint(sys.path)\n");*/
-}
-
-
-void pythonSaliency(std::string saliencyModuleFolderName,
-					std::string pythonFilename,
-					std::string pythonFunctionName,
-					cv::Mat fullsizeImage,
-					std::vector<cv::Mat> & returnedCrops,
-					std::vector<std::pair<double,double>> & returned_geolocations,
-					std::vector<double> *additional_args/*=nullptr*/)
+static void pythonSaliency(std::string saliencyModuleFolderName,
+							std::string pythonFilename,
+							std::string pythonFunctionName,
+							cv::Mat fullsizeImage,
+							std::vector<cv::Mat> & returnedCrops,
+							std::vector<std::pair<double,double>> & returned_geolocations,
+							std::vector<double> *additional_args/*=nullptr*/)
 {
 	returnedCrops.clear();
 	returned_geolocations.clear();
@@ -70,15 +29,9 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 		return;
 	}
 	
-	//initialize embedded Python interpreter
-	if(!Py_IsInitialized()) {
-		cout<<"INITIALIZING PYTHON INTERPETER........"<<endl;
-		Py_Initialize();
-	}
-	if(!Py_IsInitialized()) {
-		cout << "ERROR: pythonSaliency: COULD NOT INITIALIZE PYTHON INTERPRETER: Python Saliency" << endl;
-	}
-	else {
+	if(PrepareForPythonStuff()) {
+		aquire_py_GIL lock;
+		
 		// setup directories and namespaces for Python interpeter
 		NDArrayConverter cvt;
 		bp::object main = bp::import("__main__");
@@ -168,4 +121,18 @@ void pythonSaliency(std::string saliencyModuleFolderName,
 			}
 		}
 	}
+}
+
+
+void PythonSaliencyClass::ProcessSaliency(cv::Mat fullsizeImage,
+										std::vector<cv::Mat> & returnedCrops,
+										std::vector<std::pair<double,double>> & returned_geolocations)
+{
+	pythonSaliency(saliencyModuleFolderName,
+					pythonFilename,
+					pythonFunctionName,
+					fullsizeImage,
+					returnedCrops,
+					returned_geolocations,
+					&additional_args);
 }

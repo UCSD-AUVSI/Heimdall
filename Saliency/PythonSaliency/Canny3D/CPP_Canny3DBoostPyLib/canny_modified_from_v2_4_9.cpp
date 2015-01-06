@@ -46,8 +46,7 @@ namespace cv
 {
 void cppCannyNearlyOriginalInternal( InputArray _inDX, InputArray _inDY,
 				OutputArray _dst,
-                double low_thresh, double high_thresh,
-                int aperture_size )
+                double low_thresh, double high_thresh )
 {
 	Mat dx = _inDX.getMat();
 	Mat dy = _inDY.getMat();
@@ -61,9 +60,6 @@ void cppCannyNearlyOriginalInternal( InputArray _inDX, InputArray _inDY,
 	
     _dst.create(dx.size(), CV_8U);
     Mat dst = _dst.getMat();
-
-    if ((aperture_size & 1) == 0 || (aperture_size != -1 && (aperture_size < 3 || aperture_size > 7)))
-        CV_Error(CV_StsBadFlag, "");
 
     if (low_thresh > high_thresh)
         std::swap(low_thresh, high_thresh);
@@ -280,14 +276,6 @@ __ocv_canny_push:
 }
 }
 
-enum ACOMBOPT
-{
-	SIMPLE_ADD = 0,
-	FIX_ALL_BETWEEN_0_AND_180,
-	TRY_ADDING_INDIVIDUALLY
-};
-static const ACOMBOPT ACOMBCH = TRY_ADDING_INDIVIDUALLY;
-
 
 static float colorspaceApproxMaxx = 1.0f; //255 for RGB, ~90 for CIELAB
 //-----------------------------------------------------------------------------------------
@@ -305,35 +293,19 @@ void edge_get_dXdY_with_angles_constrained_0_to_180_deg(cv::Mat singleChannelImg
 	cv::Sobel(singleChannelImg, sfg_y, -1, 0, 1, SobelKernelSize, 1, 0, cv::BORDER_REPLICATE);
 	
 	//get magnitude and direction of the gradient formed by those two derivatives
-	cv::cartToPolar(sfg_x, sfg_y, sfg_mag, sfg_angle, true);
-	
-	cv::Mat sfg_angleCompareResult;
-	
-	switch(ACOMBCH)
-	{
-		case SIMPLE_ADD:
-		case TRY_ADDING_INDIVIDUALLY:
-		{
-			sfg_angleCompareResult = cv::Mat::ones(singleChannelImg.size(), CV_32F);
-			break;
-		}
-		case FIX_ALL_BETWEEN_0_AND_180:
-		{
-			cv::compare(sfg_angle, 180.0f, sfg_angleCompareResult, cv::CMP_LT);
-			sfg_angleCompareResult.convertTo(sfg_angleCompareResult, CV_32F);
-			sfg_angleCompareResult = ((sfg_angleCompareResult * (2.0f/255.0f)) - 1.0f); //go from range (0,255) to (-1,1)
-			break;
-		}
-	}
+	cv::magnitude(sfg_x, sfg_y, sfg_mag);
 	
     cv::Mat kd, ks;
     cv::getDerivKernels(kd, ks, 1, 0, SobelKernelSize, false, CV_32F);
 	cv::minMaxLoc(cv::abs(ks), &minVal, &maxVal); //normalize Sobel kernel to the same as Canny would normally expect
-	sfg_angleCompareResult = (sfg_angleCompareResult / (colorspaceApproxMaxx*((float)maxVal))); //method 2: ~ |magnitude|^2
-	cv::multiply(sfg_angleCompareResult, sfg_mag, sfg_angleCompareResult);
+	//also normalize by color space
 	
-	cv::multiply(sfg_x, sfg_angleCompareResult, returned_dX);
-	cv::multiply(sfg_y, sfg_angleCompareResult, returned_dY);
+	sfg_mag /= (colorspaceApproxMaxx*((float)maxVal));
+	
+	// based on |magnitude|^2
+	
+	cv::multiply(sfg_x, sfg_mag, returned_dX);
+	cv::multiply(sfg_y, sfg_mag, returned_dY);
 }
 //-----------------------------------------------------------------------------------------
 
@@ -351,62 +323,45 @@ void cppCannyBunk_Internal( const cv::Mat& image, cv::Mat& edges,
 	cv::Mat totalEdgeY(src.size(), CV_32F, cv::Scalar(0.0f));
 	cv::Mat thisEdgedX, thisEdgedY;
 	
-	if(ACOMBCH == TRY_ADDING_INDIVIDUALLY)
-	{
-		for(kk=0; kk<channels.size(); kk++) {
-			if(channels[kk].type() != CV_32F) {
-				channels[kk].convertTo(channels[kk], CV_32F);
-			}
-			numChannels += 1.0f;
-			edge_get_dXdY_with_angles_constrained_0_to_180_deg(channels[kk], apertureSize, thisEdgedX, thisEdgedY);
+
+	for(kk=0; kk<channels.size(); kk++) {
+		if(channels[kk].type() != CV_32F) {
+			channels[kk].convertTo(channels[kk], CV_32F);
+		}
+		numChannels += 1.0f;
+		edge_get_dXdY_with_angles_constrained_0_to_180_deg(channels[kk], apertureSize, thisEdgedX, thisEdgedY);
+		
+		if(kk == 0) {
+			totalEdgeX += thisEdgedX;
+			totalEdgeY += thisEdgedY;
+		} else {
+			cv::Mat ang1,ang2;
+			cv::phase(totalEdgeX, totalEdgeY, ang1, true);
+			cv::phase(thisEdgedX, thisEdgedY, ang2, true);
 			
-			if(kk == 0) {
-				totalEdgeX += thisEdgedX;
-				totalEdgeY += thisEdgedY;
-			} else {
-				cv::Mat ang1,ang2;
-				cv::phase(totalEdgeX, totalEdgeY, ang1, true);
-				cv::phase(thisEdgedX, thisEdgedY, ang2, true);
-				
-				float adiff;
-				for(int ii=0; ii<src.rows; ii++) {
-					for(int jj=0; jj<src.cols; jj++) {
-						adiff = abs(ang1.at<float>(ii,jj) - ang2.at<float>(ii,jj));
-						adiff = std::min(360.0f-adiff, adiff);
-						if(adiff <= 90.0f) {
-							totalEdgeX.at<float>(ii,jj) += thisEdgedX.at<float>(ii,jj);
-							totalEdgeY.at<float>(ii,jj) += thisEdgedY.at<float>(ii,jj);
-						} else {
-							totalEdgeX.at<float>(ii,jj) -= thisEdgedX.at<float>(ii,jj);
-							totalEdgeY.at<float>(ii,jj) -= thisEdgedY.at<float>(ii,jj);
-						}
+			float adiff;
+			for(int ii=0; ii<src.rows; ii++) {
+				for(int jj=0; jj<src.cols; jj++) {
+					adiff = abs(ang1.at<float>(ii,jj) - ang2.at<float>(ii,jj));
+					adiff = std::min(360.0f-adiff, adiff);
+					if(adiff <= 90.0f) {
+						totalEdgeX.at<float>(ii,jj) += thisEdgedX.at<float>(ii,jj);
+						totalEdgeY.at<float>(ii,jj) += thisEdgedY.at<float>(ii,jj);
+					} else {
+						totalEdgeX.at<float>(ii,jj) -= thisEdgedX.at<float>(ii,jj);
+						totalEdgeY.at<float>(ii,jj) -= thisEdgedY.at<float>(ii,jj);
 					}
 				}
 			}
 		}
-		totalEdgeX /= numChannels;
-		totalEdgeY /= numChannels;
 	}
-	else
-	{
-		for(kk=0; kk<channels.size(); kk++) {
-			if(channels[kk].type() != CV_32F) {
-				channels[kk].convertTo(channels[kk], CV_32F);
-			}
-			numChannels += 1.0f;
-			edge_get_dXdY_with_angles_constrained_0_to_180_deg(channels[kk], apertureSize, thisEdgedX, thisEdgedY);
-			
-			totalEdgeX += thisEdgedX;
-			totalEdgeY += thisEdgedY;
-		}
-		totalEdgeX /= numChannels;
-		totalEdgeY /= numChannels;
-	}
+	totalEdgeX /= numChannels;
+	totalEdgeY /= numChannels;
 	
 	totalEdgeX.convertTo(totalEdgeX, CV_16S);
 	totalEdgeY.convertTo(totalEdgeY, CV_16S);
 	
-	cppCannyNearlyOriginalInternal(totalEdgeX, totalEdgeY, edges, threshold1, threshold2, apertureSize);
+	cppCannyNearlyOriginalInternal(totalEdgeX, totalEdgeY, edges, threshold1, threshold2);
 }
 
 void cppCannyBunk_RGB( const cv::Mat& image, cv::Mat& edges,

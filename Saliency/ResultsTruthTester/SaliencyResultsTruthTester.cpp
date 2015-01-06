@@ -244,8 +244,9 @@ seconNumber atoi(substr(cpos+3, sUnd-cpos-3))
 void SaliencyExperimentResultsCalculator(std::vector<imgdata_t*> imgResults,
 										ExperimentResultsData* calculatedResults)
 {
-	cout<<"CALCULATING SALIENCY RESULTS"<<endl;
-	
+	cout<<"TODO: CALCULATING SALIENCY RESULTS"<<endl;
+	cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
+	cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
 	//todo: generate "SaliencyOutput" from all of the imgResults
 }
 

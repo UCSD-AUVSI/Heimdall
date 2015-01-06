@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 //                                    }
 //                                }
 //
-//                                angle_iter = RoundDoubleToInteger(char_results_iter->relative_angle_of_character_to_source_image / delta_angle_of_step);
+//                                angle_iter = RoundDoubleToInt(char_results_iter->relative_angle_of_character_to_source_image / delta_angle_of_step);
 //                                character_plots[char_results_iter->character][angle_iter]++;
 //                            }
 //                        }

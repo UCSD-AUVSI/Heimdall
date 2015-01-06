@@ -18,6 +18,8 @@ set(sharedutils_source_files
 set(sharedutilspython_source_files
 	PythonCVMatConvert.cpp
 	PythonCVMatConvert.h
+	PythonUtils.hpp
+	PythonUtils.cpp
 	)
 
 set(EnableKeyPressToExit_source_files
@@ -25,6 +27,7 @@ set(EnableKeyPressToExit_source_files
 	EnableKeyPressToExit.hpp
 	)
 
+add_subdirectory(optimization)
 add_subdirectory(gocr)
 add_subdirectory(clustering)
 
@@ -32,7 +35,7 @@ add_library(EnableKeyPressToExit ${EnableKeyPressToExit_source_files})
 add_library(sharedutils ${sharedutils_source_files})
 add_library(sharedutilspython SHARED ${sharedutilspython_source_files})
 
-target_link_libraries(sharedutils gocr backbone)
+target_link_libraries(sharedutils gocr optimization backbone)
 target_link_libraries(sharedutilspython python2.7 boost_python-py27)
 
 include_directories(${CMAKE_SOURCE_DIR} ${PYTHON_INCLUDE_PATH})

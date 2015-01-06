@@ -59,7 +59,11 @@ void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
 	if(failure == false) {
 		fullsizeImage = cv::imdecode(*imdata->image_data, CV_LOAD_IMAGE_COLOR);
 		
-		pythonSaliency(args, "main.py", "doSaliency", fullsizeImage, foundCrops, cropGeolocations);
+		PythonSaliencyClass saldoer;
+		saldoer.saliencyModuleFolderName = args;
+		saldoer.pythonFilename = "main.py";
+		saldoer.pythonFunctionName = "doSaliency";
+		saldoer.ProcessSaliency(fullsizeImage, foundCrops, cropGeolocations);
 		
 		consoleOutput.Level1() << "pythonSaliency found " << to_istring(foundCrops.size()) << " crops" << std::endl;
 		

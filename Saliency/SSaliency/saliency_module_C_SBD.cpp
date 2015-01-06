@@ -160,7 +160,7 @@ void SaliencyModule_C_SBD::do_saliency_with_setting(cv::Mat input_image, Salienc
         //the largest crops from 2013 that were actual targets were like 450x450
         double max_percentage_of_fullsize_image_to_allow_crop = 5.582;
 
-        if(cropsize_x*cropsize_y > RoundDoubleToInteger(0.01 * max_percentage_of_fullsize_image_to_allow_crop * static_cast<double>(input_image.cols*input_image.rows)))
+        if(cropsize_x*cropsize_y > RoundDoubleToInt(0.01 * max_percentage_of_fullsize_image_to_allow_crop * static_cast<double>(input_image.cols*input_image.rows)))
             return;
 
 

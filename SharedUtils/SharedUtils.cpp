@@ -87,14 +87,14 @@ std::ostream& OutputMessageHandler::Level(int given_level)
 //-------------------------------------
 
 
-int RoundFloatToInteger(float num)
+int RoundFloatToInt(float num)
 {
 	if ((num - floor(num)) < 0.5f)
 		return ((int)floor(num));
 	else
 		return ((int)ceil(num));
 }
-int RoundDoubleToInteger(double num)
+int RoundDoubleToInt(double num)
 {
 	if ((num - floor(num)) < 0.5)
 		return ((int)floor(num));
@@ -295,6 +295,22 @@ std::string eliminate_extension_from_filename(std::string & filename)
 }
 
 
+bool read_file_contents(std::string filename, std::string & returnedFileContents)
+{
+	returnedFileContents.clear();
+	std::ifstream myfile(filename);
+	if(myfile.is_open() && myfile.good()) {
+		std::string line;
+		while(std::getline(myfile,line)) {
+			returnedFileContents = (returnedFileContents + std::string("\n") + line);
+		}
+		myfile.close();
+		return true;
+	}
+	return false;
+}
+
+
 bool check_if_file_exists(const std::string & filename)
 {
 	std::ifstream myfile(filename);
@@ -308,7 +324,7 @@ bool check_if_file_exists(const std::string & filename)
 
 bool check_if_directory_exists(const std::string & dir_name)
 {
-	return check_if_file_exists(dir_name);
+	return dir_name.empty()==false && check_if_file_exists(dir_name);
 /*	tinydir_dir dir;
 	tinydir_open(&dir, dir_name.c_str());
 	if(dir.has_next)
@@ -318,6 +334,23 @@ bool check_if_directory_exists(const std::string & dir_name)
 	}
 	tinydir_close(&dir);
 	return false;*/
+}
+
+std::vector<std::string> GetImageFilenamesInFolder(std::string folder_dir_name)
+{
+	std::vector<std::string> returnedFnames;
+	tinydir_dir dir;
+	tinydir_open(&dir, folder_dir_name.c_str());
+	while(dir.has_next) {
+		tinydir_file file;
+		tinydir_readfile(&dir, &file);
+		if(file.is_dir == false && file.name[0] != '.' && filename_extension_is_image_type(get_extension_from_filename(file.name))) {
+			returnedFnames.push_back(file.name);
+		}
+		tinydir_next(&dir);
+	}
+	tinydir_close(&dir);
+	return returnedFnames;
 }
 
 void DeleteFilesOfTypeInFolder(std::string folder, std::string filename_extension)

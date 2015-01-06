@@ -81,8 +81,8 @@ public:
 
 
 
-int RoundFloatToInteger(float num);
-int RoundDoubleToInteger(double num);
+int RoundFloatToInt(float num);
+int RoundDoubleToInt(double num);
 double ModulusD(double num, double divisor);
 
 double GetMeanAngle(std::vector<double> & the_angles);
@@ -156,11 +156,14 @@ std::string eliminate_extension_from_filename(std::string & filename);
 
 bool filename_extension_is_image_type(const std::string & filename_extension);
 
+bool read_file_contents(std::string filename, std::string & returnedFileContents);
+
 bool check_if_file_exists(const std::string & filename);
 bool check_if_directory_exists(const std::string & dir_name);
 
 void DeleteFilesOfTypeInFolder(std::string folder, std::string filename_extension);
 
+std::vector<std::string> GetImageFilenamesInFolder(std::string folder_dir_name);
 void TryPrintAllFileNamesInFolder(std::string folder_dir_name, std::ostream &PRINT_HERE);
 int CountNumImagesInFolder(std::string folder_dir_name);
 

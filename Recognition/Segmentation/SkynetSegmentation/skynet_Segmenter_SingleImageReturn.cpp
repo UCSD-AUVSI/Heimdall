@@ -71,7 +71,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	*/
 	
 	if(attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS > 0) {
-		int blurpixs = RoundFloatToInteger(((float)attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS) * crop_was_resized_how_much);
+		int blurpixs = RoundFloatToInt(((float)attempt_settings.HistSeg_BLUR_PREPROCESS_RADIUS_PIXELS) * crop_was_resized_how_much);
 		cv::blur(converted_mat, converted_mat, cv::Size(blurpixs, blurpixs));
 	}
 	
@@ -101,7 +101,7 @@ cv::Mat Segmenter_SingleImageReturn::findShape(cv::Mat colorImg,
 	
 	
 	//cleans up blobs, removes tiny pieces of them if the area of the piece is less than the minimum speck size threshold
-	ClearBlobsOfTinyNoiseSpeckles(blobList, RoundFloatToInteger(area_of_converted_mat*input_MINIMUM_SPECK_SIZE_THRESHOLD));
+	ClearBlobsOfTinyNoiseSpeckles(blobList, RoundFloatToInt(area_of_converted_mat*input_MINIMUM_SPECK_SIZE_THRESHOLD));
 	
 	
 	

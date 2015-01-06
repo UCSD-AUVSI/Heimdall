@@ -14,7 +14,7 @@ using std::endl;
 
 const bool kSaveCropsWithImageNames = true;
 const bool kSaveImages = true;
-const bool kSaveSegs = false;
+const bool kSaveSegs = true;
 const bool kSaveCrops_OnlyWhenReported = true;
 
 const bool kShowImages = false;
@@ -134,6 +134,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
 
     // Verification check, do we want this message to continue?
     if (!both_cseg_and_sseg_succeeded || imdata->shape == "") {
+		consoleOutput.Level1()<<"image ("<<imdata->id<<","<<imdata->cropid<<") not verified, probably rejected by CSEG, SSEG, or shape rec!"<<endl;
         clearIMGData(imdata);
     } else {
         setDone(imdata, VERIF);

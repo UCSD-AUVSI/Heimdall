@@ -49,7 +49,7 @@ ShapeRec_Result ShapeRecModuleAlgorithm_SingleImage_Turning::CompareReferenceMat
 	//find shape outlines (external outlines of shapes, not internal features like letters inside shapes)
 	std::vector<std::vector<cv::Point>> RefrContours;
 	cv::findContours(refr_mat, RefrContours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, cv::Point(0,0));
-
+												//should this be CV_CHAIN_APPROX_NONE ?
 
 	//we'll assume that there was only one contour found in the reference shape's image
 	//if the reference shape images are nice and clean, this will be true

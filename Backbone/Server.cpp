@@ -63,6 +63,7 @@ void startServerPort(std::vector<AlgClass> alg_class_list){
 
         if(img_update(&imdata)){
             if(imdata.verified){
+					cout<<"~~~ image verified: id:"<<imdata.id<<",cropid:"<<imdata.cropid<<", shape:"<<imdata.shape<<", shapecolor:"<<imdata.scolor<<" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
  //               img_delete(&imdata);    
             }
             for(zmq::socket_t *sock : push_sockets){

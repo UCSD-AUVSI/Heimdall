@@ -4,11 +4,13 @@ set(saliencytruthresults_library_source_files
 	SaliencyResultsTruthTester.hpp
 	SaliencyExperimentResults.hpp
 	SaliencyExperimentResults.cpp
+	optimizeSaliency.hpp
+	optimizeSaliency.cpp
 	)
 
 add_library(SaliencyResultsTruthTesterLibrary ${saliencytruthresults_library_source_files})
 
-target_link_libraries(SaliencyResultsTruthTesterLibrary sharedutils truthreader ${OpenCV_LIBS})
+target_link_libraries(SaliencyResultsTruthTesterLibrary sharedutils truthreader EnableKeyPressToExit ${OpenCV_LIBS})
 
 
 

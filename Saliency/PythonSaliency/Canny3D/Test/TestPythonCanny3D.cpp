@@ -36,7 +36,13 @@ int main(int argc, char** argv)
 	
 	std::vector<cv::Mat> foundCrops;
 	std::vector<std::pair<double,double>> cropGeolocations;
-	pythonSaliency("Canny3D", "main.py", "doSaliency", fullsizeImage, foundCrops, cropGeolocations);
+	
+	PythonSaliencyClass saldoer;
+	saldoer.saliencyModuleFolderName = "Canny3D";
+	saldoer.pythonFilename = "main.py";
+	saldoer.pythonFunctionName = "doSaliency";
+	saldoer.ProcessSaliency(fullsizeImage, foundCrops, cropGeolocations);
+	
 	
 	if(foundCrops.empty() == false) {
 		for(int ii=0; ii<foundCrops.size(); ii++) {

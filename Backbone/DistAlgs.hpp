@@ -17,6 +17,7 @@
 #include "Recognition/Segmentation/stub_seg.hpp"
 #include "Recognition/Segmentation/ClusterSegmentation/ClusterSeg_BackboneInterface.hpp"
 #include "Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.hpp"
+#include "Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation_ModuleInterface.hpp"
 #include "GUIRec/GUIRec.hpp"
 
 #include "Recognition/ShapeRec/stub_srec.hpp"
@@ -28,10 +29,12 @@
 
 #include "Recognition/ColorClassifier/stub_colorclassifier.hpp"
 #include "Recognition/ColorClassifier/Classifier2014/colorclassifier2014.hpp"
+#include "Recognition/ColorClassifier/PythonColorClassifier/CPlusPlus_Heimdall_Interface/PythonColorClassifier_ModuleInterface.hpp"
 
 #include "Verification/stub_verif.hpp"
 #include "Verification/DisplayVerif/display_verif.hpp"
 #include "Verification/PlaneVerif/plane_verif.hpp"
 #include "Verification/ExperimentVerif/experiment_verif.hpp"
+#include "Verification/PythonVerif/CPlusPlus_Heimdall_Interface/PythonVerif_ModuleInterface.hpp"
 
 #endif
