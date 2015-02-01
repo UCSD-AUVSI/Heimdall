@@ -2,48 +2,77 @@
 #define __METROPOLIS_MONTE_CARLO_HPP___
 
 #include <deque>
+#include "Optimizer.hpp"
 
 
-class AdaptiveMetropolisBeta
+/*
+	Seek global optimum stochastically using Markov-Chain-Monte-Carlo (MCMC)
+*/
+class Optimizer_MCMC : public Optimizer_MainAlgorithm
 {
+protected:
+	double saved_latest_temperature;
+public:
+	Optimizer_MCMC() : saved_latest_temperature(-1.0) {}
+	
+	virtual void InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
+	virtual void DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
+};
+
+
+/*
+	This is a tool used by the MCMC optimizer; this is not the optimizer itself
+*/
+class MetropolisMonteCarloAdapter
+{
+	bool converged;
 	int totalDeltaTrials;
 	int totalDeltaTrialsNegative;
 	int totalDeltaTrialsNegativeAccepted;
-	double METROPOLIS_BETA_CONST_MUST_BE_POSITIVE;
+	double METROPOLIS_TEMPERATURE;
+	double ADAPTIVE_TEMPERATURE_SCALAR;
 	std::deque<bool> lastFewNegativeTrialResults;
 	double latestNegativeAcceptancePct;
 	
 public:
-	int numNegTrialsBeforeAdjustingBeta;
-	int maxStepsToConsiderWhenAdjustingBeta;
+	int numNegTrialsBeforeAdjustingTemperature;
+	int maxStepsToConsiderWhenAdjustingTemperature;
+	int maxStepsToConsiderForConvergenceCriteria;
 	double desiredNegativeAcceptancePercent;
 	
 	
-	AdaptiveMetropolisBeta() :
-		numNegTrialsBeforeAdjustingBeta(9),
-		maxStepsToConsiderWhenAdjustingBeta(12),
+	MetropolisMonteCarloAdapter() :
+		converged(false),
+		numNegTrialsBeforeAdjustingTemperature(9),
+		maxStepsToConsiderWhenAdjustingTemperature(11),
 		desiredNegativeAcceptancePercent(18.0),
+		maxStepsToConsiderForConvergenceCriteria(20),
 		totalDeltaTrials(0),
 		totalDeltaTrialsNegative(0),
 		totalDeltaTrialsNegativeAccepted(0),
-		METROPOLIS_BETA_CONST_MUST_BE_POSITIVE(2.0) {}
+		METROPOLIS_TEMPERATURE(1.0),
+		ADAPTIVE_TEMPERATURE_SCALAR(1.0) {}
 	
-	AdaptiveMetropolisBeta(double initial_beta) :
-		numNegTrialsBeforeAdjustingBeta(9),
-		maxStepsToConsiderWhenAdjustingBeta(12),
+	MetropolisMonteCarloAdapter(double initial_temp) :
+		converged(false),
+		numNegTrialsBeforeAdjustingTemperature(9),
+		maxStepsToConsiderWhenAdjustingTemperature(11),
 		desiredNegativeAcceptancePercent(18.0),
+		maxStepsToConsiderForConvergenceCriteria(20),
 		totalDeltaTrials(0),
 		totalDeltaTrialsNegative(0),
 		totalDeltaTrialsNegativeAccepted(0),
-		METROPOLIS_BETA_CONST_MUST_BE_POSITIVE(initial_beta) {}
+		METROPOLIS_TEMPERATURE(initial_temp),
+		ADAPTIVE_TEMPERATURE_SCALAR(1.0) {}
 	
+	bool IsConverged() const {return converged;}
 	
-	double getPositiveBeta() {return METROPOLIS_BETA_CONST_MUST_BE_POSITIVE;}
+	double getTemperature() const {return (METROPOLIS_TEMPERATURE * ADAPTIVE_TEMPERATURE_SCALAR);}
 	
-	double getPositivePercent() {
+	double getPositivePercent() const {
 		return 100.0 * ((double)(totalDeltaTrials - totalDeltaTrialsNegative)) / ((double)totalDeltaTrials);
 	}
-	double getNegativeAcceptancePercent() {
+	double getNegativeAcceptancePercent() const {
 		return 100.0 * ((double)totalDeltaTrialsNegativeAccepted) / ((double)totalDeltaTrialsNegative);
 	}
 	

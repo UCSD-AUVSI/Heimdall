@@ -118,7 +118,7 @@ static bool GetCropCoordsFromFilename(std::string fname, cv::Mat cropImage, cv::
 }
 
 
-SaliencyOutput
+OptimizeableSaliency_Output
 	ReadFolderWithCrops(std::string truthImageFileFolder,
 						std::string folderWithCrops,
 						bool cropCoordinatesAreInFilename,
@@ -131,7 +131,7 @@ SaliencyOutput
 		truthImageFileFolder = (truthImageFileFolder + std::string("/"));
 	}
 	
-	SaliencyOutput salOut;
+	OptimizeableSaliency_Output salOut;
 	tinydir_dir dir;
 	std::string filename,filenameExtension;
 	std::string cropSourceImageFile;
@@ -241,14 +241,14 @@ seconNumber atoi(substr(cpos+3, sUnd-cpos-3))
 */
 
 
-void SaliencyExperimentResultsCalculator(std::vector<imgdata_t*> imgResults,
+/*void SaliencyExperimentResultsCalculator(std::vector<imgdata_t*> imgResults,
 										ExperimentResultsData* calculatedResults)
 {
 	cout<<"TODO: CALCULATING SALIENCY RESULTS"<<endl;
 	cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
 	cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
 	//todo: generate "SaliencyOutput" from all of the imgResults
-}
+}*/
 
 
 

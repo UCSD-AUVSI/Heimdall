@@ -16,13 +16,13 @@ using std::endl;
 static void pythonSaliency(std::string saliencyModuleFolderName,
 							std::string pythonFilename,
 							std::string pythonFunctionName,
-							cv::Mat fullsizeImage,
-							std::vector<cv::Mat> & returnedCrops,
-							std::vector<std::pair<double,double>> & returned_geolocations,
+							cv::Mat * fullsizeImage,
+							std::vector<cv::Mat> * returnedCrops,
+							std::vector<std::pair<double,double>> * returned_geolocations,
 							std::vector<double> *additional_args/*=nullptr*/)
 {
-	returnedCrops.clear();
-	returned_geolocations.clear();
+	returnedCrops->clear();
+	returned_geolocations->clear();
 	
 	if(path_to_HeimdallBuild_directory == nullptr) {
 		std::cout << "ERROR: pythonSaliency: \"path_to_HeimdallBuild_directory\" not set!" << std::endl;
@@ -75,7 +75,7 @@ static void pythonSaliency(std::string saliencyModuleFolderName,
 		
 		
 		//convert C++ cv::Mat to Python
-		PyObject* givenImgCpp = cvt.toNDArray(fullsizeImage);
+		PyObject* givenImgCpp = cvt.toNDArray(*fullsizeImage);
 		bp::object givenImgPyObj( bp::handle<>(bp::borrowed(givenImgCpp)) );
 		
 		
@@ -111,9 +111,9 @@ static void pythonSaliency(std::string saliencyModuleFolderName,
 			bp::tuple thisCropTuple(resultBPList[ii]);
 			if(((int)bp::len(thisCropTuple)) == 3) {
 				bp::object thisImgObj = boost::python::extract<boost::python::object>(thisCropTuple[0])();
-				returnedCrops.push_back(cvt.toMat(thisImgObj.ptr()));
+				returnedCrops->push_back(cvt.toMat(thisImgObj.ptr()));
 				
-				returned_geolocations.push_back(std::pair<double,double>(bp::extract<double>(thisCropTuple[1]),bp::extract<double>(thisCropTuple[2])));
+				returned_geolocations->push_back(std::pair<double,double>(bp::extract<double>(thisCropTuple[1]),bp::extract<double>(thisCropTuple[2])));
 			} else {
 				std::cout << "PYTHON SALIENCY ERROR: expects return value to be a list of tuples," << std::endl
 						<< "    where each tuple has 3 elements: (crop_image, lat, long)" << std::endl;
@@ -124,10 +124,13 @@ static void pythonSaliency(std::string saliencyModuleFolderName,
 }
 
 
-void PythonSaliencyClass::ProcessSaliency(cv::Mat fullsizeImage,
-										std::vector<cv::Mat> & returnedCrops,
-										std::vector<std::pair<double,double>> & returned_geolocations)
+void PythonSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
+										std::vector<cv::Mat> * returnedCrops,
+										std::vector<std::pair<double,double>> * returned_geolocations,
+										int threadNumForDebugging)
 {
+	assert(fullsizeImage != nullptr && returnedCrops != nullptr && returned_geolocations != nullptr);
+	
 	pythonSaliency(saliencyModuleFolderName,
 					pythonFilename,
 					pythonFunctionName,

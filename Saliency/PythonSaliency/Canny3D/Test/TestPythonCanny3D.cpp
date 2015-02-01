@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	saldoer.saliencyModuleFolderName = "Canny3D";
 	saldoer.pythonFilename = "main.py";
 	saldoer.pythonFunctionName = "doSaliency";
-	saldoer.ProcessSaliency(fullsizeImage, foundCrops, cropGeolocations);
+	saldoer.ProcessSaliency(&fullsizeImage, &foundCrops, &cropGeolocations, 0);
 	
 	
 	if(foundCrops.empty() == false) {

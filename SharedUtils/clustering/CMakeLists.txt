@@ -3,6 +3,8 @@ set(clustering_generic_source_files
 	clustering.hpp
 	DBSCAN.cpp
 	DBSCAN.hpp
+	DBSCAN_NonEuclidean.cpp
+	DBSCAN_NonEuclidean.hpp
 	kmeans.cpp
 	kmeans.hpp
 	kmeansplusplus.cpp

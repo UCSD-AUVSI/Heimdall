@@ -24,8 +24,12 @@ public:
 	virtual float rand_float(float min_value, float max_value) {
 		return min_value + ((max_value-min_value) * (((float)rand_int()) / ((float)RAND_MAX)));
 	}
-	virtual float rand_double(double min_value, double max_value) {
+	virtual double rand_double(double min_value, double max_value) {
 		return min_value + ((max_value-min_value) * (((double)rand_int()) / ((double)RAND_MAX)));
+	}
+	
+	static double rand_double_static(double min_value, double max_value) {
+		return min_value + ((max_value-min_value) * (((double)rand()) / ((double)RAND_MAX)));
 	}
 };
 

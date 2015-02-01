@@ -8,53 +8,53 @@ using std::endl;
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "Saliency/SpectralResidualSaliency/ProcessingClass.hpp"
 #include "SharedUtils/GlobalVars.hpp"
-#include "Saliency/ResultsTruthTester/SaliencyExperimentResults.hpp"
 #include <thread>
 #include "SharedUtils/EnableKeyPressToExit.hpp"
 #include "SharedUtils/optimization/experimentUtils.hpp"
+#include "Saliency/OptimizeableSaliency.hpp"
 #include "SharedUtils/optimization/MetropolisMonteCarlo.hpp"
-#include "Saliency/ResultsTruthTester/optimizeSaliency.hpp"
 
 
-static int choose_a_random_training_subset_of_size = 40; //DO ALL
+static int choose_a_random_training_subset_of_size = 4; //DO ALL
 
 static const std::string output_folder_for_final_results("../../output_images");
 
 
 
 
-class OptimizingState_SRS : public OptimizingSystemState_Saliency
+class OptimizingState_SRS : public OptimizeableSaliency_Params
 {
 public:
-	OptimizingState_SRS() : OptimizingSystemState_Saliency() {InitArgs();}
+	OptimizingState_SRS() : OptimizeableSaliency_Params() {InitArgs();}
 	
+	virtual OptimizeableSaliency_Params* CreateInstance() {return new OptimizingState_SRS();}
 	virtual void InitArgs()
 	{
 		SpectralSaliencyArgs test;
-		test.GetVec(OptimizedArgs);
-		OptimizedArgsUpdateSteps.resize(OptimizedArgs.size());
-		assert(OptimizedArgs.size() == 8);
+		test.GetVec(params);
+		paramsStepSizes.resize(params.size());
+		assert(params.size() == 8);
 		
 		double testspd = 1.1;
-		OptimizedArgsUpdateSteps[0] = 1.0 * testspd;
-		OptimizedArgsUpdateSteps[1] = 0.05 * testspd;
-		OptimizedArgsUpdateSteps[2] = 0.8 * testspd;
-		OptimizedArgsUpdateSteps[3] = 1.5 * testspd;
-		OptimizedArgsUpdateSteps[4] = 1.4 * testspd;
-		OptimizedArgsUpdateSteps[5] = 0.025 * testspd;
-		OptimizedArgsUpdateSteps[6] = 0.025 * testspd;
-		OptimizedArgsUpdateSteps[7] = 0.02 * testspd;
+		paramsStepSizes[0] = 1.0 * testspd;
+		paramsStepSizes[1] = 0.05 * testspd;
+		paramsStepSizes[2] = 0.8 * testspd;
+		paramsStepSizes[3] = 1.5 * testspd;
+		paramsStepSizes[4] = 1.4 * testspd;
+		paramsStepSizes[5] = 0.025 * testspd;
+		paramsStepSizes[6] = 0.025 * testspd;
+		paramsStepSizes[7] = 0.02 * testspd;
 	}
 	virtual void ConstrainArgs()
 	{
-		OptimizedArgs[0] = CLAMP(OptimizedArgs[0], 30.0, 110.0);
-		OptimizedArgs[1] = CLAMP(OptimizedArgs[1], 1.01, 6.0);
-		OptimizedArgs[2] = CLAMP(OptimizedArgs[2], 4.0, 40.0);
-		OptimizedArgs[3] = CLAMP(OptimizedArgs[3], 100.0, 500.0);
-		OptimizedArgs[4] = CLAMP(OptimizedArgs[4], 15.0, 51.0);
-		OptimizedArgs[5] = CLAMP(OptimizedArgs[5], 0.30, 0.60);
-		OptimizedArgs[6] = CLAMP(OptimizedArgs[6], 0.10, 0.99);
-		OptimizedArgs[7] = CLAMP(OptimizedArgs[7], 0.10, 0.70);
+		params[0] = CLAMP(params[0], 30.0, 110.0);
+		params[1] = CLAMP(params[1], 1.01, 6.0);
+		params[2] = CLAMP(params[2], 4.0, 40.0);
+		params[3] = CLAMP(params[3], 100.0, 500.0);
+		params[4] = CLAMP(params[4], 15.0, 51.0);
+		params[5] = CLAMP(params[5], 0.30, 0.60);
+		params[6] = CLAMP(params[6], 0.10, 0.99);
+		params[7] = CLAMP(params[7], 0.10, 0.70);
 	}
 };
 
@@ -71,37 +71,28 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
-	std::vector<std::vector<unsigned char>*> pngImgs;
-	std::vector<std::string> tImgFnames;
+	OptimizeableSaliency_SourceData srcImgDataClass;
 	loadImagesIntoCompressedMemory(argv[1], choose_a_random_training_subset_of_size,
-									pngImgs, tImgFnames);
+									srcImgDataClass.pngImgs, srcImgDataClass.tImgFnames);
 	
-	cout << "found " << pngImgs.size() << " images to test with!" << endl;
+	cout << "found " << srcImgDataClass.pngImgs.size() << " images to test with!" << endl;
 	//exit(0);
 	
-//--------------------------------------------------------------------------------------------
-	//SaliencyExperimentResults::desiredMinPaddingPixels = 5;
-	//SaliencyExperimentResults::desiredMaxCropLengthRatioToTargetLength = 3.5;
 //--------------------------------------------------------------------------------------------
 	SpectralResidualSaliencyClass saldoer;
 	saldoer.args.save_output_to_this_folder = output_folder_for_final_results;
 	
-	const std::string truthFilename("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
-	const std::string folderForOutput("../../output_images");
+	OptimizeableSaliency_TruthFilename = new std::string("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
+	OptimizeableSaliency_FolderToSaveOutput = new std::string("../../output_images");
 	
-	int maxLoopsBeforeQuitting = 3000000;
-	OptimizingState_SRS previous;
-	OptimizingState_SRS latest;
 	
-	StartOptimizationLoop(&saldoer,
-							1.0,
-							&previous,
-							&latest,
-							pngImgs,
-							tImgFnames,
-							maxLoopsBeforeQuitting,
-							truthFilename,
-							folderForOutput);
+	OptimizeableSaliency_Multithreaded mtSalOpt;
+	mtSalOpt.actualSaliencyModule = &saldoer;
+	mtSalOpt.paramsInstanceForCreatingCopies = new OptimizingState_SRS();
+	
+	Optimizer_MCMC optimizer;
+	optimizer.InitialWarmup(&mtSalOpt, &srcImgDataClass);
+	
 	
 	return 0;
 }

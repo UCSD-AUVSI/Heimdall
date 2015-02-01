@@ -162,12 +162,13 @@ static void binarize_static_saliency_image(cv::Mat & rawSaliencyMap,
 }
 
 
-void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat fullsizeImage,
-												std::vector<cv::Mat> & returnedCrops,
-												std::vector<std::pair<double,double>> & returned_geolocations)
+void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
+												std::vector<cv::Mat> * returnedCrops,
+												std::vector<std::pair<double,double>> * returned_geolocations,
+												int threadNumForDebugging)
 {
-	returnedCrops.clear();
-	returned_geolocations.clear();
+	returnedCrops->clear();
+	returned_geolocations->clear();
 	double minVal,maxVal;
 	std::vector<double> resImRatio;
 	modified_StaticSaliencySpectralResidual mssaliency;
@@ -183,8 +184,8 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat fullsizeImage,
 			resImRatio[loopsii] = (9.0 / (args.expectedTargetLength * args.expectedLargerTargetRatio));
 		}
 		//cout << "SpectralSaliency -- resImRatio == "<<resImRatio<<endl;
-		double maxcols = ((double)fullsizeImage.cols) * resImRatio[loopsii];
-		double maxrows = ((double)fullsizeImage.rows) * resImRatio[loopsii];
+		double maxcols = ((double)fullsizeImage->cols) * resImRatio[loopsii];
+		double maxrows = ((double)fullsizeImage->rows) * resImRatio[loopsii];
 		//cout<<"maxcols, maxrows == "<<maxcols<<", "<<maxrows<<endl;
 		//assert(maxcols < 800.0 && maxrows < 800.0);
 		
@@ -192,7 +193,7 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat fullsizeImage,
 			Converting to CIELab is slow, so resize FIRST
 		*/
 		cv::Mat fullsizeImage_CIELAB;
-		cv::resize(fullsizeImage, fullsizeImage_CIELAB, cv::Size(0,0), resImRatio[loopsii], resImRatio[loopsii], cv::INTER_AREA);
+		cv::resize(*fullsizeImage, fullsizeImage_CIELAB, cv::Size(0,0), resImRatio[loopsii], resImRatio[loopsii], cv::INTER_AREA);
 		fullsizeImage_CIELAB.convertTo(fullsizeImage_CIELAB, CV_32FC3);
 		fullsizeImage_CIELAB /= 255.0f;
 		
@@ -326,17 +327,17 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat fullsizeImage,
 				bounds.y = MAX(0, bounds.y);
 				
 				bounds.width = RoundDoubleToInt(b_wid);
-				if((bounds.x+bounds.width) > fullsizeImage.cols) {
-					bounds.width = (fullsizeImage.cols - bounds.x);
+				if((bounds.x+bounds.width) > fullsizeImage->cols) {
+					bounds.width = (fullsizeImage->cols - bounds.x);
 				}
 				
 				bounds.height = RoundDoubleToInt(b_hei);
-				if((bounds.y+bounds.height) > fullsizeImage.rows) {
-					bounds.height = (fullsizeImage.rows - bounds.y);
+				if((bounds.y+bounds.height) > fullsizeImage->rows) {
+					bounds.height = (fullsizeImage->rows - bounds.y);
 				}
 				
-				returnedCrops.push_back(cv::Mat(fullsizeImage, bounds));
-				returned_geolocations.push_back(std::pair<double,double>(bounds.x,bounds.y));
+				returnedCrops->push_back(cv::Mat(*fullsizeImage, bounds));
+				returned_geolocations->push_back(std::pair<double,double>(bounds.x,bounds.y));
 			}
 		}
 	}

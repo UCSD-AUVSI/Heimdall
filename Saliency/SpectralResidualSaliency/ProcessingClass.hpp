@@ -1,7 +1,7 @@
 #ifndef __PROCESSING_SALIENCYSPECTRALRESIDUAL_HPP
 #define __PROCESSING_SALIENCYSPECTRALRESIDUAL_HPP
 
-#include "Saliency/GenericSaliencyImplementation.hpp"
+#include "Saliency/OptimizeableSaliency.hpp"
 
 
 class SpectralSaliencyArgs
@@ -61,9 +61,10 @@ public:
 		args = SpectralSaliencyArgs::GetArgs(newArgs);
 	}
 	
-	virtual void ProcessSaliency(cv::Mat fullsizeImage,
-								std::vector<cv::Mat> & returnedCrops,
-								std::vector<std::pair<double,double>> & returned_geolocations);
+	virtual void ProcessSaliency(cv::Mat * fullsizeImage,
+								std::vector<cv::Mat> * returnedCrops,
+								std::vector<std::pair<double,double>> * returned_geolocations,
+								int threadNumForDebugging);
 };
 
 

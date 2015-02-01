@@ -7,7 +7,7 @@
 		<Option execution_dir="build" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D-Test/;Verification/ExperimentVerif/;Saliency/SpectralResidualSaliency/;Saliency/SpectralResidualSaliency/Test/;SharedUtils/optimization/;Recognition/Segmentation/PythonSegmentation/;Recognition/ColorClassification/PythonColorClassification/;Recognition/ColorClassification/PythonColorClassification/Test/;Verification/PythonVerif/;" />
+		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D/;Verification/ExperimentVerif/;Saliency/SpectralResidualSaliency/;Saliency/SpectralResidualSaliency/Test/;SharedUtils/optimization/;Recognition/Segmentation/PythonSegmentation/;Recognition/ColorClassification/PythonColorClassification/;Recognition/ColorClassification/PythonColorClassification/Test/;Verification/PythonVerif/;Verification/PythonVerif/MultiLookAggregator/;Saliency/PythonSaliency/Canny3D/Test/;Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/;" />
 		<Build>
 			<Target title="Release">
 				<Option output="Heimdall_CodeBlocks" prefix_auto="0" extension_auto="0" />
@@ -544,7 +544,13 @@
 		<Unit filename="Saliency/BlobSaliency/blob_saliency_module_template.hpp">
 			<Option virtualFolder="Saliency/BlobSaliency/" />
 		</Unit>
-		<Unit filename="Saliency/GenericSaliencyImplementation.hpp">
+		<Unit filename="Saliency/CalculateSaliencyExperimentResults.cpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="Saliency/OptimizeableSaliency.cpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="Saliency/OptimizeableSaliency.hpp">
 			<Option virtualFolder="Saliency/" />
 		</Unit>
 		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency.cpp">
@@ -559,28 +565,28 @@
 		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.hpp">
 			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
 		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/Canny3D_BPythonInterface.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/canny_modified_from_v2_4_9.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/canny_modified_from_v2_4_9.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/precomp_v2_4_9.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
 		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/GeneticOptimizeCanny3D.cpp">
-			<Option virtualFolder="Saliency/PythonSaliency/Canny3D-Test/" />
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/Test/" />
 		</Unit>
 		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/TestPythonCanny3D.cpp">
-			<Option virtualFolder="Saliency/PythonSaliency/Canny3D-Test/" />
-		</Unit>
-		<Unit filename="Saliency/ResultsTruthTester/SaliencyExperimentResults.cpp">
-			<Option virtualFolder="Saliency/ResultsTruthTester/" />
-		</Unit>
-		<Unit filename="Saliency/ResultsTruthTester/SaliencyExperimentResults.hpp">
-			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/Test/" />
 		</Unit>
 		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.cpp">
 			<Option virtualFolder="Saliency/ResultsTruthTester/" />
 		</Unit>
 		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.hpp">
-			<Option virtualFolder="Saliency/ResultsTruthTester/" />
-		</Unit>
-		<Unit filename="Saliency/ResultsTruthTester/optimizeSaliency.cpp">
-			<Option virtualFolder="Saliency/ResultsTruthTester/" />
-		</Unit>
-		<Unit filename="Saliency/ResultsTruthTester/optimizeSaliency.hpp">
 			<Option virtualFolder="Saliency/ResultsTruthTester/" />
 		</Unit>
 		<Unit filename="Saliency/ResultsTruthTester/tester_main.cpp">
@@ -685,6 +691,12 @@
 		<Unit filename="SharedUtils/clustering/DBSCAN.hpp">
 			<Option virtualFolder="SharedUtils/clustering/" />
 		</Unit>
+		<Unit filename="SharedUtils/clustering/DBSCAN_NonEuclidean.cpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/DBSCAN_NonEuclidean.hpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
 		<Unit filename="SharedUtils/clustering/clustering.cpp">
 			<Option virtualFolder="SharedUtils/clustering/" />
 		</Unit>
@@ -719,6 +731,18 @@
 			<Option virtualFolder="SharedUtils/optimization/" />
 		</Unit>
 		<Unit filename="SharedUtils/optimization/MetropolisMonteCarlo.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/OptimizeableModule.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/Optimizer.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/SimulatedAnnealing.cpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/SimulatedAnnealing.hpp">
 			<Option virtualFolder="SharedUtils/optimization/" />
 		</Unit>
 		<Unit filename="SharedUtils/optimization/experimentUtils.cpp">
@@ -771,6 +795,9 @@
 		</Unit>
 		<Unit filename="Verification/PythonVerif/CPlusPlus_Heimdall_Interface/PythonVerif_ModuleInterface.hpp">
 			<Option virtualFolder="Verification/PythonVerif/" />
+		</Unit>
+		<Unit filename="Verification/PythonVerif/MultiLookAggregator/CPP_DBSCAN_Clustering/DBSCAN_BPythonInterface.cpp">
+			<Option virtualFolder="Verification/PythonVerif/MultiLookAggregator/" />
 		</Unit>
 		<Unit filename="Verification/stub_verif.cpp">
 			<Option virtualFolder="Verification/" />

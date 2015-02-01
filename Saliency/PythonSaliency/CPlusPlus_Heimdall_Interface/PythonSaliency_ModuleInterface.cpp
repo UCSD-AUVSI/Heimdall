@@ -43,12 +43,12 @@ void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
 		cout<<"PYTHON SALIENCY RECEIVED TWO ARGUMENTS; SECOND ARG IS: \""<<second_arg<<"\""<<endl;
 		if(second_arg == "EXPERIMENT") {
 			cout<<"---- SALIENCY (PYTHON) EXPERIMENTAL MODE SET"<<endl;
-			globalExperimentResultsCalculatorFunc = SaliencyExperimentResultsCalculator;
 			
+			/*globalExperimentResultsCalculatorFunc = SaliencyExperimentResultsCalculator;
 			if(lastLocalExperimentNum < globalExperimentNum) {
 				cout<<"NEW EXPERIMENT DETECTED: UPDATING PYTHON VARIABLES..."<<endl;
 				lastLocalExperimentNum = globalExperimentNum;
-			}
+			}*/
 		}
 	}
 	
@@ -63,7 +63,7 @@ void PythonSaliency :: execute(imgdata_t *imdata, std::string args)
 		saldoer.saliencyModuleFolderName = args;
 		saldoer.pythonFilename = "main.py";
 		saldoer.pythonFunctionName = "doSaliency";
-		saldoer.ProcessSaliency(fullsizeImage, foundCrops, cropGeolocations);
+		saldoer.ProcessSaliency(&fullsizeImage, &foundCrops, &cropGeolocations, 0);
 		
 		consoleOutput.Level1() << "pythonSaliency found " << to_istring(foundCrops.size()) << " crops" << std::endl;
 		

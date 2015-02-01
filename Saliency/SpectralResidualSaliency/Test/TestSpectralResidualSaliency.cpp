@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 		SpectralResidualSaliencyClass saldoer;
 		//saldoer.args.save_output_to_this_folder = folderOutputPath;
 		//saldoer.saveIntermediateResults = true;
-		saldoer.ProcessSaliency(fullsizeImage, foundCrops, cropGeolocations);
+		saldoer.ProcessSaliency(&fullsizeImage, &foundCrops, &cropGeolocations, 0);
 		//cv::waitKey(0);
 		
 		cv::Mat bw_salmap;

@@ -25,21 +25,14 @@ int main(int argc, char** argv)
 	}
 	std::string truthImageFileFolder("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth");
 	std::string truthFilename     (  "/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
+	(*OptimizeableSaliency_TruthFilename) = truthFilename;
 	
 	bool CROP_COORDINATES_ARE_IN_FILENAMES = true;
 	
-	SaliencyOutput output = ReadFolderWithCrops(truthImageFileFolder, folderWithCrops,
+	OptimizeableSaliency_Output output = ReadFolderWithCrops(truthImageFileFolder, folderWithCrops,
 												CROP_COORDINATES_ARE_IN_FILENAMES);
 	
-	SaliencyExperimentResults results = GetSaliencyExperimentResults(truthFilename, output);
+	OptimizeableSaliency_ResultsStats * results = dynamic_cast<OptimizeableSaliency_ResultsStats*>(output.CalculateResults());
 	
-	std::cout << "-----------------------------------------------------------------------------------------------------------------------" << std::endl;
-	std::cout << "number of actual truth targets (from truth file): " << results.numTruthTargets << std::endl;
-	std::cout << "num crops: " << results.numDetectedThings << std::endl;
-	std::cout << "num successes: " << results.numSuccesses << std::endl;
-	std::cout << "total num failures: " << (results.numFailures_totalDetectionFailures+results.numFailures_PaddingFailures) << std::endl;
-	std::cout << "numCloseCallsForCroppingFailures: " << results.numCloseCallsForCroppingFailures << std::endl;
-	std::cout << "num detection failures or false alarms: " << results.numFailures_totalDetectionFailures << std::endl;
-	std::cout << "num padding failures: " << results.numFailures_PaddingFailures << std::endl;
-	//std::cout << "-----------------------------------------------------------------------------------------------------------------------" << std::endl;
+	results->Print(std::cout, true);
 }

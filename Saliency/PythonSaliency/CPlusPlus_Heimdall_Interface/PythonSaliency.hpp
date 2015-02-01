@@ -1,7 +1,7 @@
 #ifndef __PYTHON_SALIENCY_HPP____
 #define __PYTHON_SALIENCY_HPP____
 
-#include "Saliency/GenericSaliencyImplementation.hpp"
+#include "Saliency/OptimizeableSaliency.hpp"
 
 class PythonSaliencyClass : public GenericSaliencyImplementation
 {
@@ -19,9 +19,10 @@ public:
 		}
 	}
 	
-	virtual void ProcessSaliency(cv::Mat fullsizeImage,
-								std::vector<cv::Mat> & returnedCrops,
-								std::vector<std::pair<double,double>> & returned_geolocations);
+	virtual void ProcessSaliency(cv::Mat * fullsizeImage,
+								std::vector<cv::Mat> * returnedCrops,
+								std::vector<std::pair<double,double>> * returned_geolocations,
+								int threadNumForDebugging);
 	
 };
 

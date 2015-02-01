@@ -8,12 +8,11 @@ using std::endl;
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency.hpp"
 #include "SharedUtils/GlobalVars.hpp"
-#include "Saliency/ResultsTruthTester/SaliencyExperimentResults.hpp"
 #include <thread>
 #include "SharedUtils/EnableKeyPressToExit.hpp"
 #include "SharedUtils/optimization/experimentUtils.hpp"
+#include "Saliency/OptimizeableSaliency.hpp"
 #include "SharedUtils/optimization/MetropolisMonteCarlo.hpp"
-#include "Saliency/ResultsTruthTester/optimizeSaliency.hpp"
 
 
 static int choose_a_random_training_subset_of_size = 4; //DO ALL
@@ -33,32 +32,33 @@ static std::string GetPathToTestExecutable(const char* argv0) {
 }
 
 
-class OptimizingState_C3D : public OptimizingSystemState_Saliency
+class OptimizingState_C3D : public OptimizeableSaliency_Params
 {
 public:
-	OptimizingState_C3D() : OptimizingSystemState_Saliency() {InitArgs();}
+	OptimizingState_C3D() : OptimizeableSaliency_Params() {InitArgs();}
 	
+	virtual OptimizeableSaliency_Params* CreateInstance() {return new OptimizingState_C3D();}
 	virtual void InitArgs()
 	{
-		OptimizedArgs.resize(4);
-		OptimizedArgsUpdateSteps.resize(4);
+		params.resize(4);
+		paramsStepSizes.resize(4);
 		
-		OptimizedArgs[0] = 101.558; //cThreshLow
-		OptimizedArgs[1] = 85.8787; //cHighRatioTimes5
-		OptimizedArgs[2] = 5.96391; //blurRadius
-		OptimizedArgs[3] = 26.8199; //resizePct
+		params[0] = 101.558; //cThreshLow
+		params[1] = 85.8787; //cHighRatioTimes5
+		params[2] = 5.96391; //blurRadius
+		params[3] = 26.8199; //resizePct
 		
-		OptimizedArgsUpdateSteps[0] = 11.4;
-		OptimizedArgsUpdateSteps[1] = 3.4;
-		OptimizedArgsUpdateSteps[2] = 1.1;
-		OptimizedArgsUpdateSteps[3] = 0.9;
+		paramsStepSizes[0] = 11.4;
+		paramsStepSizes[1] = 3.4;
+		paramsStepSizes[2] = 1.1;
+		paramsStepSizes[3] = 0.9;
 	}
 	virtual void ConstrainArgs()
 	{		
-		OptimizedArgs[0] = CLAMP(OptimizedArgs[0], 10.0, 1000.0);
-		OptimizedArgs[1] = CLAMP(OptimizedArgs[1], 1.001, 200.0);
-		OptimizedArgs[2] = CLAMP(OptimizedArgs[2], 3.0, 16.0);
-		OptimizedArgs[3] = CLAMP(OptimizedArgs[3], 9.0, 31.0);
+		params[0] = CLAMP(params[0], 10.0, 1000.0);
+		params[1] = CLAMP(params[1], 1.001, 200.0);
+		params[2] = CLAMP(params[2], 3.0, 16.0);
+		params[3] = CLAMP(params[3], 9.0, 31.0);
 	}
 };
 
@@ -78,12 +78,11 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
-	std::vector<std::vector<unsigned char>*> pngImgs;
-	std::vector<std::string> tImgFnames;
+	OptimizeableSaliency_SourceData srcImgDataClass;
 	loadImagesIntoCompressedMemory(argv[1], choose_a_random_training_subset_of_size,
-									pngImgs, tImgFnames);
+									srcImgDataClass.pngImgs, srcImgDataClass.tImgFnames);
 	
-	cout << "found " << pngImgs.size() << " images to test with!" << endl;
+	cout << "found " << srcImgDataClass.pngImgs.size() << " images to test with!" << endl;
 	//exit(0);
 	
 //--------------------------------------------------------------------------------------------
@@ -92,23 +91,17 @@ int main(int argc, char** argv)
 	saldoer.pythonFilename = "main.py";
 	saldoer.pythonFunctionName = "doSaliency";
 	
-	const std::string truthFilename("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
-	const std::string folderForOutput("../../output_images");
-	
-	int maxLoopsBeforeQuitting = 200000000;
-	OptimizingState_C3D previous;
-	OptimizingState_C3D latest;
+	OptimizeableSaliency_TruthFilename = new std::string("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
+	OptimizeableSaliency_FolderToSaveOutput = new std::string("../../output_images");
 	
 	
-	StartOptimizationLoop(&saldoer,
-							1.0,
-							&previous,
-							&latest,
-							pngImgs,
-							tImgFnames,
-							maxLoopsBeforeQuitting,
-							truthFilename,
-							folderForOutput);
+	OptimizeableSaliency_Multithreaded mtSalOpt;
+	mtSalOpt.actualSaliencyModule = &saldoer;
+	mtSalOpt.paramsInstanceForCreatingCopies = new OptimizingState_C3D();
+	
+	Optimizer_MCMC optimizer;
+	optimizer.InitialWarmup(&mtSalOpt, &srcImgDataClass);
+	
 	
 	return 0;
 }

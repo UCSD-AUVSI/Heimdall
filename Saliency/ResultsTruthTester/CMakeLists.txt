@@ -2,10 +2,6 @@
 set(saliencytruthresults_library_source_files
 	SaliencyResultsTruthTester.cpp
 	SaliencyResultsTruthTester.hpp
-	SaliencyExperimentResults.hpp
-	SaliencyExperimentResults.cpp
-	optimizeSaliency.hpp
-	optimizeSaliency.cpp
 	)
 
 add_library(SaliencyResultsTruthTesterLibrary ${saliencytruthresults_library_source_files})
@@ -23,4 +19,4 @@ set(saliencytruthresults_executable_source_files
 
 add_executable(SaliencyResultsTruthTester ${saliencytruthresults_executable_source_files})
 
-target_link_libraries(SaliencyResultsTruthTester SaliencyResultsTruthTesterLibrary ${OpenCV_LIBS})
+target_link_libraries(SaliencyResultsTruthTester SaliencyResultsTruthTesterLibrary saliencyoptimization ${OpenCV_LIBS})

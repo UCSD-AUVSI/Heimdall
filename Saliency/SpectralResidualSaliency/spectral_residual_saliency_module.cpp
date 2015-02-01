@@ -26,7 +26,7 @@ void SpectralResidualSaliency :: execute(imgdata_t *imdata, std::string args){
 	fullsizeImage = cv::imdecode(*imdata->image_data, CV_LOAD_IMAGE_COLOR);
 	
 	SpectralResidualSaliencyClass saldoer;
-	saldoer.ProcessSaliency(fullsizeImage, foundCrops, cropGeolocations);
+	saldoer.ProcessSaliency(&fullsizeImage, &foundCrops, &cropGeolocations, 0);
 	
 	consoleOutput.Level1() << "SpectralResidualSaliency found " << to_istring(foundCrops.size()) << " crops" << std::endl;
 	

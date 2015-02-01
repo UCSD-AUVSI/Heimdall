@@ -8,7 +8,7 @@
  *		
  *		When used for image color clustering: this isn't great for clustering by color alone,
  *		because there can be a "bridge" of intermediate colors that causes clusters to combine.
- *		See "dbscan_color_bridging_problem.png"
+ *		See "dbscan_bridging_problem.png"
  *		One solution to this is to use 5-D clustering (3 color + 2 space), but KMEANS++ is still much better.
  *
  *	http://en.wikipedia.org/wiki/DBSCAN
@@ -24,7 +24,7 @@ static std::vector<int> DBSCAN_RegionQuery(std::vector<ClusterablePoint*>* keypo
 	for(int i=0; i<keypoints->size(); i++)
 	{
 		dist = keypoint->DistTo(keypoints->at(i));
-		if(dist <= eps && dist != 0.0)
+		if(dist <= eps && dist > 0.0)
 		{
 		    retKeys.push_back(i);
 		}
@@ -37,7 +37,7 @@ std::vector<std::vector<ClusterablePoint*>> DBSCAN(std::vector<ClusterablePoint*
 													double eps,
 													int minPts)
 {
-	int numKeyPts = keypoints->size();
+	const int numKeyPts = keypoints->size();
 	
 	std::vector<std::vector<ClusterablePoint*>> clusters;
 	std::vector<int> noise;

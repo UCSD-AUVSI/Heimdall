@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 	std::string filename_of_truth;
 	std::string folder_dir_of_images;
 	bool saveCrops = false;
+	bool showDisplayImages = true;
 	int cropPaddingPixels = 0;
 	
 	if(argc >= 4) {
@@ -32,15 +33,18 @@ int main(int argc, char** argv)
 			saveCrops = (atoi(argv[3]) == 1);
 		}
 		else {
-			std::cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]" << std::endl;
+			std::cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]  OPTIONAL:[DISPLAY IMAGES?]" << std::endl;
 			return 1;
 		}
 		if(argc >= 5) {
 			cropPaddingPixels = atoi(argv[4]);
 		}
+		if(argc >= 6) {
+			showDisplayImages = (atoi(argv[5]) != 0);
+		}
 	}
 	else {
-		std::cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]" << std::endl;
+		std::cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]  OPTIONAL:[DISPLAY IMAGES?]" << std::endl;
 		return 0;
 	}	
 	if(check_if_file_exists(filename_of_truth)==false) {
@@ -70,54 +74,78 @@ int main(int argc, char** argv)
 				cv::Rect boxToDraw;
 				cv::Rect boxToCrop;
 				std::string shapename;
-				for(int tv=0; tv<loadedFile.images[i].targets_in_image[t].entry_values.size(); tv++) {
-					std::cout << truth_file_target_entry_keywords[tv] << loadedFile.images[i].targets_in_image[t].entry_values[tv] << std::endl;
-					if(truth_file_target_entry_keywords[tv] == "\tpos_x: ") {
-						boxToCrop.x = atoi(loadedFile.images[i].targets_in_image[t].entry_values[tv].c_str());
-						boxToCrop.x -= cropPaddingPixels;
-						boxToDraw.x = boxToCrop.x - 4; //accomodate for line widths
-					}
-					else if(truth_file_target_entry_keywords[tv] == "\tpos_y: ") {
-						boxToCrop.y = atoi(loadedFile.images[i].targets_in_image[t].entry_values[tv].c_str());
-						boxToCrop.y -= cropPaddingPixels;
-						boxToDraw.y = boxToCrop.y - 4; //accomodate for line widths
-					}
-					else if(truth_file_target_entry_keywords[tv] == "\tbox_min_width: ") {
-						boxToCrop.width = atoi(loadedFile.images[i].targets_in_image[t].entry_values[tv].c_str());
-						boxToCrop.width += (2*cropPaddingPixels);
-						boxToDraw.width = boxToCrop.width + 8; //accomodate for line widths
-					}
-					else if(truth_file_target_entry_keywords[tv] == "\tbox_min_height: ") {
-						boxToCrop.height = atoi(loadedFile.images[i].targets_in_image[t].entry_values[tv].c_str());
-						boxToCrop.height += (2*cropPaddingPixels);
-						boxToDraw.height = boxToCrop.height + 8; //accomodate for line widths
-					}
-					else if(truth_file_target_entry_keywords[tv] == "\tshape: ") {
-						shapename = loadedFile.images[i].targets_in_image[t].entry_values[tv];
-					}
-				}
+				
+				boxToCrop.x = atoi(GetTruthEntryValue("pos_x", loadedFile.images[i].targets_in_image[t]).c_str());
+				boxToCrop.x -= cropPaddingPixels;
+				boxToDraw.x = boxToCrop.x - 4; //accomodate for line widths
+			
+				boxToCrop.y = atoi(GetTruthEntryValue("pos_y", loadedFile.images[i].targets_in_image[t]).c_str());
+				boxToCrop.y -= cropPaddingPixels;
+				boxToDraw.y = boxToCrop.y - 4; //accomodate for line widths
+				
+				boxToCrop.width = atoi(GetTruthEntryValue("box_min_width", loadedFile.images[i].targets_in_image[t]).c_str());
+				boxToCrop.width += (2*cropPaddingPixels);
+				boxToDraw.width = boxToCrop.width + 8; //accomodate for line widths
+				
+				boxToCrop.height = atoi(GetTruthEntryValue("box_min_height", loadedFile.images[i].targets_in_image[t]).c_str());
+				boxToCrop.height += (2*cropPaddingPixels);
+				boxToDraw.height = boxToCrop.height + 8; //accomodate for line widths
+				
+				shapename = GetTruthEntryValue("shape", loadedFile.images[i].targets_in_image[t]);
+				
 				if(saveCrops) {
-					cv::imwrite(std::string("../../output_images/")+loadedFile.images[i].image_file.substr(0,loadedFile.images[i].image_file.size()-4)+std::string("_")+shapename+std::string(".png"), loadedImage(boxToCrop));
+					cv::imwrite(std::string("../../output_images/")+loadedFile.images[i].image_file.substr(0,loadedFile.images[i].image_file.size()-4)+std::string("_")+shapename+std::string("_")+to_istring(t)+std::string(".png"), loadedImage(boxToCrop));
 				}
-				cv::rectangle(loadedImage, boxToDraw, cv::Scalar(127,0,255), 5, 4);
+				if(showDisplayImages) {
+					cv::rectangle(loadedImage, boxToDraw, cv::Scalar(127,0,255), 5, 4);
+				}
+			}
+			for(int t=0; t<loadedFile.images[i].falsepositives_in_image.size(); t++) {
+				std::cout << "  FalsePositive:" << std::endl;
+				cv::Rect boxToDraw;
+				cv::Rect boxToCrop;
+				
+				boxToCrop.x = atoi(GetTruthEntryValue("pos_x", loadedFile.images[i].falsepositives_in_image[t]).c_str());
+				boxToCrop.x -= cropPaddingPixels;
+				boxToDraw.x = boxToCrop.x - 4; //accomodate for line widths
+			
+				boxToCrop.y = atoi(GetTruthEntryValue("pos_y", loadedFile.images[i].falsepositives_in_image[t]).c_str());
+				boxToCrop.y -= cropPaddingPixels;
+				boxToDraw.y = boxToCrop.y - 4; //accomodate for line widths
+				
+				boxToCrop.width = atoi(GetTruthEntryValue("box_min_width", loadedFile.images[i].falsepositives_in_image[t]).c_str());
+				boxToCrop.width += (2*cropPaddingPixels);
+				boxToDraw.width = boxToCrop.width + 8; //accomodate for line widths
+				
+				boxToCrop.height = atoi(GetTruthEntryValue("box_min_height", loadedFile.images[i].falsepositives_in_image[t]).c_str());
+				boxToCrop.height += (2*cropPaddingPixels);
+				boxToDraw.height = boxToCrop.height + 8; //accomodate for line widths
+				
+				if(saveCrops) {
+					cv::imwrite(std::string("../../output_images/")+loadedFile.images[i].image_file.substr(0,loadedFile.images[i].image_file.size()-4)+std::string("_falsepositive_")+to_istring(t)+std::string(".png"), loadedImage(boxToCrop));
+				}
+				if(showDisplayImages) {
+					cv::rectangle(loadedImage, boxToDraw, cv::Scalar(200,0,255), 5, 4);
+				}
 			}
 			
-			double maxDispWidth = 1300;
-			double maxDispHeight = 700;
-			if(loadedImage.rows > maxDispHeight || loadedImage.cols > maxDispWidth) {
-				double scaleFactor = std::min(maxDispWidth/((double)loadedImage.cols), maxDispHeight/((double)loadedImage.rows));
-				cv::resize(loadedImage, loadedImage, cv::Size(0.0,0.0), scaleFactor, scaleFactor);
+			if(showDisplayImages) {
+				double maxDispWidth = 1300;
+				double maxDispHeight = 700;
+				if(loadedImage.rows > maxDispHeight || loadedImage.cols > maxDispWidth) {
+					double scaleFactor = std::min(maxDispWidth/((double)loadedImage.cols), maxDispHeight/((double)loadedImage.rows));
+					cv::resize(loadedImage, loadedImage, cv::Size(0.0,0.0), scaleFactor, scaleFactor);
+				}
+				double minDispWidth = 40;
+				double minDispHeight = 40;
+				if(loadedImage.rows < minDispHeight || loadedImage.cols < minDispWidth) {
+					double scaleFactor = std::min(minDispWidth/((double)loadedImage.cols), minDispHeight/((double)loadedImage.rows));
+					cv::resize(loadedImage, loadedImage, cv::Size(0.0,0.0), scaleFactor, scaleFactor);
+				}
+				cv::imshow("image",loadedImage);
+				cv::waitKey(0);
+				cv::destroyAllWindows();
 			}
-			double minDispWidth = 40;
-			double minDispHeight = 40;
-			if(loadedImage.rows < minDispHeight || loadedImage.cols < minDispWidth) {
-				double scaleFactor = std::min(minDispWidth/((double)loadedImage.cols), minDispHeight/((double)loadedImage.rows));
-				cv::resize(loadedImage, loadedImage, cv::Size(0.0,0.0), scaleFactor, scaleFactor);
-			}
-			
-			cv::imshow("image",loadedImage);
-			cv::waitKey(0);
-			cv::destroyAllWindows();
 		}
 	}
 	
