@@ -11,6 +11,7 @@
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
 #include "TruthFile.hpp"
 #include <iostream>
+using std::cout; using std::endl;
 
 
 int main(int argc, char** argv)
@@ -44,15 +45,15 @@ int main(int argc, char** argv)
 		}
 	}
 	else {
-		std::cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]  OPTIONAL:[DISPLAY IMAGES?]" << std::endl;
+		cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]  OPTIONAL:[DISPLAY IMAGES?]" << std::endl;
 		return 0;
 	}	
 	if(check_if_file_exists(filename_of_truth)==false) {
-		std::cout << "could not find truth file" << std::endl;
+		cout << "could not find truth file" << std::endl;
 		return 1;
 	}
 	if(check_if_directory_exists(folder_dir_of_images)==false) {
-		std::cout << "could not find images directory" << std::endl;
+		cout << "could not find images directory" << std::endl;
 		return 1;
 	}
 	
@@ -91,6 +92,12 @@ int main(int argc, char** argv)
 				boxToCrop.height += (2*cropPaddingPixels);
 				boxToDraw.height = boxToCrop.height + 8; //accomodate for line widths
 				
+				//make sure boxToCrop doesnt go outside the image bounds
+				if(boxToCrop.x < 0) boxToCrop.x = 0;
+				if(boxToCrop.y < 0) boxToCrop.y = 0;
+				if(boxToCrop.x+boxToCrop.width >= loadedImage.cols){boxToCrop.width = (loadedImage.cols - boxToCrop.x - 1);}
+				if(boxToCrop.y+boxToCrop.height >= loadedImage.rows){boxToCrop.height = (loadedImage.rows - boxToCrop.y - 1);}
+				
 				shapename = GetTruthEntryValue("shape", loadedFile.images[i].targets_in_image[t]);
 				
 				if(saveCrops) {
@@ -120,6 +127,12 @@ int main(int argc, char** argv)
 				boxToCrop.height = atoi(GetTruthEntryValue("box_min_height", loadedFile.images[i].falsepositives_in_image[t]).c_str());
 				boxToCrop.height += (2*cropPaddingPixels);
 				boxToDraw.height = boxToCrop.height + 8; //accomodate for line widths
+				
+				//make sure boxToCrop doesnt go outside the image bounds
+				if(boxToCrop.x < 0) boxToCrop.x = 0;
+				if(boxToCrop.y < 0) boxToCrop.y = 0;
+				if(boxToCrop.x+boxToCrop.width >= loadedImage.cols){boxToCrop.width = (loadedImage.cols - boxToCrop.x - 1);}
+				if(boxToCrop.y+boxToCrop.height >= loadedImage.rows){boxToCrop.height = (loadedImage.rows - boxToCrop.y - 1);}
 				
 				if(saveCrops) {
 					cv::imwrite(std::string("../../output_images/")+loadedFile.images[i].image_file.substr(0,loadedFile.images[i].image_file.size()-4)+std::string("_falsepositive_")+to_istring(t)+std::string(".png"), loadedImage(boxToCrop));

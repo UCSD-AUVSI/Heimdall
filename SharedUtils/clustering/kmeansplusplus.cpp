@@ -156,7 +156,7 @@ std::vector<std::vector<ClusterablePoint*>> KMEANSPLUSPLUS(std::vector<Clusterab
 		std::vector<std::vector<ClusterablePoint*>> last_clusters = KMEANS(keypoints, &clustercores, num_lloyd_iterations, &last_total_dist_potential);
 		
 		
-		consoleOutput.Level1() << "last potential: " << last_total_dist_potential << std::endl;
+		consoleOutput.Level3() << "last potential: " << last_total_dist_potential << std::endl;
 		
 		
 		//keep the result with the lowest potential (the best clustering) (step 7)
@@ -167,7 +167,7 @@ std::vector<std::vector<ClusterablePoint*>> KMEANSPLUSPLUS(std::vector<Clusterab
 	}
 	
 	
-	consoleOutput.Level1() << "kmeans++ finished... lowest found potential: " << min_total_dist_potential << std::endl;
+	consoleOutput.Level3() << "kmeans++ finished... lowest found potential: " << min_total_dist_potential << std::endl;
 	
 	return best_clusters;
 }
