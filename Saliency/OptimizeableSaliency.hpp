@@ -33,10 +33,11 @@ public:
 	
 	virtual void CopyFromOther(Optimizer_Params const*const other);
 	virtual void Print(std::ostream & printHere);
-	virtual void GenerateNewArgs(double arg);
+	virtual void GenerateNewArgs(double arg, bool fullRange);
 	
 	/* Implement these!*/
 	//virtual void InitArgs() = 0;
+	virtual void GetArgConstraints(std::vector<double> const*& mins, std::vector<double> const*& maxs) = 0;
 	virtual void ConstrainArgs() = 0;
 	virtual OptimizeableSaliency_Params* CreateInstance() = 0;
 };
@@ -123,6 +124,8 @@ static double DesiredFalseP_MaxCropLengthRatioToTargetLength; //for CloseFailure
 	int Truth_DesiredTargets;
 	int Truth_DesiredFalsePs;
 	
+	int NumReturnedCrops;
+	
 	int DesiredTarget_Successes;
 	int DesiredFalseP_Successes;
 	
@@ -141,6 +144,7 @@ static double DesiredFalseP_MaxCropLengthRatioToTargetLength; //for CloseFailure
 	OptimizeableSaliency_ResultsStats() :
 		Truth_DesiredTargets(0),
 		Truth_DesiredFalsePs(0),
+		NumReturnedCrops(0),
 		DesiredTarget_Successes(0),
 		DesiredFalseP_Successes(0),
 		DesiredTarget_CloseFailures_MinorPadding(0),
