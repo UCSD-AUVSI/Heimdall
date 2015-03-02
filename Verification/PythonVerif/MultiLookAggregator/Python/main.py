@@ -2,7 +2,10 @@ import numpy as np
 import cv2
 import pydbscancpplib
 
-def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorStr, CharName, TargetLat, TargetLong, TargetOrientation, optionalArgs):
+def doVerif(QRCodeProbability,
+		ShapeColorVals, ShapeColorStr, ShapeName, ShapeNameConfidence,
+		CharColorVals, CharColorStr, CharNames, CharNameConfidences,
+		TargetLat, TargetLong, TargetOrientation, optionalArgs):
 	
 	print "MultilookAggregator (this is the Python)"
 	
