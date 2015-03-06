@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Heimdall_CodeBlocks" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="build" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D/;Verification/ExperimentVerif/;Saliency/SpectralResidualSaliency/;Saliency/SpectralResidualSaliency/Test/;SharedUtils/optimization/;Recognition/Segmentation/PythonSegmentation/;Recognition/ColorClassification/PythonColorClassification/;Recognition/ColorClassification/PythonColorClassification/Test/;Verification/PythonVerif/;Verification/PythonVerif/MultiLookAggregator/;Saliency/PythonSaliency/Canny3D/Test/;Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/;" />
+		<Build>
+			<Target title="Release">
+				<Option output="Heimdall_CodeBlocks" prefix_auto="0" extension_auto="0" />
+				<Option working_dir="build" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<MakeCommands>
+					<Build command="$make" />
+					<CompileFile command="$make" />
+					<Clean command="$make clean" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="$make -q" />
+					<SilentBuild command="$make &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="Backbone/AUVSI_Algorithm.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/BackStore.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/BackStore.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/Backbone.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/CMakeLists.txt">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/Client.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/DistAlgs.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/DistClient.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/DistClient.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/DistMaps.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/DistMaps.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/IMGData.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/IMGData.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/Maps.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/Maps.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/MessageHandling.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/MessageHandling.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/PortHandling.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/PortHandling.hpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Backbone/Server.cpp">
+			<Option virtualFolder="Backbone/" />
+		</Unit>
+		<Unit filename="Display/BDSub.cpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BDSub.hpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/dirent.h">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/main.cpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/maintab.cpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/maintab.h">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/mainwindow.cpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/mainwindow.h">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/model.cpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/model.h">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/viewcontroller.cpp">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/BigDog/viewcontroller.h">
+			<Option virtualFolder="Display/BigDog/" />
+		</Unit>
+		<Unit filename="Display/Test/CMakeLists.txt">
+			<Option virtualFolder="Display/Test/" />
+		</Unit>
+		<Unit filename="Display/Test/TestBDSub.cpp">
+			<Option virtualFolder="Display/Test/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PSSub.cpp">
+			<Option virtualFolder="EmergentSearch/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PSSub.hpp">
+			<Option virtualFolder="EmergentSearch/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/main.cpp">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/maintab.cpp">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/maintab.h">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/mainwindow.cpp">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/mainwindow.h">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/model.cpp">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/model.h">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/util.cpp">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/util.h">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/viewcontroller.cpp">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="EmergentSearch/PopUpStalker/viewcontroller.h">
+			<Option virtualFolder="EmergentSearch/PopUpStalker/" />
+		</Unit>
+		<Unit filename="ImagePush/CMakeLists.txt">
+			<Option virtualFolder="ImagePush/" />
+		</Unit>
+		<Unit filename="ImagePush/FilePush/Test/TestFilePush.cpp">
+			<Option virtualFolder="ImagePush/FilePush/" />
+		</Unit>
+		<Unit filename="ImagePush/FilePush/file_push.cpp">
+			<Option virtualFolder="ImagePush/FilePush/" />
+		</Unit>
+		<Unit filename="ImagePush/FilePush/file_push.hpp">
+			<Option virtualFolder="ImagePush/FilePush/" />
+		</Unit>
+		<Unit filename="ImagePush/FolderPush/Test/TestFolderPush.cpp">
+			<Option virtualFolder="ImagePush/FolderPush/" />
+		</Unit>
+		<Unit filename="ImagePush/FolderPush/folder_push.cpp">
+			<Option virtualFolder="ImagePush/FolderPush/" />
+		</Unit>
+		<Unit filename="ImagePush/FolderPush/folder_push.hpp">
+			<Option virtualFolder="ImagePush/FolderPush/" />
+		</Unit>
+		<Unit filename="ImagePush/FolderWatch/Test/TestFolderWatch.cpp">
+			<Option virtualFolder="ImagePush/FolderWatch/" />
+		</Unit>
+		<Unit filename="ImagePush/FolderWatch/folder_watch.cpp">
+			<Option virtualFolder="ImagePush/FolderWatch/" />
+		</Unit>
+		<Unit filename="ImagePush/FolderWatch/folder_watch.hpp">
+			<Option virtualFolder="ImagePush/FolderWatch/" />
+		</Unit>
+		<Unit filename="ImagePush/stub_push.cpp">
+			<Option virtualFolder="ImagePush/" />
+		</Unit>
+		<Unit filename="ImagePush/stub_push.hpp">
+			<Option virtualFolder="ImagePush/" />
+		</Unit>
+		<Unit filename="Orthorect/CMakeLists.txt">
+			<Option virtualFolder="Orthorect/" />
+		</Unit>
+		<Unit filename="Orthorect/Test/CMakeLists.txt">
+			<Option virtualFolder="Orthorect/Test/" />
+		</Unit>
+		<Unit filename="Orthorect/Test/TestOrthorect.cpp">
+			<Option virtualFolder="Orthorect/Test/" />
+		</Unit>
+		<Unit filename="Orthorect/stub_orthorect.cpp">
+			<Option virtualFolder="Orthorect/" />
+		</Unit>
+		<Unit filename="Orthorect/stub_orthorect.hpp">
+			<Option virtualFolder="Orthorect/" />
+		</Unit>
+		<Unit filename="Publish/CMakeLists.txt">
+			<Option virtualFolder="Publish/" />
+		</Unit>
+		<Unit filename="Publish/Publish.cpp">
+			<Option virtualFolder="Publish/" />
+		</Unit>
+		<Unit filename="Publish/Publish.hpp">
+			<Option virtualFolder="Publish/" />
+		</Unit>
+		<Unit filename="Publish/Test/CMakeLists.txt">
+			<Option virtualFolder="Publish/Test/" />
+		</Unit>
+		<Unit filename="Publish/Test/TestPublish.cpp">
+			<Option virtualFolder="Publish/Test/" />
+		</Unit>
+		<Unit filename="Recognition/CMakeLists.txt">
+			<Option virtualFolder="Recognition/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/Classifier2014/colorclassifier2014.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/ColorClass2014/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/Classifier2014/colorclassifier2014.hpp">
+			<Option virtualFolder="Recognition/ColorClassification/ColorClass2014/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/PythonColorClassifier/CPlusPlus_Heimdall_Interface/PythonColorClassifier.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/PythonColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/PythonColorClassifier/CPlusPlus_Heimdall_Interface/PythonColorClassifier.hpp">
+			<Option virtualFolder="Recognition/ColorClassification/PythonColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/PythonColorClassifier/CPlusPlus_Heimdall_Interface/PythonColorClassifier_ModuleInterface.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/PythonColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/PythonColorClassifier/CPlusPlus_Heimdall_Interface/PythonColorClassifier_ModuleInterface.hpp">
+			<Option virtualFolder="Recognition/ColorClassification/PythonColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/PythonColorClassifier/ExampleStub/Test/TestExampleColorClassifier.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/PythonColorClassification/Test/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/stub_colorclassifier.cpp">
+			<Option virtualFolder="Recognition/ColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/ColorClassifier/stub_colorclassifier.hpp">
+			<Option virtualFolder="Recognition/ColorClassification/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/CMakeLists.txt">
+			<Option virtualFolder="Recognition/OCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/GOCR/GOCR_BackboneInterface.cpp">
+			<Option virtualFolder="Recognition/OCR/GOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/GOCR/GOCR_BackboneInterface.hpp">
+			<Option virtualFolder="Recognition/OCR/GOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/GOCR/ocr_algorithm_gocr.cpp">
+			<Option virtualFolder="Recognition/OCR/GOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/GOCR/ocr_algorithm_gocr.hpp">
+			<Option virtualFolder="Recognition/OCR/GOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/ocr_algorithm_template.cpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/ocr_algorithm_template.hpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/ocr_module_main.cpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/ocr_module_main.hpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/ocr_results.cpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/ocr_results.hpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/test_data_results_ocr.cpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/OCRUtils/test_data_results_ocr.hpp">
+			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.cpp">
+			<Option virtualFolder="Recognition/OCR/TesseractOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp">
+			<Option virtualFolder="Recognition/OCR/TesseractOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/TesseractOCR/ocr_algorithm_tesseract.cpp">
+			<Option virtualFolder="Recognition/OCR/TesseractOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/TesseractOCR/ocr_algorithm_tesseract.hpp">
+			<Option virtualFolder="Recognition/OCR/TesseractOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/stub_ocr.cpp">
+			<Option virtualFolder="Recognition/OCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/stub_ocr.hpp">
+			<Option virtualFolder="Recognition/OCR/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/CMakeLists.txt">
+			<Option virtualFolder="Recognition/Segmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/ClusterSegmentation/CMakeLists.txt">
+			<Option virtualFolder="Recognition/Segmentation/ClusterSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/ClusterSegmentation/ClusterSegMain.cpp">
+			<Option virtualFolder="Recognition/Segmentation/ClusterSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/ClusterSegmentation/ClusterSegMain.hpp">
+			<Option virtualFolder="Recognition/Segmentation/ClusterSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/ClusterSegmentation/ClusterSeg_BackboneInterface.cpp">
+			<Option virtualFolder="Recognition/Segmentation/ClusterSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/ClusterSegmentation/ClusterSeg_BackboneInterface.hpp">
+			<Option virtualFolder="Recognition/Segmentation/ClusterSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation.cpp">
+			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation.hpp">
+			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation_ModuleInterface.cpp">
+			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation_ModuleInterface.hpp">
+			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/PythonSegmentation/MonalSegmentation/CPP_KmeansWithMask/KmeansPP_BPythonInterface.cpp">
+			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/SegmentationSettings.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/SegmentationUtils.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/SegmentationUtils.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_CSEG_MultiReturn.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_CSEG_MultiReturn.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_CSEG_SSEG_Merger.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_CSEG_SSEG_Merger.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_SSEG_MultiReturn.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_SSEG_MultiReturn.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_SSEG_and_CSEG_and_Merger.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/Segmentation_SSEG_and_CSEG_and_Merger.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/SkynetSeg_BackboneInterface.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobContour.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobContour.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobLibraryConfiguration.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobOperators.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobOperators.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobResult.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_BlobResult.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_ColorBlob.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_ColorBlob.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_ComponentLabeling.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_ComponentLabeling.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_HistogramSegmenter.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_HistogramSegmenter.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_SegmenterTemplate.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_Segmenter_SingleImageReturn.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_Segmenter_SingleImageReturn.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_VisionUtil.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_VisionUtil.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_blob.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/skynet_blob.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/test_data_results_segmentation.cpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/SkynetSegmentation/test_data_results_segmentation.hpp">
+			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/stub_seg.cpp">
+			<Option virtualFolder="Recognition/Segmentation/" />
+		</Unit>
+		<Unit filename="Recognition/Segmentation/stub_seg.hpp">
+			<Option virtualFolder="Recognition/Segmentation/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_BackboneInterface.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_BackboneInterface.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_ModuleMain.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_ModuleMain.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_SingleImgAlg_Turning.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_SingleImgAlg_Turning.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_SingleImgAlg_template.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_Results.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_Results.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_TurningAlgorithm.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/Shaperec_Utils_TurningAlgorithm.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/test_data_results_shaperec.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/PolygonShapeRec/test_data_results_shaperec.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/PolygonSRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/stub_srec.cpp">
+			<Option virtualFolder="Recognition/ShapeRec/" />
+		</Unit>
+		<Unit filename="Recognition/ShapeRec/stub_srec.hpp">
+			<Option virtualFolder="Recognition/ShapeRec/" />
+		</Unit>
+		<Unit filename="Recognition/Test/CMakeLists.txt">
+			<Option virtualFolder="Recognition/Test/" />
+		</Unit>
+		<Unit filename="Recognition/Test/TestStubOCR.cpp">
+			<Option virtualFolder="Recognition/Test/" />
+		</Unit>
+		<Unit filename="Recognition/Test/TestTemplateSRec.cpp">
+			<Option virtualFolder="Recognition/Test/" />
+		</Unit>
+		<Unit filename="Recognition/Test/TestTessOCR.cpp">
+			<Option virtualFolder="Recognition/Test/" />
+		</Unit>
+		<Unit filename="Saliency/BlobSaliency/Test/TestBlobSaliency.cpp">
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/BlobSaliency/blob_saliency.cpp">
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/BlobSaliency/blob_saliency.hpp">
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/BlobSaliency/blob_saliency_module.cpp">
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/BlobSaliency/blob_saliency_module.hpp">
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/BlobSaliency/blob_saliency_module_template.hpp">
+			<Option virtualFolder="Saliency/BlobSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/CalculateSaliencyExperimentResults.cpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="Saliency/OptimizeableSaliency.cpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="Saliency/OptimizeableSaliency.hpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/Canny3D_BPythonInterface.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/canny_modified_from_v2_4_9.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/canny_modified_from_v2_4_9.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/precomp_v2_4_9.hpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/OptimizeCanny3D.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/Test/" />
+		</Unit>
+		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/TestPythonCanny3D.cpp">
+			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/Test/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.cpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/SaliencyResultsTruthTester.hpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+		</Unit>
+		<Unit filename="Saliency/ResultsTruthTester/tester_main.cpp">
+			<Option virtualFolder="Saliency/ResultsTruthTester/" />
+		</Unit>
+		<Unit filename="Saliency/SSaliency/Test/TestSSaliency.cpp">
+			<Option virtualFolder="Saliency/SSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SSaliency/saliency_module_C_SBD.cpp">
+			<Option virtualFolder="Saliency/SSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SSaliency/saliency_module_C_SBD.hpp">
+			<Option virtualFolder="Saliency/SSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SSaliency/saliency_module_template.hpp">
+			<Option virtualFolder="Saliency/SSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SSaliency/ssaliency.cpp">
+			<Option virtualFolder="Saliency/SSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SSaliency/ssaliency.hpp">
+			<Option virtualFolder="Saliency/SSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/ProcessingClass.cpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/ProcessingClass.hpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/Test/OptimizeSpectralResidualSaliency.cpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/Test/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/Test/TestSpectralResidualSaliency.cpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/Test/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/modifiedSpectralResidualSaliency.cpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/modifiedSpectralResidualSaliency.hpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/spectral_residual_saliency_module.cpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/SpectralResidualSaliency/spectral_residual_saliency_module.hpp">
+			<Option virtualFolder="Saliency/SpectralResidualSaliency/" />
+		</Unit>
+		<Unit filename="Saliency/stub_saliency.cpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="Saliency/stub_saliency.hpp">
+			<Option virtualFolder="Saliency/" />
+		</Unit>
+		<Unit filename="SharedUtils/CMakeLists.txt">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/EnableKeyPressToExit.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/EnableKeyPressToExit.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/GlobalVars.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/OS_FolderBrowser_tinydir.h">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/PythonCVMatConvert.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/PythonCVMatConvert.h">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/PythonUtils.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/PythonUtils.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/SharedUtils.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/SharedUtils.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/SharedUtils_OpenCV.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/SharedUtils_OpenCV.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/SharedUtils_RNG.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/CMakeLists.txt">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/DBSCAN.cpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/DBSCAN.hpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/DBSCAN_NonEuclidean.cpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/DBSCAN_NonEuclidean.hpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/clustering.cpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/clustering.hpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/kmeans.cpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/kmeans.hpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/kmeansplusplus.cpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering/kmeansplusplus.hpp">
+			<Option virtualFolder="SharedUtils/clustering/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering_opencv.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/clustering_opencv.hpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/cvplot.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/cvplot.h">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/MetropolisMonteCarlo.cpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/MetropolisMonteCarlo.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/OptimizeableModule.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/Optimizer.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/SimulatedAnnealing.cpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/SimulatedAnnealing.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/experimentUtils.cpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="SharedUtils/optimization/experimentUtils.hpp">
+			<Option virtualFolder="SharedUtils/optimization/" />
+		</Unit>
+		<Unit filename="TruthViewer/CMakeLists.txt">
+			<Option virtualFolder="TruthViewer/" />
+		</Unit>
+		<Unit filename="TruthViewer/TruthFile.cpp">
+			<Option virtualFolder="TruthViewer/" />
+		</Unit>
+		<Unit filename="TruthViewer/TruthFile.hpp">
+			<Option virtualFolder="TruthViewer/" />
+		</Unit>
+		<Unit filename="TruthViewer/TruthViewer.cpp">
+			<Option virtualFolder="TruthViewer/" />
+		</Unit>
+		<Unit filename="Verification/DisplayVerif/Test/test_display_verif.cpp">
+			<Option virtualFolder="Verification/" />
+		</Unit>
+		<Unit filename="Verification/DisplayVerif/display_verif.cpp">
+			<Option virtualFolder="Verification/DisplayVerif/" />
+		</Unit>
+		<Unit filename="Verification/DisplayVerif/display_verif.hpp">
+			<Option virtualFolder="Verification/DisplayVerif/" />
+		</Unit>
+		<Unit filename="Verification/ExperimentVerif/experiment_verif.cpp">
+			<Option virtualFolder="Verification/ExperimentVerif/" />
+		</Unit>
+		<Unit filename="Verification/ExperimentVerif/experiment_verif.hpp">
+			<Option virtualFolder="Verification/ExperimentVerif/" />
+		</Unit>
+		<Unit filename="Verification/PlaneVerif/plane_verif.cpp">
+			<Option virtualFolder="Verification/PlaneVerif/" />
+		</Unit>
+		<Unit filename="Verification/PlaneVerif/plane_verif.hpp">
+			<Option virtualFolder="Verification/PlaneVerif/" />
+		</Unit>
+		<Unit filename="Verification/PythonVerif/CPlusPlus_Heimdall_Interface/PythonVerif.cpp">
+			<Option virtualFolder="Verification/PythonVerif/" />
+		</Unit>
+		<Unit filename="Verification/PythonVerif/CPlusPlus_Heimdall_Interface/PythonVerif.hpp">
+			<Option virtualFolder="Verification/PythonVerif/" />
+		</Unit>
+		<Unit filename="Verification/PythonVerif/CPlusPlus_Heimdall_Interface/PythonVerif_ModuleInterface.cpp">
+			<Option virtualFolder="Verification/PythonVerif/" />
+		</Unit>
+		<Unit filename="Verification/PythonVerif/CPlusPlus_Heimdall_Interface/PythonVerif_ModuleInterface.hpp">
+			<Option virtualFolder="Verification/PythonVerif/" />
+		</Unit>
+		<Unit filename="Verification/PythonVerif/MultiLookAggregator/CPP_DBSCAN_Clustering/DBSCAN_BPythonInterface.cpp">
+			<Option virtualFolder="Verification/PythonVerif/MultiLookAggregator/" />
+		</Unit>
+		<Unit filename="Verification/stub_verif.cpp">
+			<Option virtualFolder="Verification/" />
+		</Unit>
+		<Unit filename="Verification/stub_verif.hpp">
+			<Option virtualFolder="Verification/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
