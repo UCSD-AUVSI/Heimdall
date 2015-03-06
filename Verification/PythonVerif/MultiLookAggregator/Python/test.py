@@ -1,4 +1,4 @@
-import main
+from main import *
 #Main method call
 doVerif(0, "Teal"  , "Triangle"     ,1.0, 0, "Teal"  ,["I"],[1.0], 38.145014, -76.424933, 0, 0)
 doVerif(0, "Teal"  , "Triangle"     ,1.0, 0, "Teal"  ,[""],[1.0], 38.144964, -76.424901, 0, 0)
