@@ -38,13 +38,40 @@ void OptimizeableSaliency_Params::Print(std::ostream & printHere)
 	printHere<<")"<<endl;
 }
 
-void OptimizeableSaliency_Params::GenerateNewArgs(double arg)
+void OptimizeableSaliency_Params::GenerateNewArgs(double arg, bool fullRange)
 {
 	assert(params.size() == paramsStepSizes.size());
-	for(int ii=0; ii<params.size(); ii++) {
-		params[ii] += RNG::rand_double_static(-1.0*paramsStepSizes[ii], paramsStepSizes[ii]);
+	
+	if(fullRange) {
+		std::vector<double> const* argsMin = nullptr;
+		std::vector<double> const* argsMax = nullptr;
+		GetArgConstraints(argsMin, argsMax);
+		assert(argsMin != nullptr && argsMax != nullptr);
+		
+		if(arg > 0.0) {
+			for(int ii=0; ii<params.size(); ii++) {
+				double arghalfdiff = 0.5*((*argsMax)[ii] - (*argsMin)[ii]);
+				params[ii] += RNG::rand_double_static(-1.0*arg*arghalfdiff, arg*arghalfdiff);
+			}
+			ConstrainArgs();
+		} else {
+			for(int ii=0; ii<params.size(); ii++) {
+				params[ii] = RNG::rand_double_static((*argsMin)[ii], (*argsMax)[ii]);
+			}
+		}
+		
+	} else {
+		if(arg > 0.0) {
+			for(int ii=0; ii<params.size(); ii++) {
+				params[ii] += RNG::rand_double_static(-1.0*arg*paramsStepSizes[ii], arg*paramsStepSizes[ii]);
+			}
+		} else {
+			for(int ii=0; ii<params.size(); ii++) {
+				params[ii] += RNG::rand_double_static(-1.0*paramsStepSizes[ii], paramsStepSizes[ii]);
+			}
+		}
+		ConstrainArgs();
 	}
-	ConstrainArgs();
 }
 
 //===============================================================================================
@@ -152,29 +179,29 @@ void OptimizeableSaliency_ResultsStats::CopyFromOther(Optimizer_ResultsStats con
 	(*this) = (*otherCasted);
 }
 
+
 double OptimizeableSaliency_ResultsStats::CalculateFitnessScore()
 {
-	double numerator = 0.0;
-	double denominator = 0.0;
-	const double TARGETSC = 1.0;
-	const double FALSEPSC = 1.0;
+	double perfect_successes_weighted =	 	((double)(DesiredTarget_Successes                 +DesiredFalseP_Successes))
+									+ 0.7 *	((double)(DesiredTarget_CloseFailures_MinorPadding+DesiredFalseP_CloseFailures_MinorPadding))
+									+ 0.35*	((double)(DesiredTarget_CloseFailures_PartialCrop +DesiredFalseP_CloseFailures_PartialCrop))
+									+ 0.08*	((double)(DesiredTarget_CloseFailures_FarTooBig   +DesiredFalseP_CloseFailures_FarTooBig));
 	
-	numerator += TARGETSC*1.0*((double)(DesiredTarget_Successes));
-	numerator += FALSEPSC*1.0*((double)(DesiredFalseP_Successes));
+	//fix divide-by-zero errors
+	perfect_successes_weighted = MAX(1e-6, perfect_successes_weighted);
 	
-	numerator += TARGETSC*0.7*((double)DesiredTarget_CloseFailures_MinorPadding);
-	numerator += FALSEPSC*0.7*((double)DesiredFalseP_CloseFailures_MinorPadding);
+	double perfect_precis = perfect_successes_weighted / ((double)( NumReturnedCrops ));
+	double perfect_recall = perfect_successes_weighted / ((double)(Truth_DesiredTargets + Truth_DesiredFalsePs));
 	
-	numerator += TARGETSC*0.35*((double)DesiredTarget_CloseFailures_PartialCrop);
-	numerator += FALSEPSC*0.35*((double)DesiredFalseP_CloseFailures_PartialCrop);
+	double recall_weight    = 2.5; //recall is 2.5x as important as precision
+	double precision_weight = 1.0;
 	
-	numerator += TARGETSC*0.08*((double)DesiredTarget_CloseFailures_FarTooBig);
-	numerator += FALSEPSC*0.08*((double)DesiredFalseP_CloseFailures_FarTooBig);
-	
-	denominator = 1.0 + ((double)(MAX(Total_NothingUsefulFailures, DEFAULT_ALLOWED_NUM_FALSE_POSITIVES)));
-	
-	return pow(numerator,5.5) / pow(denominator, 0.3);
+	/*
+		Return weighted harmonic mean of precision and recall
+	*/
+	return (recall_weight+precision_weight) / ((recall_weight/perfect_recall) + (precision_weight/perfect_precis));
 }
+
 
 void OptimizeableSaliency_ResultsStats::Print(std::ostream & printHere, bool more_detailed)
 {

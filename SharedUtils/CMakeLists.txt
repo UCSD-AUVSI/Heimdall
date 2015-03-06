@@ -31,6 +31,8 @@ add_subdirectory(optimization)
 add_subdirectory(gocr)
 add_subdirectory(clustering)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 add_library(EnableKeyPressToExit ${EnableKeyPressToExit_source_files})
 add_library(sharedutils ${sharedutils_source_files})
 add_library(sharedutilspython SHARED ${sharedutilspython_source_files})

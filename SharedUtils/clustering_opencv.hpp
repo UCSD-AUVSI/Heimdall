@@ -67,6 +67,10 @@ std::vector<ClusterablePoint*>* WrapClusterablePointsToCVColors(std::vector<myCo
 std::vector<ClusterablePoint*>* GetSetOfPixelColors_3Df(cv::Mat* image);
 
 
+/// get masked pixels in an image as 'ClusterablePoint's
+std::vector<ClusterablePoint*>* GetSetOfPixelColors_WithMask_3Df(cv::Mat* image, cv::Mat* mask_CV_8U_type);
+
+
 /// convert clustered pixels back to an image that displays the clusters by their colors
 /// modifies the original image, so you should have made a copy of it before clustering it
 cv::Mat GetClusteredImage_3Df(const std::vector<std::vector<ClusterablePoint*>> & clusters,

@@ -43,9 +43,11 @@ class SimulatedAnnealing : public Optimizer_MainAlgorithm
 		or perhaps looking at the ratio (avg +dE)/(avg |-dE|) and seeing when it is approx. <= 1
 	*/
 	
+	double warmedUpTemperature;
+	
 public:
-	virtual void InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_Data * givenData);
-	virtual void DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Optimizer_Data * givenData);
+	virtual void InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
+	virtual void DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
 };
 
 #endif

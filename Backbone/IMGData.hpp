@@ -43,7 +43,10 @@ struct imgdata_t{
 	uint8_t scolorR, scolorG, scolorB;
 	uint8_t ccolorR, ccolorG, ccolorB;
 	std::string scolor, ccolor;
-
+	
+	double shapeconfidence;
+	double charconfidence;
+	
 	double planelat, planelongt, planealt;
     double planeroll, planepitch, planeheading; // Heading: Radians
 	double targetlat, targetlongt;
@@ -57,17 +60,17 @@ struct imgdata_t{
 		initialized(false),
 		name_of_original_image_file_for_debugging(""),
 		num_crops_in_this_image(0),
-
+		
 		image_data(nullptr),
 		sseg_image_data(nullptr),
 		cseg_image_data(nullptr),
-	
+		
 		image_data_size(0),
 		sseg_image_sizes(nullptr),
 		cseg_image_sizes(nullptr),
 		sseg_image_size_count(0),
 		cseg_image_size_count(0),
-
+		
 		orthorectDone(false),
 		saliencyDone(false),
 		segDone(false),
@@ -78,12 +81,14 @@ struct imgdata_t{
 		
 		scolorR(0), scolorG(0), scolorB(0),
 		ccolorR(0), ccolorG(0), ccolorB(0),
-	
+		
 		shape(""),
 		character(""),
 		scolor(""),
 		ccolor(""),
-
+		shapeconfidence(0.0),
+		charconfidence(0.0),
+		
 		planelat(-1.0),
 		planelongt(-1.0),
 		planealt(-1.0),
@@ -93,7 +98,7 @@ struct imgdata_t{
 		targetlat(-1.0),
 		targetlongt(-1.0),
 		targetorientation(-1.0),
-
+		
         next(nullptr)
 		{}
 };

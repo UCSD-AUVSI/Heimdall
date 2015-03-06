@@ -3,6 +3,8 @@ set(optimization_experiments_source_files
 	experimentUtils.hpp
 	MetropolisMonteCarlo.cpp
 	MetropolisMonteCarlo.hpp
+	SimulatedAnnealing.cpp
+	SimulatedAnnealing.hpp
 	)
 
 add_library(optimization ${optimization_experiments_source_files})

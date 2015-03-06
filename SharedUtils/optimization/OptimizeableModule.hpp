@@ -22,7 +22,7 @@ public:
 	virtual void CopyFromOther(Optimizer_Params const*const other) = 0;
 	
 	virtual void InitArgs() = 0;
-	virtual void GenerateNewArgs(double arg) = 0;
+	virtual void GenerateNewArgs(double arg, bool fullRange) = 0;
 	virtual void Print(std::ostream & printHere) = 0;
 };
 

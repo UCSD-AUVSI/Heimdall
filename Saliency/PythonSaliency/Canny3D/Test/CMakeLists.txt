@@ -15,10 +15,10 @@ target_link_libraries(testPythonCanny3Dsaliency pythonsaliency sharedutils ${ZER
 
 
 set(optimizepython3dcannysaliency_source_files
-    GeneticOptimizeCanny3D.cpp
+    OptimizeCanny3D.cpp
 	)
 
-add_executable(testGeneticOptimizeCanny3D ${optimizepython3dcannysaliency_source_files})
+add_executable(testOptimizeCanny3D ${optimizepython3dcannysaliency_source_files})
 
-target_link_libraries(testGeneticOptimizeCanny3D pythonsaliency sharedutils optimization SaliencyResultsTruthTesterLibrary EnableKeyPressToExit ${ZEROMQ_LIBRARIES})
+target_link_libraries(testOptimizeCanny3D pythonsaliency sharedutils optimization SaliencyResultsTruthTesterLibrary EnableKeyPressToExit ${ZEROMQ_LIBRARIES})
 

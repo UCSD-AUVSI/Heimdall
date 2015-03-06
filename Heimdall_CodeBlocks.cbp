@@ -358,6 +358,9 @@
 		<Unit filename="Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation_ModuleInterface.hpp">
 			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
 		</Unit>
+		<Unit filename="Recognition/Segmentation/PythonSegmentation/MonalSegmentation/CPP_KmeansWithMask/KmeansPP_BPythonInterface.cpp">
+			<Option virtualFolder="Recognition/Segmentation/PythonSegmentation/" />
+		</Unit>
 		<Unit filename="Recognition/Segmentation/SkynetSegmentation/SegmentationSettings.hpp">
 			<Option virtualFolder="Recognition/Segmentation/SkynetSegmentation/" />
 		</Unit>
@@ -577,7 +580,7 @@
 		<Unit filename="Saliency/PythonSaliency/Canny3D/CPP_Canny3DBoostPyLib/precomp_v2_4_9.hpp">
 			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/" />
 		</Unit>
-		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/GeneticOptimizeCanny3D.cpp">
+		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/OptimizeCanny3D.cpp">
 			<Option virtualFolder="Saliency/PythonSaliency/Canny3D/Test/" />
 		</Unit>
 		<Unit filename="Saliency/PythonSaliency/Canny3D/Test/TestPythonCanny3D.cpp">
