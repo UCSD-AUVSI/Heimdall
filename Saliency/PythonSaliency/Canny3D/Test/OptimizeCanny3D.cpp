@@ -34,6 +34,8 @@ static std::string GetPathToTestExecutable(const char* argv0) {
 
 class OptimizingState_C3D : public OptimizeableSaliency_Params
 {
+	std::vector<double> paramsMins;
+	std::vector<double> paramsMaxs;
 public:
 	OptimizingState_C3D() : OptimizeableSaliency_Params() {InitArgs();}
 	
@@ -42,6 +44,8 @@ public:
 	{
 		params.resize(4);
 		paramsStepSizes.resize(4);
+		paramsMins.resize(4);
+		paramsMaxs.resize(4);
 		
 		params[0] = 101.558; //cThreshLow
 		params[1] = 85.8787; //cHighRatioTimes5
@@ -52,6 +56,12 @@ public:
 		paramsStepSizes[1] = 3.4;
 		paramsStepSizes[2] = 1.1;
 		paramsStepSizes[3] = 0.9;
+		
+		paramsMins[0] = 10.0;	paramsMaxs[0] = 1000.0;
+		paramsMins[1] = 1.001;	paramsMaxs[1] = 200.0;
+		paramsMins[2] = 3.0;	paramsMaxs[2] = 16.0;
+		paramsMins[3] = 9.0;	paramsMaxs[3] = 31.0;
+		
 	}
 	virtual void ConstrainArgs()
 	{		
@@ -59,6 +69,11 @@ public:
 		params[1] = CLAMP(params[1], 1.001, 200.0);
 		params[2] = CLAMP(params[2], 3.0, 16.0);
 		params[3] = CLAMP(params[3], 9.0, 31.0);
+	}
+	virtual void GetArgConstraints(std::vector<double> const*& mins, std::vector<double> const*& maxs)
+	{
+		mins = &paramsMins;
+		maxs = &paramsMaxs;
 	}
 };
 

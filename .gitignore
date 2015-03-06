@@ -2,3 +2,7 @@
 tags
 # Ignore everything in build folder except for the template shapes for shaperec
 build/*
+
+#ignore Code::Blocks' unnecessary files
+Heimdall_CodeBlocks.layout
+Heimdall_CodeBlocks.depend

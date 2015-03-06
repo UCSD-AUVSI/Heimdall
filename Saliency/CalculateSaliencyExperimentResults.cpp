@@ -23,6 +23,7 @@ Optimizer_ResultsStats * OptimizeableSaliency_Output::CalculateResults()
 	
 	OptimizeableSaliency_ResultsStats * results = new OptimizeableSaliency_ResultsStats();
 	
+	results->NumReturnedCrops = NumCrops();
 	
 	TruthFile loadedTruthFile;
 	if(LoadTruthFile(*OptimizeableSaliency_TruthFilename, loadedTruthFile) == false) {

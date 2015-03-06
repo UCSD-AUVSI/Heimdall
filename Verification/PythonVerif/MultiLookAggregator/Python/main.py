@@ -12,7 +12,6 @@ import pydbscancpplib
 from collections import Counter
 
 
-
 def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, ShapeNameConfidence, CharColorVals, CharColorStr, CharNames, CharNameConfidences, TargetLat, TargetLong, TargetOrientation, askFJorClusrters):
     
     # create the new target

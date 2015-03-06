@@ -54,7 +54,7 @@ static void low_thresh_hysteresis_for_blobs(cv::Mat & floatSaliencyMap,
 		}
 		for(auto mapiter = blob_threshes.begin(); mapiter != blob_threshes.end(); mapiter++) {
 			mapiter->second *= args.centerSurroundThreshold_hystlow_FRACTION;
-			cout<<"threshold for blob "<<to_istring(mapiter->first)<<" is "<<(mapiter->second)<<endl;
+			consoleOutput.Level2()<<"threshold for blob "<<to_istring(mapiter->first)<<" is "<<(mapiter->second)<<endl;
 		}
 		
 		//###################################################################################
@@ -149,7 +149,7 @@ static void binarize_static_saliency_image(cv::Mat & rawSaliencyMap,
 	//--------------------------------------------
 	double minVal,maxVal;
 	cv::minMaxLoc(gblur_small, &minVal, &maxVal);
-	cout<<"SpectralSaliency -- gblur_small -- max == "<<maxVal<<endl;
+	consoleOutput.Level2()<<"SpectralSaliency -- gblur_small -- max == "<<maxVal<<endl;
 	if(centerSurroundIntermediate != nullptr) {
 		gblur_small.copyTo(*centerSurroundIntermediate);
 	}
@@ -308,7 +308,7 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
 			
 			double b_length = sqrt(b_wid*b_hei);
 			
-			cout<<"potential target "<<to_istring(ii)<<" has length scale "<<b_length<<endl;
+			consoleOutput.Level2()<<"potential target "<<to_istring(ii)<<" has length scale "<<b_length<<endl;
 			
 			if(b_length >= args.minTargetLength && b_length <= args.maxTargetLength)
 			{

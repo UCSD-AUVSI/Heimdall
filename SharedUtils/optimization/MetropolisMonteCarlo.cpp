@@ -8,9 +8,15 @@ using std::cout; using std::endl;
 #include <thread>
 #include <chrono>
 
+/*
+	Tries to maximize the fitness score
+*/
+
 
 void Optimizer_MCMC::InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData)
 {
+	cout<<"~~~~~~~~ Optimizer_MCMC::InitialWarmup()"<<endl;
+	
 	assert(givenModule != nullptr);
 	assert(givenData != nullptr);
 	EnableKeyPressToExit(false);
@@ -54,7 +60,7 @@ void Optimizer_MCMC::InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_
 			cout<<"=============================== starting experiment number "<<(++numLoops)<<endl;
 			if(firstLoop == false) {
 				previous_params->CopyFromOther(latest_params);
-				latest_params->GenerateNewArgs(negtrials_adjuster.getTemperature());
+				latest_params->GenerateNewArgs(-1.0, false);//negtrials_adjuster.getTemperature());
 			}
 		}
 		
