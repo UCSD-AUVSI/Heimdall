@@ -21,7 +21,9 @@ set(CMAKE_AUTOMOC ON)
 add_executable(BigDog ${bigdog_source_files})
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(BigDog Qt5::Widgets)
+target_link_libraries(BigDog
+				Qt5::Widgets
+    				${PTHREAD_LIB})
 #target_link_libraries(BigDog Qt5Widgets)
 #target_link_libraries(BigDog Qt5Gui)
 #target_link_libraries(BigDog Qt5Core)

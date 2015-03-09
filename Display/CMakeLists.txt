@@ -11,6 +11,7 @@ target_link_libraries(
     BDSub 
     backbone 
     sharedutils
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )

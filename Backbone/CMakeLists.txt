@@ -45,12 +45,13 @@ target_link_libraries(
     seg
     ocr
     shaperec
-	colorclass
+    colorclass
     guirec
     guisaliency
     imagepush
     publish
     verification
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )
@@ -58,6 +59,7 @@ target_link_libraries(
     HServer
     server
     backbone
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )
