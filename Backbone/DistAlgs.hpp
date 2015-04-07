@@ -30,6 +30,7 @@
 #include "Recognition/OCR/stub_ocr.hpp"
 #include "Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp"
 #include "Recognition/OCR/GOCR/GOCR_BackboneInterface.hpp"
+#include "Recognition/OCR/PythonOCR/CPlusPlus_Heimdall_Interface/PythonOCR_ModuleInterface.hpp"
 
 #include "Recognition/ColorClassifier/stub_colorclassifier.hpp"
 #include "Recognition/ColorClassifier/Classifier2014/colorclassifier2014.hpp"

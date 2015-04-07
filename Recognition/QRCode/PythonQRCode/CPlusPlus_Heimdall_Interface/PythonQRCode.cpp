@@ -89,7 +89,7 @@ void PythonQRCodeClass::ProcessQRCode(cv::Mat inputCropImage,
 		}
 		else {
 			try {
-				resultobj = pythoncvfunctionhandle(givenImgPyObj);
+				resultobj = pythoncvfunctionhandle(givenImgPyObj, bp::object());
 			}
 			catch(bp::error_already_set) {
 				std::cout << "pythonQRCode ERROR: error when running python file \"" << pythonFilename << "\"! PYTHON ERROR REPORT:" << std::endl;

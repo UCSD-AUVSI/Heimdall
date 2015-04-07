@@ -26,7 +26,7 @@ void PythonQRCodeModuleInterface :: execute(imgdata_t *imdata, std::string args)
 		std::cout << "ERROR: NO PYTHON MODULE GIVEN TO RUN!" << std::endl;
 		std::cout	<< "  When running a Heimdall client with PythonQRCode, " << std::endl
 					<< "  the name of the module must be given as an argument, i.e." << std::endl
-					<< "  --seg PYTHON_QRCODE [ExampleStub]" << std::endl
+					<< "  --qrcode PYTHON_QRCODE [ExampleStub]" << std::endl
 					<< "  if ExampleStub is the PythonQRCode module you wish to run." << std::endl;
 		failure = true;
 	}

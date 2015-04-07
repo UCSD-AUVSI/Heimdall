@@ -20,7 +20,7 @@ const std::map<std::string, std::vector<std::string>> alg_choice_map =
     {"seg",         {"SKYNET_SEG", "CLUSTER_SEG", "PYTHON_SEG", "STUB_SEG", "GUIREC", "NONE"}},
     {"qrcode",      {"PYTHON_QRCODE", "STUB_QRCODE", "NONE"}},
     {"srec",        {"POLYGON_SREC", "STUB_SREC", "NONE"}},
-    {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "NONE"}},
+    {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "PYTHON_OCR", "NONE"}},
     {"color",       {"COLOR2014", "STUB_COLOR", "PYTHON_COLORCLASS", "NONE"}},
     {"verif",       {"DISPLAY_VERIF", "PLANE_VERIF", "EXPERIMENT_VERIF", "PYTHON_VERIF", "STUB_VERIF", "NONE"}}
 };
@@ -50,13 +50,14 @@ const std::map<std::string, void (*)(imgdata_t *, std::string)> alg_func_map =
     
     {"PYTHON_QRCODE",       PythonQRCodeModuleInterface :: execute},
     {"STUB_QRCODE",         StubQRCode :: execute},
-
+	
     {"STUB_SREC",           StubSRec :: execute},
 	{"POLYGON_SREC",	    PolygonShapeRec :: execute},
-
+	
 	{"STUB_OCR", 		    StubOCR :: execute},
 	{"TESS_OCR", 		    TessOCR :: execute},
 	{"GOCR_OCR", 		    GOCRBackboneInterface :: execute},
+	{"PYTHON_OCR",          PythonOCRModuleInterface :: execute},
 
 	{"COLOR2014", 		    ColorClassifier2014 :: execute},
 	{"STUB_COLOR", 		    StubColorClassifier :: execute},
