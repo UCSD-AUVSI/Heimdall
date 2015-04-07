@@ -22,6 +22,8 @@ set(OptimizeSpectralResidualSaliency_source_files
 
 add_executable(testOptimizeSpectralResidualSaliency ${OptimizeSpectralResidualSaliency_source_files})
 
-target_link_libraries(testOptimizeSpectralResidualSaliency spectralsaliency optimization EnableKeyPressToExit ${ZEROMQ_LIBRARIES})
+target_link_libraries(testOptimizeSpectralResidualSaliency spectralsaliency optimization EnableKeyPressToExit
+    ${PTHREAD_LIB}
+    ${ZEROMQ_LIBRARIES})
 
 

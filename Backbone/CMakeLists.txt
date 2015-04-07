@@ -52,6 +52,7 @@ target_link_libraries(
     imagepush
     publish
     verification
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )
@@ -59,6 +60,7 @@ target_link_libraries(
     HServer
     server
     backbone
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )

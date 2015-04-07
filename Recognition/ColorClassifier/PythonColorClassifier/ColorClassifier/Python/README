@@ -1,0 +1,6 @@
+main.py contains the color classifier code for Heimdall
+color_db.py is a pickle of tagged colors
+test.py allows you to test main.py with random colors
+add_random presents a gui to allow you to tag random colors and place them in color_db
+get_add_random shows you what the system thinks and allows you to tag colors
+add_manual allows you to specify manual rgb values to add

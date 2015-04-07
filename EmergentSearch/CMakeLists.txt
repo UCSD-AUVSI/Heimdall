@@ -10,6 +10,7 @@ add_executable(PSSub ${pssub_source_files})
 target_link_libraries(
     PSSub 
     backbone 
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )
