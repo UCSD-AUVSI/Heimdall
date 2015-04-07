@@ -1,3 +1,3 @@
 add_subdirectory(CPlusPlus_Heimdall_Interface)
 add_subdirectory(ExampleStub)
-
+add_subdirectory(ConvolutionalNeuralNet)
