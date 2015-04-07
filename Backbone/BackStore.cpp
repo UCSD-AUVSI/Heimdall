@@ -16,6 +16,7 @@ std::mutex store_lock;
 static std::map<std::pair<int,int>, unsigned char *> store;
 
 bool img_check(imgdata_t *data){
+	//all of these must be done in order to continue to verification
     return (data->sDone == data->cDone && data->cDone == data->cclDone);
 }
 
@@ -32,6 +33,7 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
     first->orthorectDone    |= second->orthorectDone;
     first->saliencyDone     |= second->saliencyDone;
     first->segDone          |= second->segDone;
+    first->qrcDone          |= second->qrcDone;
     first->sDone            |= second->sDone;
     first->cDone            |= second->cDone;
     first->cclDone          |= second->cclDone;
@@ -41,6 +43,7 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
     saveLargerString(first->character, second->character);
     saveLargerString(first->scolor, second->scolor);
     saveLargerString(first->ccolor, second->ccolor);
+    saveLargerString(first->qrCodeMessage, second->qrCodeMessage);
     saveLargerString(first->name_of_original_image_file_for_debugging, second->name_of_original_image_file_for_debugging);
 }
 

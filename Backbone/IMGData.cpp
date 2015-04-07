@@ -14,9 +14,10 @@ void setDone(imgdata_t *data, AlgClass alg){
         case ORTHORECT:     data->orthorectDone = true;     break;
         case SALIENCY:      data->saliencyDone = true;      break;
         case SEG:           data->segDone = true;           break;
+        case QRCODE:        data->qrcDone = true;           break;
         case SREC:          data->sDone = true;             break;
         case OCR:           data->cDone = true;             break;
-        case COLORCLASS:    data->cclDone = true;             break;
+        case COLORCLASS:    data->cclDone = true;           break;
         case VERIF:         data->verified = true;          break;
     }
 }
@@ -26,6 +27,7 @@ void img_print(imgdata_t* data){
     cout << "ORTHORECTD: "      << data->orthorectDone << endl;
     cout << "SALD: "            << data->saliencyDone << endl;
     cout << "SEGD: "            << data->segDone << endl;
+    cout << "QRC: "             << data->qrcDone << endl;
     cout << "SD: "              << data->sDone << endl;
     cout << "CD: "              << data->cDone << endl;
     cout << "CCLD: "            << data->cclDone << endl;
