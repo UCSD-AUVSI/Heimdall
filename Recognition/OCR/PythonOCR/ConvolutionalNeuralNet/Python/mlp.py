@@ -80,7 +80,7 @@ class HiddenLayer(object):
         self.input = input
         # end-snippet-1
         
-        print("constructing fully-connected layer with "+str(n_in)+" inputs and "+str(n_out)+" outputs")
+        #print("constructing fully-connected layer with "+str(n_in)+" inputs and "+str(n_out)+" outputs")
         
         # `W` is initialized with `W_values` which is uniformely sampled
         # from sqrt(-6./(n_in+n_hidden)) and sqrt(6./(n_in+n_hidden))
