@@ -79,7 +79,9 @@ class HiddenLayer(object):
         """
         self.input = input
         # end-snippet-1
-
+        
+        print("constructing fully-connected layer with "+str(n_in)+" inputs and "+str(n_out)+" outputs")
+        
         # `W` is initialized with `W_values` which is uniformely sampled
         # from sqrt(-6./(n_in+n_hidden)) and sqrt(6./(n_in+n_hidden))
         # for tanh activation function
@@ -134,7 +136,8 @@ class HiddenLayer(object):
         fin.close()
 
 def ReLu(x):
-    return theano.tensor.switch(x<0, 0, x)
+    #return theano.tensor.switch(x<0, 0, x)
+    return 0.5 * (x + abs(x))
 
 def _dropout_from_layer(rng, layer, p):
     """p is the probablity of dropping a unit

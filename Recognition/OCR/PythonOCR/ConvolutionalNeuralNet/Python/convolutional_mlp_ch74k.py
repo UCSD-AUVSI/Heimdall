@@ -46,6 +46,7 @@ from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
 from logistic_sgd import LogisticRegression
+from DatasetsLoaders import send_host_datasets_to_device
 from DatasetsLoaders import load_chars74k
 from DatasetsLoaders import load_MNIST
 from mlp import HiddenLayer, DropoutHiddenLayer, _dropout_from_layer, _add_noise_to_input, ReLu
@@ -54,24 +55,22 @@ from mlp import HiddenLayer, DropoutHiddenLayer, _dropout_from_layer, _add_noise
 class LeNetConvPoolLayer(object):
 	"""Pool Layer of a convolutional network """
 
-	def __init__(self, rng, input, filter_shape, image_shape, poolsize=(2, 2)):
+	def __init__(self, rng, input, filter_shape, image_shape, activation, poolsize=(2, 2)):
 		"""
 		Allocate a LeNetConvPoolLayer with shared variable internal parameters.
-
+		
 		:type rng: numpy.random.RandomState
 		:param rng: a random number generator used to initialize weights
-
+		
 		:type input: theano.tensor.dtensor4
 		:param input: symbolic image tensor, of shape image_shape
-
+		
 		:type filter_shape: tuple or list of length 4
-		:param filter_shape: (number of filters, num input feature maps,
-							  filter height, filter width)
-
+		:param filter_shape: (number of filters, num input feature maps, filter height, filter width)
+		
 		:type image_shape: tuple or list of length 4
-		:param image_shape: (batch size, num input feature maps,
-							 image height, image width)
-
+		:param image_shape: (batch size, num input feature maps, image height, image width)
+		
 		:type poolsize: tuple or list of length 2
 		:param poolsize: the downsampling (pooling) factor (#rows, #cols)
 		"""
@@ -79,14 +78,16 @@ class LeNetConvPoolLayer(object):
 		assert image_shape[1] == filter_shape[1]
 		self.input = input
 		
+		outpimsize = (image_shape[3] - filter_shape[3] + 1)
+		print("constructing LeNetConvPoolLayer... image_shape == "+str(image_shape)+", filter_shape == "+str(filter_shape)+", num outputs == "+str(filter_shape[0]*outpimsize*outpimsize/(poolsize[0]*poolsize[1])))
+		
 		# there are "num input feature maps * filter height * filter width"
 		# inputs to each hidden unit
 		fan_in = numpy.prod(filter_shape[1:])
 		# each unit in the lower layer receives a gradient from:
-		# "num output feature maps * filter height * filter width" /
-		#   pooling size
-		fan_out = (filter_shape[0] * numpy.prod(filter_shape[2:]) /
-				   numpy.prod(poolsize))
+		# "num output feature maps * filter height * filter width" / pooling size
+		fan_out = (filter_shape[0] * numpy.prod(filter_shape[2:]) / numpy.prod(poolsize))
+		
 		# initialize weights with random weights
 		W_bound = numpy.sqrt(6. / (fan_in + fan_out))
 		self.W = theano.shared(
@@ -120,11 +121,22 @@ class LeNetConvPoolLayer(object):
 		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
 		# thus be broadcasted across mini-batches and feature map
 		# width & height
-		#self.output = T.tanh(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
-		self.output = ReLu(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 		
 		# store parameters of this layer
 		self.params = [self.W, self.b]
+	
+	def saveFilters(self, filenamebase):
+		import cv2
+		numfilters = len(self.W.get_value(borrow=True))
+		for i in range(numfilters):
+			improcessed = numpy.copy(self.W.get_value(borrow=True)[i][0])
+			filtermin = numpy.amin(improcessed)
+			filtermax = numpy.amax(improcessed)
+			#print("filter (min,max) == ("+str(filtermin)+", "+str(filtermax)+")")
+			improcessed = (improcessed-filtermin)*(255.0/(filtermax-filtermin))
+			#print("    post-processed filter (min,max) == ("+str(numpy.amin(improcessed))+", "+str(numpy.amax(improcessed))+")")
+			cv2.imwrite(filenamebase+str(i)+".png", cv2.resize(improcessed, (60,60), interpolation=cv2.INTER_NEAREST))
 	
 	def saveParams(self, filename):
 		fout = file(filename,'wb')
@@ -139,9 +151,9 @@ class LeNetConvPoolLayer(object):
 
 
 class DropoutLeNetConvPoolLayer(LeNetConvPoolLayer):
-	def __init__(self, rng, input, filter_shape, image_shape, dropout_rate, dropout_noise_rate, poolsize=(2, 2)):
+	def __init__(self, rng, input, filter_shape, image_shape, dropout_rate, dropout_noise_rate, activation, poolsize=(2, 2)):
 		super(DropoutLeNetConvPoolLayer, self).__init__(
-				rng=rng, input=input, filter_shape=filter_shape, image_shape=image_shape, poolsize=poolsize)
+				rng=rng, input=input, filter_shape=filter_shape, image_shape=image_shape, activation=activation, poolsize=poolsize)
 		self.input = _add_noise_to_input(rng, self.input, p=dropout_noise_rate)
 		self.output = _dropout_from_layer(rng, self.output, p=dropout_rate)
 
@@ -183,12 +195,24 @@ def gradient_updates_momentum(cost, params, learning_rate, momentum):
 	return updates
 
 
+#=========================================================================================================================
+#
+class myCNNParams(object):
+	def __init__(self):
+		self.widthOfImages = 40
+		self.filter0Size = 5
+		self.filter1Size = 5
+		self.nkerns=[40, 80]
+		self.numOutClasses = 36
+
+
 class OCR_CNN(object):
 	def __init__(self, batch_size, useDropout, widthOfImages, numOutClasses, filter0Size, filter1Size, nkerns):
 		
 		self.rng = numpy.random.RandomState(23455)
 		self.x = T.matrix('x')   # the data are presented as rasterized images
 		self.batch_size = batch_size
+		self.activation = ReLu
 		
 		######################
 		# BUILD ACTUAL MODEL #
@@ -197,15 +221,17 @@ class OCR_CNN(object):
 		print("nkerns == "+str(nkerns))
 		print("filter sizes:  filter0 == "+str(filter0Size)+"x"+str(filter0Size)+",  filter1 == "+str(filter1Size)+"x"+str(filter1Size))
 		
+		poolsizewidth = 2
+		
 		# Reshape matrix of rasterized images of shape (batch_size, widthOfImages * widthOfImages)
 		# to a 4D tensor, compatible with our LeNetConvPoolLayer
 		# (widthOfImages, widthOfImages) is the size of images.
 		layer0_input = self.x.reshape((batch_size, 1, widthOfImages, widthOfImages))
 		firstConvLayerInputWidth = widthOfImages
 		print("firstConvLayerInputWidth == "+str(firstConvLayerInputWidth))
-		secondConvLayerInputWidth = (firstConvLayerInputWidth-filter0Size+1)/2
+		secondConvLayerInputWidth = (firstConvLayerInputWidth-filter0Size+1)/poolsizewidth
 		print("secondConvLayerInputWidth == "+str(secondConvLayerInputWidth))
-		thirdLayerHiddenInputWidth = (secondConvLayerInputWidth-filter1Size+1)/2
+		thirdLayerHiddenInputWidth = (secondConvLayerInputWidth-filter1Size+1)/poolsizewidth
 		print("thirdLayerHiddenInputWidth == "+str(thirdLayerHiddenInputWidth))
 		
 		if useDropout == False:
@@ -218,7 +244,8 @@ class OCR_CNN(object):
 				input=layer0_input,
 				image_shape=(batch_size, 1, firstConvLayerInputWidth, firstConvLayerInputWidth),
 				filter_shape=(nkerns[0], 1, filter0Size, filter0Size),
-				poolsize=(2, 2)
+				poolsize=(poolsizewidth, poolsizewidth),
+				activation = self.activation
 			)
 			
 			# Construct the second convolutional pooling layer
@@ -230,9 +257,10 @@ class OCR_CNN(object):
 				input=self.layer0.output,
 				image_shape=(batch_size, nkerns[0], secondConvLayerInputWidth, secondConvLayerInputWidth),
 				filter_shape=(nkerns[1], nkerns[0], filter1Size, filter1Size),
-				poolsize=(2, 2)
+				poolsize=(poolsizewidth, poolsizewidth),
+				activation = self.activation
 			)
-		
+			
 			# the HiddenLayer being fully-connected, it operates on 2D matrices of
 			# shape (batch_size, num_pixels) (i.e matrix of rasterized images).
 			# This will generate a matrix of shape (batch_size, nkerns[1] * 4 * 4),
@@ -240,8 +268,8 @@ class OCR_CNN(object):
 			layer2_input = self.layer1.output.flatten(2)
 		
 		else:
-			print("constructing dropout convolutional layers")
-		
+			print("constructing dropout convolutional layer(s)")
+			
 			# Construct the first convolutional pooling layer:
 			# filtering reduces the image size to (widthOfImages-filter0Size+1 , widthOfImages-filter0Size+1) = (24, 24) for MNIST
 			# maxpooling reduces this further to (24/2, 24/2) = (12, 12) for MNIST
@@ -253,7 +281,8 @@ class OCR_CNN(object):
 				filter_shape=(nkerns[0], 1, filter0Size, filter0Size),
 				dropout_rate=0.2,
 				dropout_noise_rate=0.2,
-				poolsize=(2, 2)
+				poolsize=(poolsizewidth, poolsizewidth),
+				activation = self.activation
 			)
 			
 			# Construct the second convolutional pooling layer
@@ -267,7 +296,8 @@ class OCR_CNN(object):
 				filter_shape=(nkerns[1], nkerns[0], filter1Size, filter1Size),
 				dropout_rate=0.4,
 				dropout_noise_rate=0.1,
-				poolsize=(2, 2)
+				poolsize=(poolsizewidth, poolsizewidth),
+				activation = self.activation
 			)
 			
 			# the HiddenLayer being fully-connected, it operates on 2D matrices of
@@ -276,59 +306,111 @@ class OCR_CNN(object):
 			# or (batch_size, 50 * 4 * 4) = (batch_size, 800) with the default values.
 			layer2_input = self.layer1.output.flatten(2)
 		
+		layer2units = 1000
+		layer25units = 300
+		layer2numin = nkerns[1] * thirdLayerHiddenInputWidth * thirdLayerHiddenInputWidth
+		print("number of inputs to first hidden layer will be == "+str(layer2numin))
 		
 		if useDropout == False:
 			# construct a fully-connected sigmoidal layer
 			self.layer2 = HiddenLayer(
 				self.rng,
 				input=layer2_input,
-				n_in=nkerns[1] * thirdLayerHiddenInputWidth * thirdLayerHiddenInputWidth,
-				n_out=batch_size,
-				activation=ReLu #T.tanh
-			)
+				n_in = layer2numin,
+				n_out = layer2units,
+				activation = self.activation )
+			
+			if layer25units > 0:
+				self.layer25 = HiddenLayer(
+						self.rng,
+						input=layer2_input,
+						n_in = layer2numin,
+						n_out = layer2units,
+						activation = self.activation )
+				logreginput = self.layer25.output
+				logregnin = layer25units
+			else:
+				logreginput = self.layer2.output
+				logregnin = layer2units
 			
 			# classify the values of the fully-connected sigmoidal layer
-			self.layer3 = LogisticRegression(input=self.layer2.output, n_in=batch_size, n_out=numOutClasses)
-		
+			self.layer3 = LogisticRegression(input=logreginput, n_in=logregnin, n_out=numOutClasses)
+			
+			self.convLayers = [self.layer0, self.layer1]
+			if layer25units > 0:
+				self.allLayers = [self.layer0, self.layer1, self.layer2, self.layer25, self.layer3]
+			else:
+				self.allLayers = [self.layer0, self.layer1, self.layer2, self.layer3]
 		else:
 			dropout_rate = 0.45
-			print("constructing dropout hidden layer")
+			print("constructing dropout hidden layer(s)")
 			
 			self.layer2 = DropoutHiddenLayer(rng=self.rng,
 							input=_dropout_from_layer(self.rng, layer2_input, p=dropout_rate),
-							n_in=nkerns[1] * thirdLayerHiddenInputWidth * thirdLayerHiddenInputWidth,
-							n_out=batch_size,
-							activation=ReLu, #T.tanh
+							n_in = layer2numin,
+							n_out = layer2units,
+							activation = self.activation,
 							dropout_rate=dropout_rate,
 							dropout_noise_rate=0)
 			
+			if layer25units > 0:
+				self.layer25 = DropoutHiddenLayer(rng=self.rng,
+								input=_dropout_from_layer(self.rng, self.layer2.output, p=dropout_rate),
+								n_in = layer2units,
+								n_out = layer25units,
+								activation = self.activation,
+								dropout_rate=dropout_rate,
+								dropout_noise_rate=0)
+				logreginput = self.layer25.output
+				logregnin = layer25units
+			else:
+				logreginput = self.layer2.output
+				logregnin = layer2units
+			
 			# classify the values of the fully-connected sigmoidal layer
 			# Set up the output layer
-			self.layer3 = LogisticRegression(
-					input=self.layer2.output,  #layer2drop
-					n_in=batch_size,
-					n_out=numOutClasses)
+			self.layer3 = LogisticRegression(input=logreginput, n_in=logregnin, n_out=numOutClasses)
+			
+			self.convLayers = [self.layer0, self.layer1]
+			if layer25units > 0:
+				self.allLayers = [self.layer0, self.layer1, self.layer2, self.layer25, self.layer3]
+			else:
+				self.allLayers = [self.layer0, self.layer1, self.layer2, self.layer3]
 		
-		self.allLayers = [self.layer0, self.layer1, self.layer2, self.layer3]
+		print("num params:")
+		for nnlayeridx in range(len(self.allLayers)):
+			unitsstr = len(self.allLayers[nnlayeridx].params[1].get_value(borrow=True))
+			print("layer"+str(nnlayeridx)+" has "+str(unitsstr)+" units with "+str(len(self.allLayers[nnlayeridx].params[0].get_value(borrow=True)))+" weights")
 		
 	
-	def Train(self, datasets, learning_rate, weightmomentum, n_epochs, pickleNetworkName):
+	def Train(self, datasets, datasetsOnDevice, learning_rate, weightmomentum, n_epochs, pickleNetworkName, filterFilesSavedBaseName="", deviceTrainSetSize=64800, deviceValidSetSize=4800):
 		
-		train_set_x, train_set_y = datasets[0]
-		valid_set_x, valid_set_y = datasets[1]
-		test_set_x, test_set_y = datasets[2]
+		if datasetsOnDevice:
+			train_set_x, train_set_y = datasets[0]
+			valid_set_x, valid_set_y = datasets[1]
+			#test_set_x, test_set_y = datasets[2]
+			
+			# compute number of minibatches for training, validation and testing
+			n_train_batches = train_set_x.get_value(borrow=True).shape[0]
+			n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
+			#n_test_batches = test_set_x.get_value(borrow=True).shape[0]
+			nTrainingImagesTotal = n_train_batches
+			nValidationImagesTotal = n_valid_batches
+			print("num images in training set: "+str(nTrainingImagesTotal))
+			print("num images in validation set: "+str(nValidationImagesTotal))
+			n_train_batches /= self.batch_size
+			n_valid_batches /= self.batch_size
+			#n_test_batches /= self.batch_size
+		else:
+			print("num images in training set: "+str(deviceTrainSetSize))
+			print("num images in validation set: "+str(deviceValidSetSize))
+			nTrainingImagesTotal = deviceTrainSetSize
+			nValidationImagesTotal = deviceValidSetSize
+			n_train_batches = (deviceTrainSetSize / self.batch_size)
+			n_valid_batches = (deviceValidSetSize / self.batch_size)
+			print("todo: process dataset on host and pass again-and-again to device")
+			#quit()
 		
-		# compute number of minibatches for training, validation and testing
-		n_train_batches = train_set_x.get_value(borrow=True).shape[0]
-		n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
-		n_test_batches = test_set_x.get_value(borrow=True).shape[0]
-		nTrainingImagesTotal = n_train_batches
-		nValidationImagesTotal = n_valid_batches
-		print("num images in training set: "+str(nTrainingImagesTotal))
-		print("num images in validation set: "+str(nValidationImagesTotal))
-		n_train_batches /= self.batch_size
-		n_valid_batches /= self.batch_size
-		n_test_batches /= self.batch_size
 		
 		print("batch size == "+str(self.batch_size))
 		print("num valid images actually used in training set: "+str(n_train_batches*self.batch_size))
@@ -341,23 +423,24 @@ class OCR_CNN(object):
 		# allocate symbolic variables for the data
 		index = T.lscalar()  # index to a [mini]batch
 		
-		# create a function to compute the mistakes that are made by the model
-		test_model = theano.function(
-			[index],
-			self.layer3.errors(y),
-			givens={
-				self.x: test_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-				y: test_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-			}
-		)
-		validate_model = theano.function(
-			[index],
-			self.layer3.errors(y),
-			givens={
-				self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-				y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-			}
-		)
+		if datasetsOnDevice:
+			# create a function to compute the mistakes that are made by the model
+			'''test_model = theano.function(
+				[index],
+				self.layer3.errors(y),
+				givens={
+					self.x: test_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+					y: test_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+				}
+			)'''
+			validate_model = theano.function(
+				[index],
+				self.layer3.errors(y),
+				givens={
+					self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+					y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+				}
+			)
 		
 		# create a list of all model parameters to be fit by gradient descent
 		params = self.layer3.params + self.layer2.params + self.layer1.params + self.layer0.params
@@ -380,17 +463,18 @@ class OCR_CNN(object):
 			]
 		else:
 			updates = gradient_updates_momentum(cost, params, learning_rate, momentum=weightmomentum)
-	
-	
-		train_model = theano.function(
-			[index],
-			cost,
-			updates=updates,
-			givens={
-				self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-				y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-			}
-		)
+		
+		
+		if datasetsOnDevice:
+			train_model = theano.function(
+				[index],
+				cost,
+				updates=updates,
+				givens={
+					self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+					y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+				}
+			)
 	
 		###############
 		# TRAIN MODEL #
@@ -417,9 +501,39 @@ class OCR_CNN(object):
 		done_looping = False
 		
 		while (epoch < n_epochs) and (not done_looping):
+			
+			#------------------------------------------------------------------------
+			if datasetsOnDevice == False:
+				# we need to produce a dataset to train this iteration
+				
+				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
+				if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
+					print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
+					n_train_batches = numTrainPts/self.batch_size
+					n_valid_batches = numValidationPts/self.batch_size
+				
+				train_model = theano.function(
+					[index],
+					cost,
+					updates=updates,
+					givens={
+						self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+						y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+					}
+				)
+				validate_model = theano.function(
+					[index],
+					self.layer3.errors(y),
+					givens={
+						self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+						y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+					}
+				)
+			#------------------------------------------------------------------------
+			
 			epoch = epoch + 1
 			for minibatch_index in xrange(n_train_batches):
-			
+				
 				iter = (epoch - 1) * n_train_batches + minibatch_index
 			
 				if iter % 100 == 0:
@@ -429,39 +543,41 @@ class OCR_CNN(object):
 				if (iter + 1) % validation_frequency == 0:
 				
 					# compute zero-one loss on validation set
-					validation_losses = [validate_model(i) for i
-										 in xrange(n_valid_batches)]
+					validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
 					this_validation_loss = numpy.mean(validation_losses)
 					print('epoch %i, minibatch %i/%i, validation error %f %%' %
 						  (epoch, minibatch_index + 1, n_train_batches,
 						   this_validation_loss * 100.))
-				
+					
 					# if we got the best validation score until now
 					if this_validation_loss < best_validation_loss:
-					
+						
 						#improve patience if loss improvement is good enough
 						if this_validation_loss < best_validation_loss *  \
 						   improvement_threshold:
 							patience = max(patience, iter * patience_increase)
-					
+						
 						# save best validation scores and iteration number
 						best_validation_loss = this_validation_loss
 						best_iter = iter
 						
+						pfname = pickleNetworkName+"_"+str(iter)+"_score_"+str(this_validation_loss*100.)+".pkl"
+						for nnlayeridx in range(len(self.allLayers)):
+							self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
+						
+						if len(filterFilesSavedBaseName) > 1:
+							for layeridx in range(len(self.convLayers)):
+								self.convLayers[layeridx].saveFilters(filterFilesSavedBaseName+"_"+str(layeridx)+"_")
+						
+						print("====== saved new weights and filters")
+						
 						# test it on the test set
-						test_losses = [
-							test_model(i)
-							for i in xrange(n_test_batches)
-						]
+						'''test_losses = [test_model(i) for i in xrange(n_test_batches)]
 						test_score = numpy.mean(test_losses)
 						print(('   epoch %i, minibatch %i/%i, test error of '
 							   'best model %f %%') %
 							  (epoch, minibatch_index + 1, n_train_batches,
-							   test_score * 100.))
-						
-						pfname = pickleNetworkName+"_"+str(iter)+"_score_"+str(test_score*100.)+".pkl"
-						for nnlayeridx in range(len(self.allLayers)):
-							self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
+							   test_score * 100.))'''
 
 				
 				if patience <= iter:
@@ -472,25 +588,15 @@ class OCR_CNN(object):
 		print('Optimization complete.')
 		print('Best validation score of %f %% obtained at iteration %i, '
 			  'with test performance %f %%' %
-			  (best_validation_loss * 100., best_iter + 1, test_score * 100.))
+			  (best_validation_loss * 100., best_iter + 1, 0.))# test_score * 100.))
 		print >> sys.stderr, ('The code for file ' +
 							  os.path.split(__file__)[1] +
 							  ' ran for %.2fm' % ((end_time - start_time) / 60.))
 
 
-#=========================================================================================================================
-#
-class myCNNParams(object):
-	def __init__(self):
-		self.widthOfImages = 40
-		self.filter0Size = 7
-		self.filter1Size = 5
-		self.nkerns=[24, 54]
-		self.numOutClasses = 36
 
 
-
-def train_lenet5_with_batches(useMNIST=False, learning_rate=0.07, n_epochs=2000, useDropout=True, batch_size=499):
+def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, n_epochs=2000, useDropout=True, batch_size=400, pretrainedWeightsFile=""):
 	""" Demonstrates lenet on MNIST dataset
 	
 	:type learning_rate: float
@@ -509,26 +615,39 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.07, n_epochs=2000,
 	weightmomentum = 0.75
 	
 	if useMNIST:
+		learning_rate = 0.20
+		n_epochs = 2000
 		widthOfImages = 28
 		filter0Size = 5
 		filter1Size = 5
 		nkerns=[20, 50]
 		numOutClasses = 10
 		datasets = load_MNIST('mnist.pkl.gz')
+		datasetsOnDevice = True
 		pickleNetworkName = "cnn28x28MNISTtheano_paramsWb"
+		filterFilesSavedBaseName = ""
 	else:
+		n_epochs = 15000
+		print("learning rate == "+str(learning_rate))
 		widthOfImages = myCNNParams().widthOfImages
 		filter0Size = myCNNParams().filter0Size
 		filter1Size = myCNNParams().filter1Size
 		nkerns = myCNNParams().nkerns
 		numOutClasses = myCNNParams().numOutClasses
 		datasets = load_chars74k(widthOfImages)
+		datasetsOnDevice = False
 		pickleNetworkName = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/weights_saved/cnn40x40theano_paramsWb"
-	
+		filterFilesSavedBaseName = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/filters_saved/filt"
 	
 	myCNN = OCR_CNN(batch_size=batch_size, useDropout=useDropout, widthOfImages=widthOfImages, numOutClasses=numOutClasses, filter0Size=filter0Size, filter1Size=filter1Size, nkerns=nkerns)
 	
-	myCNN.Train(datasets, learning_rate=learning_rate, weightmomentum=weightmomentum, n_epochs=n_epochs, pickleNetworkName=pickleNetworkName)
+	if len(pretrainedWeightsFile) > 1:
+		print("loading pretrained weights!")
+		# load params layer-by-layer
+		for nnlayeridx in range(len(myCNN.allLayers)):
+			myCNN.allLayers[nnlayeridx].loadParams(pretrainedWeightsFile+".l"+str(nnlayeridx))
+	
+	myCNN.Train(datasets, datasetsOnDevice=datasetsOnDevice, learning_rate=learning_rate, weightmomentum=weightmomentum, n_epochs=n_epochs, pickleNetworkName=pickleNetworkName, filterFilesSavedBaseName=filterFilesSavedBaseName)
 	
 
 
@@ -713,18 +832,23 @@ def test_saved_lenet5_on_image_file(testImageFile, wasGivenPrebuiltCNN, trainedW
 
 if __name__ == '__main__':
 	if len(sys.argv) < 2:
-		print("args:  {train|test|testfull}  {test-savedweights}  {test-imagefile}")
+		print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}")
 		quit()
 	if str(sys.argv[1]) == "train":
 		train_lenet5_with_batches(useDropout=True)
+	elif str(sys.argv[1]) == "retrain":
+		if len(sys.argv) < 3:
+			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {learning-rate}")
+			quit()
+		train_lenet5_with_batches(useDropout=True, pretrainedWeightsFile=str(sys.argv[2]), learning_rate=float(sys.argv[3]))
 	elif str(sys.argv[1]) == "testfull":
 		if len(sys.argv) < 3:
-			print("args:  {train|test|testfull}  {test-savedweights}")
+			print("args:  {train|retrain|test|testfull}  {test-savedweights}")
 			quit()
 		test_saved_lenet5_on_full_dataset(False, trainedWeightsFile=str(sys.argv[2]), batchSize=499)
 	elif str(sys.argv[1]) == "test":
 		if len(sys.argv) < 4:
-			print("args:  {train|test|testfull}  {test-savedweights}  {test-imagefile}")
+			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}")
 			quit()
 		test_saved_lenet5_on_image_file(str(sys.argv[3]), False, trainedWeightsFile=str(sys.argv[2]))
 	else:
