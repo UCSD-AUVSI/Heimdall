@@ -44,6 +44,7 @@ int messageSizeNeeded(imgdata_t *imdata){
 	int len = sizeof(imgdata_t);
 	
 	//the +1 in these is to make space for the null character \0 that terminates the string
+	len += imdata->qrCodeMessage.size() + 1;
 	len += imdata->shape.size() + 1;
 	len += imdata->character.size() + 1;
 	len += imdata->scolor.size() + 1;
@@ -116,6 +117,7 @@ void copyPODToArr(imgdata_t *imdata, unsigned char *arr, int &start){
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(orthorectDone);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(saliencyDone);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(segDone);
+	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(qrcDone);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(sDone);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(cDone);
 	MEMCPY_PACK_IMDATA_DATA_MEMBER_INTO_ARR(cclDone);
@@ -157,6 +159,7 @@ void copyPODFromArray(imgdata_t *imdata, unsigned char *arr, int &start){
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(orthorectDone);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(saliencyDone);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(segDone);
+	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(qrcDone);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(sDone);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(cDone);
 	MEMCPY_READ_IMDATA_DATA_MEMBER_FROM_ARR(cclDone);
@@ -198,6 +201,9 @@ unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
     copyPODToArr(imdata, arr, start);
 
 	//the +1 in these is the null character \0 that terminates the string
+	memcpy(arr + start, imdata->qrCodeMessage.c_str(), imdata->qrCodeMessage.size() + 1);
+	start += imdata->qrCodeMessage.size() + 1;
+	
 	memcpy(arr + start, imdata->shape.c_str(), imdata->shape.size() + 1);
 	start += imdata->shape.size() + 1;
 	
@@ -261,6 +267,8 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 
     //Copy Strings
 	//the +1 in these is the null character \0 that terminated the string
+	imdata->qrCodeMessage = reinterpret_cast<char*>(arr+start);
+	start += (imdata->qrCodeMessage.size() + 1);
 	imdata->shape = reinterpret_cast<char*>(arr+start);
 	start += (imdata->shape.size() + 1);
 	imdata->character = reinterpret_cast<char*>(arr+start);

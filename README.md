@@ -1,4 +1,4 @@
 Heimdall
 =======
 
-Repository for 2014 UCSD AUVSI Software Suite
+Repository for UCSD AUVSI computer vision software suite

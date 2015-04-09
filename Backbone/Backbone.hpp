@@ -7,6 +7,7 @@ enum AlgClass{
     ORTHORECT,
     SALIENCY,
     SEG,
+    QRCODE,
     SREC,
     OCR,
     COLORCLASS,

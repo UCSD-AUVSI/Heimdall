@@ -19,4 +19,6 @@ set(saliencytruthresults_executable_source_files
 
 add_executable(SaliencyResultsTruthTester ${saliencytruthresults_executable_source_files})
 
-target_link_libraries(SaliencyResultsTruthTester SaliencyResultsTruthTesterLibrary saliencyoptimization ${OpenCV_LIBS})
+target_link_libraries(SaliencyResultsTruthTester SaliencyResultsTruthTesterLibrary saliencyoptimization 
+    ${PTHREAD_LIB}
+    ${OpenCV_LIBS})

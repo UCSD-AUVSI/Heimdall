@@ -3,13 +3,15 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="Heimdall_CodeBlocks" />
+		<Option platforms="Unix;Mac;" />
 		<Option makefile_is_custom="1" />
 		<Option execution_dir="build" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D/;Verification/ExperimentVerif/;Saliency/SpectralResidualSaliency/;Saliency/SpectralResidualSaliency/Test/;SharedUtils/optimization/;Recognition/Segmentation/PythonSegmentation/;Recognition/ColorClassification/PythonColorClassification/;Recognition/ColorClassification/PythonColorClassification/Test/;Verification/PythonVerif/;Verification/PythonVerif/MultiLookAggregator/;Saliency/PythonSaliency/Canny3D/Test/;Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/;" />
+		<Option virtualFolders="SharedUtils/clustering/;Saliency/;Saliency/;SharedUtils/;Saliency/;SharedUtils/;Saliency/;Saliency/BlobSaliency/;SharedUtils/;Saliency/;Saliency/SSaliency/;SharedUtils/;Saliency/;Saliency/;SharedUtils/;Saliency/ResultsTruthTester/;ImagePush/FolderWatch/;EmergentSearch/PopUpStalker/;Display/BigDog/;Recognition/Segmentation/SkynetSegmentation/;ImagePush/FilePush/;Backbone/;Recognition/ShapeRec/PolygonSRec/;Recognition/OCR/TesseractOCR/;Publish/Test/;Verification/DisplayVerif/;Recognition/OCR/OCRUtils/;Recognition/Segmentation/ClusterSegmentation/;ImagePush/FolderPush/;Recognition/OCR/;Publish/;Recognition/Test/;Recognition/ShapeRec/;ImagePush/;Recognition/OCR/GOCR/;Recognition/Segmentation/;Verification/;TruthViewer/;Orthorect/;EmergentSearch/;Verification/PlaneVerif/;Recognition/ColorClassification/ColorClass2014/;Recognition/ColorClassification/;Orthorect/Test/;Display/Test/;Recognition/;Saliency/PythonSaliency/;Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/;Saliency/PythonSaliency/Canny3D/;Verification/ExperimentVerif/;Saliency/SpectralResidualSaliency/;Saliency/SpectralResidualSaliency/Test/;SharedUtils/optimization/;Recognition/Segmentation/PythonSegmentation/;Recognition/ColorClassification/PythonColorClassification/;Recognition/ColorClassification/PythonColorClassification/Test/;Verification/PythonVerif/;Verification/PythonVerif/MultiLookAggregator/;Saliency/PythonSaliency/Canny3D/Test/;Saliency/PythonSaliency/Canny3D/CPP_BP_Lib/;QRCode/;QRCode/QRCode_CPP_Heimdall_Interface/;Recognition/OCR/PythonOCR/;" />
 		<Build>
 			<Target title="Release">
+				<Option platforms="Unix;Mac;" />
 				<Option output="Heimdall_CodeBlocks" prefix_auto="0" extension_auto="0" />
 				<Option working_dir="build" />
 				<Option object_output="obj/Release/" />
@@ -310,6 +312,18 @@
 		<Unit filename="Recognition/OCR/OCRUtils/test_data_results_ocr.hpp">
 			<Option virtualFolder="Recognition/OCR/OCRUtils/" />
 		</Unit>
+		<Unit filename="Recognition/OCR/PythonOCR/CPlusPlus_Heimdall_Interface/PythonOCR.cpp">
+			<Option virtualFolder="Recognition/OCR/PythonOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/PythonOCR/CPlusPlus_Heimdall_Interface/PythonOCR.hpp">
+			<Option virtualFolder="Recognition/OCR/PythonOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/PythonOCR/CPlusPlus_Heimdall_Interface/PythonOCR_ModuleInterface.cpp">
+			<Option virtualFolder="Recognition/OCR/PythonOCR/" />
+		</Unit>
+		<Unit filename="Recognition/OCR/PythonOCR/CPlusPlus_Heimdall_Interface/PythonOCR_ModuleInterface.hpp">
+			<Option virtualFolder="Recognition/OCR/PythonOCR/" />
+		</Unit>
 		<Unit filename="Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.cpp">
 			<Option virtualFolder="Recognition/OCR/TesseractOCR/" />
 		</Unit>
@@ -327,6 +341,24 @@
 		</Unit>
 		<Unit filename="Recognition/OCR/stub_ocr.hpp">
 			<Option virtualFolder="Recognition/OCR/" />
+		</Unit>
+		<Unit filename="Recognition/QRCode/PythonQRCode/CPlusPlus_Heimdall_Interface/PythonQRCode.cpp">
+			<Option virtualFolder="QRCode/QRCode_CPP_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Recognition/QRCode/PythonQRCode/CPlusPlus_Heimdall_Interface/PythonQRCode.hpp">
+			<Option virtualFolder="QRCode/QRCode_CPP_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Recognition/QRCode/PythonQRCode/CPlusPlus_Heimdall_Interface/PythonQRCode_ModuleInterface.cpp">
+			<Option virtualFolder="QRCode/QRCode_CPP_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Recognition/QRCode/PythonQRCode/CPlusPlus_Heimdall_Interface/PythonQRCode_ModuleInterface.hpp">
+			<Option virtualFolder="QRCode/QRCode_CPP_Heimdall_Interface/" />
+		</Unit>
+		<Unit filename="Recognition/QRCode/stub_qrcode.cpp">
+			<Option virtualFolder="QRCode/" />
+		</Unit>
+		<Unit filename="Recognition/QRCode/stub_qrcode.hpp">
+			<Option virtualFolder="QRCode/" />
 		</Unit>
 		<Unit filename="Recognition/Segmentation/CMakeLists.txt">
 			<Option virtualFolder="Recognition/Segmentation/" />

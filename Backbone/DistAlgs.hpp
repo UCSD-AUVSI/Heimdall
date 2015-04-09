@@ -10,6 +10,7 @@
 
 #include "Saliency/stub_saliency.hpp"
 #include "Saliency/SSaliency/ssaliency.hpp"
+#include "Saliency/SpectralResidualSaliency/spectral_residual_saliency_module.hpp"
 #include "Saliency/BlobSaliency/blob_saliency.hpp"
 #include "Saliency/PythonSaliency/CPlusPlus_Heimdall_Interface/PythonSaliency_ModuleInterface.hpp"
 #include "GUISaliency/GUISaliency.hpp"
@@ -20,12 +21,16 @@
 #include "Recognition/Segmentation/PythonSegmentation/CPlusPlus_Heimdall_Interface/PythonSegmentation_ModuleInterface.hpp"
 #include "GUIRec/GUIRec.hpp"
 
+#include "Recognition/QRCode/PythonQRCode/CPlusPlus_Heimdall_Interface/PythonQRCode_ModuleInterface.hpp"
+#include "Recognition/QRCode/stub_qrcode.hpp"
+
 #include "Recognition/ShapeRec/stub_srec.hpp"
 #include "Recognition/ShapeRec/PolygonShapeRec/Shaperec_BackboneInterface.hpp"
 
 #include "Recognition/OCR/stub_ocr.hpp"
 #include "Recognition/OCR/TesseractOCR/TessOCR_BackboneInterface.hpp"
 #include "Recognition/OCR/GOCR/GOCR_BackboneInterface.hpp"
+#include "Recognition/OCR/PythonOCR/CPlusPlus_Heimdall_Interface/PythonOCR_ModuleInterface.hpp"
 
 #include "Recognition/ColorClassifier/stub_colorclassifier.hpp"
 #include "Recognition/ColorClassifier/Classifier2014/colorclassifier2014.hpp"

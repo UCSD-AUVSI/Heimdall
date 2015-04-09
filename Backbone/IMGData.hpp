@@ -34,11 +34,13 @@ struct imgdata_t{
 	bool orthorectDone;
 	bool saliencyDone;
 	bool segDone;
+	bool qrcDone;
 	bool sDone;
 	bool cDone;
 	bool cclDone;
 	bool verified;
 	
+	std::string qrCodeMessage;
 	std::string shape, character;
 	uint8_t scolorR, scolorG, scolorB;
 	uint8_t ccolorR, ccolorG, ccolorB;
@@ -74,6 +76,7 @@ struct imgdata_t{
 		orthorectDone(false),
 		saliencyDone(false),
 		segDone(false),
+		qrcDone(false),
 		sDone(false),
 		cDone(false),
 		cclDone(false),
@@ -82,6 +85,7 @@ struct imgdata_t{
 		scolorR(0), scolorG(0), scolorB(0),
 		ccolorR(0), ccolorG(0), ccolorB(0),
 		
+		qrCodeMessage(""),
 		shape(""),
 		character(""),
 		scolor(""),

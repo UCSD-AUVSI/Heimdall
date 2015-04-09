@@ -29,6 +29,7 @@ void PSSub :: DoWork() {
     
         std::ofstream out;
         out.open(filename + ".txt");
+        out << imdata->qrCodeMessage << endl;
         out << imdata->shape << endl;
         out << imdata->scolor << endl;
         out << imdata->character << endl;

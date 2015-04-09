@@ -95,9 +95,6 @@ void DistClient :: work(){
             cout << "Exception in " << alg << endl;
             delete imdata;
             
-            //int *CRASH_ME_HERE_PLEASE = nullptr;
-            // (*CRASH_ME_HERE_PLEASE) += 1;
-            
             //throw e;
         }
     }

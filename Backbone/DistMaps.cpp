@@ -16,10 +16,11 @@ const std::map<std::string, std::vector<std::string>> alg_choice_map =
 {
     {"images",      {"FOLDER_WATCH", "SINGLE_FILE_PUSH", "FOLDER_PUSH", "STUB_PUSH", "NONE"}},
     {"orthorect",   {"STUB_ORTHORECT", "NONE"}},
-    {"saliency",    {"BLOB_SALIENCY", "SSALIENCY", "STUB_SALIENCY", "PYTHON_SALIENCY", "GUISAL", "NONE"}},
+    {"saliency",    {"BLOB_SALIENCY", "SSALIENCY", "SPECTRAL_SALIENCY", "STUB_SALIENCY", "PYTHON_SALIENCY", "GUISAL", "NONE"}},
     {"seg",         {"SKYNET_SEG", "CLUSTER_SEG", "PYTHON_SEG", "STUB_SEG", "GUIREC", "NONE"}},
+    {"qrcode",      {"PYTHON_QRCODE", "STUB_QRCODE", "NONE"}},
     {"srec",        {"POLYGON_SREC", "STUB_SREC", "NONE"}},
-    {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "NONE"}},
+    {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "PYTHON_OCR", "NONE"}},
     {"color",       {"COLOR2014", "STUB_COLOR", "PYTHON_COLORCLASS", "NONE"}},
     {"verif",       {"DISPLAY_VERIF", "PLANE_VERIF", "EXPERIMENT_VERIF", "PYTHON_VERIF", "STUB_VERIF", "NONE"}}
 };
@@ -36,6 +37,7 @@ const std::map<std::string, void (*)(imgdata_t *, std::string)> alg_func_map =
 
     {"STUB_SALIENCY",       StubSaliency :: execute},
     {"SSALIENCY",           SSaliency :: execute},
+    {"SPECTRAL_SALIENCY",    SpectralResidualSaliency :: execute},
     {"BLOB_SALIENCY",       BlobSaliency :: execute},
     {"PYTHON_SALIENCY",		PythonSaliency :: execute},
     {"GUISAL",              GUISaliency :: execute},
@@ -44,14 +46,18 @@ const std::map<std::string, void (*)(imgdata_t *, std::string)> alg_func_map =
     {"SKYNET_SEG",  	    SkynetSeg :: execute},
     {"CLUSTER_SEG",  	    ClusterSeg :: execute},
     {"PYTHON_SEG",			PythonSegmentation :: execute},
-    {"GUIREC",              GUIRec :: execute}, 
-
+    {"GUIREC",              GUIRec :: execute},
+    
+    {"PYTHON_QRCODE",       PythonQRCodeModuleInterface :: execute},
+    {"STUB_QRCODE",         StubQRCode :: execute},
+	
     {"STUB_SREC",           StubSRec :: execute},
 	{"POLYGON_SREC",	    PolygonShapeRec :: execute},
-
+	
 	{"STUB_OCR", 		    StubOCR :: execute},
 	{"TESS_OCR", 		    TessOCR :: execute},
 	{"GOCR_OCR", 		    GOCRBackboneInterface :: execute},
+	{"PYTHON_OCR",          PythonOCRModuleInterface :: execute},
 
 	{"COLOR2014", 		    ColorClassifier2014 :: execute},
 	{"STUB_COLOR", 		    StubColorClassifier :: execute},

@@ -94,7 +94,10 @@ void Publish :: DoWork() {
         // Orientation
         out << std::setw(2);
         out << ConvertOrientationToString(imdata->targetorientation) << "\t";
-
+		
+		// QR code message (if available)
+		out << DefaultIfEmpty(imdata->qrCodeMessage) << "\t";
+		
         // Shape + Color
         out << DefaultIfEmpty(imdata->shape) << "\t";
         out << DefaultIfEmpty(imdata->scolor) << "\t";
