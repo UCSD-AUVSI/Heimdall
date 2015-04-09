@@ -236,7 +236,7 @@ class OCR_CNN(object):
 		if useDropout:
 			assert len(params.dropoutrates_conv) == len(params.filtersizes) and len(params.noiserates_conv) == len(params.filtersizes)
 			assert len(params.dropoutrates_fullyconn) == len(params.hiddenlayers)
-			print(" will construct layers with dropouts and noise!!!")
+			print("~~~~~~~~~~~ will construct layers with dropouts and noise!!!")
 		
 		# Reshape matrix of rasterized images of shape (batch_size, widthOfImages * widthOfImages)
 		# to a 4D tensor, compatible with our LeNetConvPoolLayer
@@ -592,6 +592,7 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", batchSize=1):
 	
 	datasets = load_chars74k(myCNNParams().widthOfImages)
+	datasetsOnDevice = False
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
@@ -601,22 +602,31 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		for nnlayeridx in range(len(builtCNN.allLayers)):
 			builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
 	
-	#======================================================================================================================
-	train_set_x, train_set_y = datasets[0]
-	valid_set_x, valid_set_y = datasets[1]
-	test_set_x, test_set_y = datasets[2]
+	#------------------------------------------------------------------------
+	numTrainPts = -1
+	if datasetsOnDevice == False:
+		# we need to produce a dataset to train this iteration
+		deviceTrainSetSize = 70000
+		deviceValidSetSize = batchSize
+		
+		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
+		if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
+			print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
+			n_train_batches = numTrainPts/self.batch_size
+			n_valid_batches = numValidationPts/self.batch_size
+	#------------------------------------------------------------------------
 	
 	# compute number of minibatches for training, validation and testing
 	n_train_batches = train_set_x.get_value(borrow=True).shape[0]
 	n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
-	n_test_batches = test_set_x.get_value(borrow=True).shape[0]
+	#n_test_batches = test_set_x.get_value(borrow=True).shape[0]
 	nTrainingImagesTotal = n_train_batches
 	nValidationImagesTotal = n_valid_batches
 	print("num images in training set: "+str(nTrainingImagesTotal))
 	print("num images in validation set: "+str(nValidationImagesTotal))
 	n_train_batches /= builtCNN.batch_size
 	n_valid_batches /= builtCNN.batch_size
-	n_test_batches /= builtCNN.batch_size
+	#n_test_batches /= builtCNN.batch_size
 	
 	print("batch size == "+str(builtCNN.batch_size))
 	print("num valid images actually used in training set: "+str(n_train_batches*builtCNN.batch_size))
@@ -638,14 +648,6 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 			y: train_set_y[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size]
 		}
 	)
-	test_model = theano.function(
-		[index],
-		builtCNN.allLayers[-1].errors(y),
-		givens={
-			builtCNN.x: test_set_x[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size],
-			y: test_set_y[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size]
-		}
-	)
 	validate_model = theano.function(
 		[index],
 		builtCNN.allLayers[-1].errors(y),
@@ -655,22 +657,22 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		}
 	)
 	
-	# compute zero-one loss on validation set
-	# traintest_losses = [traintest_model(i) for i in xrange(n_train_batches)]
-	# this_traintest_loss = numpy.mean(traintest_losses)
+	# compute zero-one loss on train set
+	traintest_losses = [traintest_model(i) for i in xrange(n_train_batches)]
+	this_traintest_loss = numpy.mean(traintest_losses)
+	print("score on "+str(numTrainPts)+" points from training set: "+str(100.0*this_traintest_loss))
 	
 	# compute zero-one loss on validation set
-	# print("computing validation score")
 	# validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
 	# this_validation_loss = numpy.mean(validation_losses)
 	
 	# test it on the test set
-	print("computing test score")
-	test_losses = [test_model(i) for i in xrange(n_test_batches)]
-	test_score = numpy.mean(test_losses)
+	#print("computing test score")
+	#test_losses = [test_model(i) for i in xrange(n_test_batches)]
+	#test_score = numpy.mean(test_losses)
 	
 	# print("train set score: "+str(this_traintest_loss)+",  test score: "+str(test_score*100.))
-	print("test score: "+str(test_score*100.))
+	#print("test score: "+str(test_score*100.))
 	#======================================================================================================================
 
 
@@ -723,8 +725,7 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile):
 	numOutClasses = myCNNParams().numOutClasses
 	
 	# construct CNN
-	builtCNN = OCR_CNN(batch_size=1, useDropout=False, widthOfImages=widthOfImages, numOutClasses=numOutClasses, filter0Size=filter0Size, filter1Size=filter1Size, nkerns=nkerns)
-	
+	builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=myCNNParams())
 	# load params layer-by-layer
 	for nnlayeridx in range(len(builtCNN.allLayers)):
 		builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
@@ -733,33 +734,43 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile):
 
 
 
-def test_saved_lenet5_on_image_file(testImageFile, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", batchSize=1):
-	
-	widthOfImages = myCNNParams().widthOfImages
-	filter0Size = myCNNParams().filter0Size
-	filter1Size = myCNNParams().filter1Size
-	nkerns = myCNNParams().nkerns
-	numOutClasses = myCNNParams().numOutClasses
-	
-	# load and convert test image
-	from PIL import Image
-	im = Image.open(testImageFile)
-	print("original size of image: "+str(im.size[0])+" columns, "+str(im.size[1])+" rows")
-	im = im.convert("L")
-	if im.size[0] != widthOfImages or im.size[1] != widthOfImages:
-		im.thumbnail((widthOfImages,widthOfImages), Image.ANTIALIAS)
+def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", batchSize=1):
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
-		builtCNN = OCR_CNN(batch_size=1, useDropout=False, widthOfImages=widthOfImages, numOutClasses=numOutClasses, filter0Size=filter0Size, filter1Size=filter1Size, nkerns=nkerns)
-		
+		builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=myCNNParams())
 		# load params layer-by-layer
 		for nnlayeridx in range(len(builtCNN.allLayers)):
 			builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
 	
-	npim = numpy.asarray(im)
-	im.close()
-	return predict_CNN_on_img(builtCNN, npim, widthOfImages, batchSize=batchSize, debuggingMode=True)
+	images = []
+	if fileIsActuallyFolder == False:
+		images = [testImageFile]
+	else:
+		for (dirpath, dirnames, filenames) in os.walk(testImageFile):
+			for filename in filenames:
+				#print("found image \""+str(filename)+"\" for testing")
+				images.append(filename)
+	
+	desiredWidth = myCNNParams().widthOfImages
+	for imagename in images:
+		# load and convert test image
+		from PIL import Image
+		im = Image.open(testImageFile+"/"+imagename)
+		#print("original size of image: "+str(im.size[0])+" columns, "+str(im.size[1])+" rows")
+		im = im.convert("L")
+		if im.size[0] != desiredWidth or im.size[1] != desiredWidth:
+			im.thumbnail((desiredWidth,desiredWidth), Image.ANTIALIAS)
+	
+		npim = numpy.asarray(im)
+		im.close()
+		
+		prediction = predict_CNN_on_img(builtCNN, npim, desiredWidth, batchSize=batchSize, debuggingMode=False)
+		if prediction < 10:
+			predchar = chr(prediction+48)
+		else:
+			predchar = chr(prediction+55)
+		print("prediction on "+str(imagename)+" was: "+str(prediction)+" i.e. \'"+predchar+"\'")
 	
 
 
@@ -783,13 +794,14 @@ if __name__ == '__main__':
 			quit()
 		test_saved_lenet5_on_full_dataset(False, trainedWeightsFile=str(sys.argv[2]), batchSize=499)
 	elif str(sys.argv[1]) == "test":
-		if len(sys.argv) < 4:
-			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}")
+		if len(sys.argv) < 5:
+			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}  {file-is-actually-folder}")
 			quit()
-		test_saved_lenet5_on_image_file(str(sys.argv[3]), False, trainedWeightsFile=str(sys.argv[2]))
+		test_saved_lenet5_on_image_file_or_folder(str(sys.argv[3]), int(sys.argv[4])!=0, False, trainedWeightsFile=str(sys.argv[2]))
 	else:
 		print("unknown option \""+str(sys.argv[1])+"\"")
 
 
 def experiment(state, channel):
 	train_lenet5_with_batches(learning_rate=state.learning_rate, dataset=state.dataset)
+
