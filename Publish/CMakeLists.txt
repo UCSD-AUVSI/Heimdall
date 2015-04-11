@@ -12,6 +12,7 @@ target_link_libraries(
     publish
     sharedutils
     backbone
+    ${PTHREAD_LIB}
     ${ZEROMQ_LIBRARIES}
     ${OpenCV_LIBS}
     )
