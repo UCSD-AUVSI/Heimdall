@@ -201,7 +201,7 @@ def gradient_updates_momentum(cost, params, learning_rate, momentum):
 #       noise rates are applied to the input and scale between 0 and 255, so should only be used as input to the very first layer
 #
 class myCNNParams(object):
-	def __init__(self):		
+	def __init__(self):
 		self.widthOfImages = 40
 		self.activation = ReLu
 		# three convolutional layers -- dimensionality 16200, 6400, 3240
@@ -214,7 +214,25 @@ class myCNNParams(object):
 		self.dropoutrates_fullyconn = [0.4, 0.3]
 		self.hiddenlayers = [1100, 500]
 		self.numOutClasses = 36
-
+		# misc options due to memory constraints
+		self.batchSize = 400
+		self.deviceTrainSetSize=64800
+		self.deviceValidSetSize=4800
+class myCNNForOrientationParams(myCNNParams):
+	def __init__(self):
+		#super(myCNNParams,self).__init__()
+		myCNNParams.__init__(self)
+		self.nkerns=[200, 320, 200]
+		self.hiddenlayers = [2400, 1000]
+		self.numOutClasses = (36*4)
+		# misc options due to memory constraints
+		self.deviceTrainSetSize=36000
+		self.deviceValidSetSize=3200
+		self.batchSize = 100
+		print("initializing myCNNForOrientation with "+str(self.numOutClasses)+" classes!!!!!!!")
+class defaultCNNParams(myCNNForOrientationParams):
+	def __init__(self):
+		myCNNForOrientationParams.__init__(self)
 
 class OCR_CNN(object):
 	def __init__(self, batch_size, useDropout, params):
@@ -322,7 +340,7 @@ class OCR_CNN(object):
 					print("fully-connected layer"+str(lidx)+" has "+str(numpinpts)+" inputs and "+str(numoutpts)+" outputs")
 		print("------------------------")
 	
-	def Train(self, datasets, datasetsOnDevice, learning_rate, weightmomentum, n_epochs, pickleNetworkName, filterFilesSavedBaseName="", deviceTrainSetSize=64800, deviceValidSetSize=4800):
+	def Train(self, datasets, datasetsOnDevice, learning_rate, weightmomentum, n_epochs, pickleNetworkName, filterFilesSavedBaseName="", deviceTrainSetSize=36000, deviceValidSetSize=3200):
 		
 		if datasetsOnDevice:
 			train_set_x, train_set_y = datasets[0]
@@ -538,7 +556,7 @@ class OCR_CNN(object):
 
 
 
-def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum=0.75, n_epochs=2000, useDropout=True, batch_size=400, pretrainedWeightsFile=""):
+def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum=0.75, n_epochs=2000, useDropout=True, batch_size=300, pretrainedWeightsFile=""):
 	""" Demonstrates lenet on MNIST dataset
 	
 	:type learning_rate: float
@@ -568,10 +586,16 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 		datasetsOnDevice = True
 		pickleNetworkName = "cnn28x28MNISTtheano_paramsWb"
 		filterFilesSavedBaseName = ""
+		batch_size = 400
+		deviceTrainSetSize = 50000
+		deviceValidSetSize = 10000
 	else:
 		n_epochs = 15000
 		print("learning rate == "+str(learning_rate)+", momentum == "+str(weightmomentum))
-		params = myCNNParams()
+		params = defaultCNNParams()
+		batch_size = params.batchSize
+		deviceTrainSetSize = params.deviceTrainSetSize
+		deviceValidSetSize = params.deviceValidSetSize
 		datasets = load_chars74k(params.widthOfImages)
 		datasetsOnDevice = False
 		pickleNetworkName = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/weights_saved/cnn40x40theano_paramsWb"
@@ -585,18 +609,18 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 		for nnlayeridx in range(len(myCNN.allLayers)):
 			myCNN.allLayers[nnlayeridx].loadParams(pretrainedWeightsFile+".l"+str(nnlayeridx))
 	
-	myCNN.Train(datasets, datasetsOnDevice=datasetsOnDevice, learning_rate=learning_rate, weightmomentum=weightmomentum, n_epochs=n_epochs, pickleNetworkName=pickleNetworkName, filterFilesSavedBaseName=filterFilesSavedBaseName)
+	myCNN.Train(datasets, datasetsOnDevice=datasetsOnDevice, learning_rate=learning_rate, weightmomentum=weightmomentum, n_epochs=n_epochs, pickleNetworkName=pickleNetworkName, filterFilesSavedBaseName=filterFilesSavedBaseName, deviceTrainSetSize=deviceTrainSetSize, deviceValidSetSize=deviceValidSetSize)
 	
 
 
 def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", batchSize=1):
 	
-	datasets = load_chars74k(myCNNParams().widthOfImages)
+	datasets = load_chars74k(defaultCNNParams().widthOfImages)
 	datasetsOnDevice = False
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
-		builtCNN = OCR_CNN(batch_size=batchSize, useDropout=False, params=myCNNParams())
+		builtCNN = OCR_CNN(batch_size=batchSize, useDropout=False, params=defaultCNNParams())
 		
 		# load params layer-by-layer
 		for nnlayeridx in range(len(builtCNN.allLayers)):
@@ -718,14 +742,8 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, batchSize=1, debuggingMode=F
 
 def test_saved_net_on_image_in_memory(img, trainedWeightsFile):
 	
-	widthOfImages = myCNNParams().widthOfImages
-	filter0Size = myCNNParams().filter0Size
-	filter1Size = myCNNParams().filter1Size
-	nkerns = myCNNParams().nkerns
-	numOutClasses = myCNNParams().numOutClasses
-	
 	# construct CNN
-	builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=myCNNParams())
+	builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=defaultCNNParams())
 	# load params layer-by-layer
 	for nnlayeridx in range(len(builtCNN.allLayers)):
 		builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
@@ -738,7 +756,7 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
-		builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=myCNNParams())
+		builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=defaultCNNParams())
 		# load params layer-by-layer
 		for nnlayeridx in range(len(builtCNN.allLayers)):
 			builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
@@ -752,11 +770,14 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 				#print("found image \""+str(filename)+"\" for testing")
 				images.append(filename)
 	
-	desiredWidth = myCNNParams().widthOfImages
+	desiredWidth = defaultCNNParams().widthOfImages
 	for imagename in images:
 		# load and convert test image
 		from PIL import Image
-		im = Image.open(testImageFile+"/"+imagename)
+		if fileIsActuallyFolder:
+			im = Image.open(testImageFile+"/"+imagename)
+		else:
+			im = Image.open(testImageFile)
 		#print("original size of image: "+str(im.size[0])+" columns, "+str(im.size[1])+" rows")
 		im = im.convert("L")
 		if im.size[0] != desiredWidth or im.size[1] != desiredWidth:
@@ -766,11 +787,24 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		im.close()
 		
 		prediction = predict_CNN_on_img(builtCNN, npim, desiredWidth, batchSize=batchSize, debuggingMode=False)
+		
+		anglepred = "top-is-up"
+		if prediction >= 36:
+			anglepred = "top-is-left"
+			prediction = (prediction - 36)
+			if prediction >= 36:
+				anglepred = "top-is-down"
+				prediction = (prediction - 36)
+				if prediction >= 36: 
+					anglepred = "top-is-right"
+					prediction = (prediction - 36)
+		
 		if prediction < 10:
 			predchar = chr(prediction+48)
 		else:
 			predchar = chr(prediction+55)
-		print("prediction on "+str(imagename)+" was: "+str(prediction)+" i.e. \'"+predchar+"\'")
+		
+		print("prediction on "+str(imagename)+" was: "+str(prediction)+" i.e. \'"+predchar+"\' with orientation \""+anglepred+"\"")
 	
 
 
@@ -792,7 +826,7 @@ if __name__ == '__main__':
 		if len(sys.argv) < 3:
 			print("args:  {train|retrain|test|testfull}  {test-savedweights}")
 			quit()
-		test_saved_lenet5_on_full_dataset(False, trainedWeightsFile=str(sys.argv[2]), batchSize=499)
+		test_saved_lenet5_on_full_dataset(False, trainedWeightsFile=str(sys.argv[2]), batchSize=400)
 	elif str(sys.argv[1]) == "test":
 		if len(sys.argv) < 5:
 			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}  {file-is-actually-folder}")
