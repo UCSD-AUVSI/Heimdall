@@ -3,26 +3,14 @@ import math
 import numpy as np
 import pickle
 import sys
+import os
 
-def doColorClassification(givenSColor, givenCColor, optionalArgs):
-	
-	print "Python Color Classification (this is the Python)"
-	
-	
-	if len(givenSColor) != 3:
-		print "WARNING: SColor wasn't a 3-element list!!!"
-	if len(givenCColor) != 3:
-		print "WARNING: CColor wasn't a 3-element list!!!"
-
-	returnedSColor = getColor(givenSColor, 1)
-	returnedCColor = getColor(givenCColor, 1)
-	
-	return (returnedSColor, returnedCColor)
 
 def getColor(color, testCode):
 	try:
-		color_db=pickle.load(open("color_db.p","rb"))
-	except:
+		color_db=pickle.load(open("/home/marcof/Heimdall/build/Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/color_db.p","rb"))
+	except :
+		print "Exception "+ sys.exc_info()[0]
 		raise BaseException
 	cielab_output = []
 	name = []
@@ -33,23 +21,22 @@ def getColor(color, testCode):
 		#add name to names array
 		name.append(dictionary["name"])
 		check.append({"cielab":cielab,"name":dictionary["name"]})
-
+	print len(check)
 	#put cielab data into matrix
 	trainData=np.matrix(cielab_output, dtype=np.float32)
-
 	#put names which are numbers right now into a matrix
 	responses = np.matrix(name, dtype=np.float32)
-
 	#turn test point into matrix
 	newcomer=np.matrix(color, dtype=np.float32)
-
 
 	knn = cv2.KNearest()
 	# train the data
 	knn.train(trainData,responses)
 	# find nearest
+	print "pre ret"
+	print newcomer
 	ret, results, neighbours ,dist = knn.find_nearest(newcomer, 3)
-
+	print "ret"
 	output = ""
 	#get results
 	if testCode == 1 :
@@ -67,6 +54,8 @@ def getColor(color, testCode):
 		blank_image = cv2.cvtColor(blank_image,cv2.COLOR_LAB2BGR)
 		cv2.imshow("test",blank_image)
 		cv2.waitKey(0)
+	print "Color="+output
+	print "end"
 	return output
 
 COLOR_TO_NUMBER = {"White":1,"Black":2,"Red":3,"Orange":4,"Yellow":5,"Blue":6,"Green":7,"Purple":8,"Pink":9,"Brown":10,"Grey":11,"Teal":12}
@@ -89,3 +78,22 @@ def lab_to_bgr(lab):
 	return bgr[0][0]
 def rgb_to_bgr(rgb):
 	return tuple(reversed(rgb))
+
+def doColorClassification(givenSColor, givenCColor, optionalArgs):
+	
+	print "Python Color Classification (this is the Python)"
+	
+	print givenSColor
+	print givenCColor
+
+	if len(givenSColor) != 3:
+		print "WARNING: SColor wasn't a 3-element list!!!"
+	if len(givenCColor) != 3:
+		print "WARNING: CColor wasn't a 3-element list!!!"
+	print "go"
+	returnedSColor = getColor(bgr_to_lab(rgb_to_bgr(givenSColor)), 1)
+	returnedCColor = getColor(bgr_to_lab(rgb_to_bgr(givenCColor)), 1)
+	
+	return (returnedSColor, returnedCColor)
+
+#doColorClassification([0,0,0],[0,0,0],1)
