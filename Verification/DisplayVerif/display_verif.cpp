@@ -67,11 +67,12 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         if(imdata->image_data->size()){
 			if(kSaveCrops_OnlyWhenReported==false || both_cseg_and_sseg_succeeded) {
 				cv::Mat image = cv::imdecode(*(imdata->image_data), CV_LOAD_IMAGE_COLOR);
+				char latlongstr[1024];
+				sprintf(latlongstr, "%lf,,,%lf_.jpg", imdata->targetlat, imdata->targetlongt);
 				if(kSaveCropsWithImageNames == false) {
-				saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor)
-								+ "_" + to_istring(imdata->targetlat) + ",,," + to_istring(imdata->targetlongt) + "_.jpg");
+				saveImage(image, output_folder + "/" + name_of_input_crop + "___SSEG_" + to_sstring(imdata->scolor) + "___CSEG_" + to_sstring(imdata->ccolor)+ "_" + std::string(latlongstr));
 				} else {
-				saveImage(image, output_folder + "/" + imdata->name_of_original_image_file_for_debugging + "_crop" + to_istring(imdata->cropid) + "_" + to_istring(imdata->targetlat) + ",,," + to_istring(imdata->targetlongt) + "_.jpg");
+				saveImage(image, output_folder + "/" + imdata->name_of_original_image_file_for_debugging + "_crop" + to_istring(imdata->cropid) + "_" + std::string(latlongstr));
 				}
 			}
         }

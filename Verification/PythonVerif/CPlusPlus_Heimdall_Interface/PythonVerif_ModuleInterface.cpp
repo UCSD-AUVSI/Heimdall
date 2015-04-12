@@ -46,7 +46,8 @@ void PythonVerify :: execute(imgdata_t *imdata, std::string args)
 									imdata->character,
 									imdata->targetlat,
 									imdata->targetlongt,
-									imdata->targetorientation);
+									imdata->targetorientation,
+									imdata->name_of_original_image_file_for_debugging);
 	}
 	
 	setDone(imdata, VERIF);

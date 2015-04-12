@@ -88,12 +88,19 @@ double ModulusD(double num, double divisor);
 double GetMeanAngle(std::vector<double> & the_angles);
 
 
-
+#include <iomanip>
 template <class T>
 inline std::string to_istring(const T& t)
 {
 	std::stringstream ss;
 	ss << static_cast<int>(t);
+	return ss.str();
+}
+template <class T>
+inline std::string to_fstring(const T& t, int precision = 8)
+{
+	std::stringstream ss;
+	ss << std::setprecision(precision) << (t);
 	return ss.str();
 }
 template <class T>

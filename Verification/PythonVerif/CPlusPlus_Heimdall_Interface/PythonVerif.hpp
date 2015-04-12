@@ -34,7 +34,8 @@ public:
 									std::string character_name,
 									double target_latitude,
 									double target_longitude,
-									double target_orientation);
+									double target_orientation,
+									std::string original_image_filename);
 	
 };
 
