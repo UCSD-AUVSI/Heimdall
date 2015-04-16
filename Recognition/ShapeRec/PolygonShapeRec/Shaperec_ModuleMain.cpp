@@ -9,6 +9,7 @@
 #include "test_data_results_shaperec.hpp"
 #include "Shaperec_SingleImgAlg_Turning.hpp"
 #include "SharedUtils/SharedUtils.hpp"
+using std::cout; using std::endl;
 
 
 #define TRY_GET_OPTIONAL_INFO(variable) (optional_results_info == nullptr) ? 0 : optional_results_info->variable
@@ -19,17 +20,38 @@ ShapeRecModule_Main::ShapeRecModule_Main(std::string folder_with_reference_shape
     single_shape_namer_algorithm = new ShapeRecModuleAlgorithm_SingleImage_Turning();
     single_shape_namer_algorithm->filefolder_containing_reference_shapes = folder_with_reference_shapes;
     
-    if(check_if_directory_exists(folder_with_reference_shapes)) {
-		if(CountNumImagesInFolder(folder_with_reference_shapes) > 0) {
-			TryPrintAllFileNamesInFolder(folder_with_reference_shapes, consoleOutput.Level2());
+    bool couldbefound = true;
+    std::string folder_found(folder_with_reference_shapes);
+	if(check_if_directory_exists(folder_found) == false) {
+		folder_found = ("bin/"+folder_with_reference_shapes);
+		if(check_if_directory_exists(folder_found) == false) {
+			folder_found = ("../bin/"+folder_with_reference_shapes);
+			if(check_if_directory_exists(folder_found) == false) {
+				folder_found = ("build/bin/"+folder_with_reference_shapes);
+				if(check_if_directory_exists(folder_found) == false) {
+					folder_found = ("../build/bin/"+folder_with_reference_shapes);
+					if(check_if_directory_exists(folder_found) == false) {
+						couldbefound = false;
+					}
+				}
+			}
+		}
+	}
+	
+	if(couldbefound) {
+		single_shape_namer_algorithm->filefolder_containing_reference_shapes = folder_found;
+		if(CountNumImagesInFolder(folder_found) > 0) {
+			TryPrintAllFileNamesInFolder(folder_found, consoleOutput.Level2());
 		} else {
 			for(int j=0; j<30; j++) {
-				consoleOutput.Level0() << "ERROR: SHAPE REC: WAS GIVEN A FOLDER WITH NO REFERENCE SHAPE IMAGES!!!!!!!!" << std::endl;
+				consoleOutput.Level0() << "ERROR: SHAPE REC: WAS GIVEN A FOLDER WITH NO REFERENCE SHAPE IMAGES!!!!!!!!" << endl;
+				consoleOutput.Level0() << "       tried to look in the folder \"" << folder_found << "\"" << endl;
 			}
 		}
     } else {
 		for(int j=0; j<30; j++) {
-			consoleOutput.Level0() << "ERROR: SHAPE REC: WAS NOT GIVEN A VALID FOLDER TO FIND REFERENCE SHAPES!!!!" << std::endl;
+			consoleOutput.Level0() << "ERROR: SHAPE REC: WAS NOT GIVEN A VALID FOLDER TO FIND REFERENCE SHAPES!!!!" << endl;
+			consoleOutput.Level0() << "       tried to look in the folder \"" << folder_found << "\"" << endl;
 		}
     }
 }
