@@ -1,0 +1,11 @@
+from qrtools import QR
+
+pictureLocation = u"/home/Documents/AUVSI_2014_2015/sample_QR_codes/qrcode_grass.jpg"
+
+def doQRDecode(pictureLocation):
+	myCode = QR(filename = pictureLocation)
+	if myCode.decode():
+		print ("Data type: " + myCode.data_type + ": " + myCode.data)
+
+#made possible through this website
+#https://ralgozino.wordpress.com/2011/06/13/how-to-create-and-decode-a-qr-code-in-python-using-qrtools/

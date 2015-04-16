@@ -1,0 +1,15 @@
+from Tkinter import *
+import tkMessageBox
+
+top = Tkinter.Tk()
+
+def helloCallBack():
+	tkMessageBox.showinfo( "Hello Python", "What does this do?")
+def confirmMessage():
+	tkMessageBox.showinfo("something", "someDay")	
+
+B = Tkinter.Button(top, text ="lol", command = helloCallBack)
+
+
+B.pack()
+top.mainloop()
