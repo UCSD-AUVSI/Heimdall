@@ -1,7 +1,10 @@
 #include "Segmentation_CSEG_SSEG_Merger.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
+using std::cout; using std::endl;
 
+
+//#define TOSS_JUNK_IMAGES 1
 
 
 /*static*/ void Segmentation_CSEG_SSEG_Merger::DoModule(//cv::Mat cropped_target_image,
@@ -149,11 +152,15 @@
 					<< to_sstring(area_of_largest_contour / total_area_of_all_contours) << std::endl;
 
                 consoleOutput.Level1() << std::endl << std::string("the merger module decided to toss an ugly looking SSEG!") << std::endl;
+#if TOSS_JUNK_IMAGES
                 //consoleOutput.Level3() << std::string("################################################################################") << std::endl;
                 consoleOutput.Level4() << std::string("################################################################################") << std::endl;
 				
                 input_SSEGs->clear();
                 input_CSEGs->clear();
+#else
+				cout<<"this image looks really bad (an ugly looking SSEG!) but will be passed along anyway"<<endl;
+#endif
             }
             else
             {
@@ -192,9 +199,13 @@
 				
 				if(fractional_area_of_CSEG_compared_to_SSEG < 0.0f || fractional_area_of_CSEG_compared_to_SSEG > 0.4f)
 				{
+#if TOSS_JUNK_IMAGES
 					consoleOutput.Level1() << std::endl << std::string("the merger module tossed the segs because the CSEG was either too small or too large compared to the SSEG!") << std::endl;
 					input_SSEGs->clear();
 					input_CSEGs->clear();
+#else
+					cout<<"this image looks really bad (CSEG was either too small or too large compared to the SSEG!) but will be passed along anyway"<<endl;
+#endif
 				}
 			}
 #endif
@@ -225,16 +236,24 @@
 					consoleOutput.Level2() << "fraction of the CSEG that is NOT in the convex hull of the SSEG: " << to_sstring(fraction_of_CSEG_NOT_in_the_SSEG) << std::endl;
 					
 					if(fraction_of_CSEG_NOT_in_the_SSEG > 0.15f) {
+#if TOSS_JUNK_IMAGES
 						consoleOutput.Level1() << std::endl << std::string("the merger module tossed the segs because the CSEG was too much outside of the SSEG!") << std::endl;
 						input_SSEGs->clear();
 						input_CSEGs->clear();
+#else
+						cout<<"this image looks really bad (the CSEG was too much outside of the SSEG!) but will be passed along anyway"<<endl;
+#endif
 					}
 				}
 				else
 				{
+#if TOSS_JUNK_IMAGES
 					consoleOutput.Level1() << std::endl << std::string("the merger module tossed the segs because the CSEG didn't have any contours!") << std::endl;
 					input_SSEGs->clear();
 					input_CSEGs->clear();
+#else
+				cout<<"this image looks really bad (the CSEG didn't have any contours!) but will be passed along anyway"<<endl;
+#endif
 				}
 			}
 #endif
@@ -245,12 +264,16 @@
     {
         if((input_CSEGs->empty() || cv::countNonZero(*input_CSEGs->begin())==0) && input_SSEGs->empty()==false)
         {
+#if TOSS_JUNK_IMAGES
             consoleOutput.Level1() << std::endl << std::string("the merger module decided to toss the SSEG because there was no CSEG!") << std::endl;
             //consoleOutput.Level3() << std::string("################################################################################") << std::endl;
             consoleOutput.Level4() << std::string("################################################################################") << std::endl;
 
             input_SSEGs->clear();
             input_CSEGs->clear();
+#else
+				cout<<"this image looks really bad (there was no CSEG!) but will be passed along anyway"<<endl;
+#endif
         }
     }
 }

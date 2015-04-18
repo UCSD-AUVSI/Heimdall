@@ -49,7 +49,9 @@ struct imgdata_t{
 	double shapeconfidence;
 	double charconfidence;
 	
+	//see FolderPush; gotten from Exif data
 	double planelat, planelongt, planealt;
+    
     double planeroll, planepitch, planeheading; // Heading: Radians
 	double targetlat, targetlongt;
 	double targetorientation; // Degrees

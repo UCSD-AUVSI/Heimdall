@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorStr, CharName, TargetLat, TargetLong, TargetOrientation, optionalArgs):
+def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorStr, CharName, TargetLat, TargetLong, TargetOrientation, OriginalImageFilename, optionalArgs):
 	
 	print "Python Verif (this is the Python)"
 	

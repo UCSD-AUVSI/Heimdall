@@ -20,12 +20,18 @@ using std::endl;
 #include "SharedUtils/exif.h"
 
 
+
+const bool kUseEXIFForInfo = true;
+const double altitudeEXIFoffset_m = 129.0; //the throwing field next to The Village, where the April 2015 quadcopter flight was
+
+
+
+const bool DEBUG_EXIF_INFO = true;
+
 int FolderPush::sendcount = 0, FolderPush::delay = 100;
 
 bool FolderPush::send = true, FolderPush::pause = false,
      FolderPush::search_subfolders = false, FolderPush::first_send = true;
-
-const bool kUseEXIFForInfo = false;
 
 std::vector<std::string> * FolderPush::file_list = new std::vector<std::string>();
 std::vector<std::string> * FolderPush::file_list_backup = new std::vector<std::string>();
@@ -161,9 +167,14 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
                 cout << "Error parsing EXIF code" << endl;
             }
 
-            imdata -> planelat      = file_exif.GeoLocation.Latitude;
-            imdata -> planelongt    = file_exif.GeoLocation.Longitude;
-            imdata -> planealt      = file_exif.GeoLocation.Altitude * 3.28; //meters -> feet
+            imdata->planelat      = file_exif.GeoLocation.Latitude;
+            imdata->planelongt    = file_exif.GeoLocation.Longitude;
+            imdata->planealt      = (file_exif.GeoLocation.Altitude - altitudeEXIFoffset_m) * 3.28084; //meters -> feet
+            
+            if(DEBUG_EXIF_INFO) {
+				cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
+				cout<<"imdata->plane: (lat,longt) and altitude == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<(imdata->planealt)<<" feet"<<endl;
+			}
         }
         else{
             fclose(file);

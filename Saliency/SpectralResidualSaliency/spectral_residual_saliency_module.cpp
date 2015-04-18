@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-using std::cout; using std::endl;
 #include "spectral_residual_saliency_module.hpp"
 #include "ProcessingClass.hpp"
 #include "Backbone/Backbone.hpp"
@@ -9,6 +8,10 @@ using std::cout; using std::endl;
 #include "Backbone/IMGData.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include <opencv2/highgui/highgui.hpp>
+using std::cout; using std::endl;
+
+
+const bool DEBUG_EXIF_INFO = true;
 
 
 // Calculate pixels per feet (resolution) of given image, AFTER scaling
@@ -99,16 +102,26 @@ void SpectralResidualSaliency :: execute(imgdata_t *imdata, std::string args){
 		
 		std::pair<double,double> target_geoloc = cropGeolocations[i];
 		
+		int polvl = DEBUG_EXIF_INFO ? 0 : 2;
+		if(DEBUG_EXIF_INFO) {
+		consoleOutput.Level(polvl)<<"#####################################################################################################"<<endl;
+		consoleOutput.Level(polvl)<<"target_geoloc (IN PIXELS): ([0],[1]) == ("<<std::get<0>(target_geoloc)<<", "<<std::get<1>(target_geoloc)<<")"<<endl;
+		consoleOutput.Level(polvl)<<"imdata->plane: (lat, longt) and heading == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<imdata->planeheading<<endl;
+		}
+		
 		target_geoloc = my2find_target_geoloc(std::get<1>(target_geoloc), std::get<0>(target_geoloc), fullsizeImage.rows, fullsizeImage.cols,
 				imdata->planelat, imdata->planelongt, imdata->planeheading, my2calculate_px_per_feet(fullsizeImage.cols, imdata->planealt, 1));
 		
 		curr_imdata->targetlat = std::get<0>(target_geoloc);
 		curr_imdata->targetlongt = std::get<1>(target_geoloc);
 		
+		consoleOutput.Level0()<<"curr_imdata->target: (lat, longt) == ("<<(curr_imdata->targetlat)<<", "<<(curr_imdata->targetlongt)<<")"<<endl;
+		consoleOutput.Level0()<<"##################################################################################"<<endl;
+		
 		if(++i < foundCrops.size()){
 			imgdata_t *new_imdata = new imgdata_t();
 			copyIMGData(new_imdata, curr_imdata);
-
+			
 			new_imdata->next = nullptr;
 			new_imdata->cropid++;
 			curr_imdata->next = new_imdata;

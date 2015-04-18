@@ -12,7 +12,7 @@ import pydbscancpplib
 from collections import Counter
 
 
-def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, ShapeNameConfidence, CharColorVals, CharColorStr, CharNames, CharNameConfidences, TargetLat, TargetLong, TargetOrientation, askFJorClusrters):
+def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, ShapeNameConfidence, CharColorVals, CharColorStr, CharNames, CharNameConfidences, TargetLat, TargetLong, TargetOrientation, OriginalImageFilename, askFJorClusrters):
     
     # create the new target
     new_target = Target(scolor = ShapeColorStr,shape=ShapeName,shape_conf=ShapeNameConfidence, ccolor = CharColorStr, chars = CharNames,char_confs=CharNameConfidences, lat = TargetLat, long = TargetLong)

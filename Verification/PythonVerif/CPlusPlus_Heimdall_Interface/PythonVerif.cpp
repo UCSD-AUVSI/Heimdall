@@ -25,7 +25,8 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 											std::string character_name,
 											double target_latitude,
 											double target_longitude,
-											double target_orientation)
+											double target_orientation,
+											std::string original_image_filename)
 {
 	if(path_to_HeimdallBuild_directory == nullptr) {
 		std::cout << "ERROR: PythonVerif: \"path_to_HeimdallBuild_directory\" not set!" << std::endl;
@@ -98,6 +99,7 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 		bp::object bpTargetLong(target_longitude);
 		bp::object bpTargetOrientation(target_orientation);
 		
+		bp::str bpOrigImageFilename(original_image_filename.c_str());
 		
 		
 		//call the Python function, return data
@@ -108,6 +110,7 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 				pythoncvfunctionhandle(	bpShapeColorVals, bpShapeColorStr, bpShapeName,
 										bpCharColorVals,  bpCharColorStr,  bpCharName,
 										bpTargetLat, bpTargetLong, bpTargetOrientation,
+										bpOrigImageFilename,
 										extraArgs);
 			}
 			catch(bp::error_already_set) {
@@ -120,6 +123,7 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 				pythoncvfunctionhandle(	bpShapeColorVals, bpShapeColorStr, bpShapeName,
 										bpCharColorVals,  bpCharColorStr,  bpCharName,
 										bpTargetLat, bpTargetLong, bpTargetOrientation,
+										bpOrigImageFilename,
 										bp::object());
 			}
 			catch(bp::error_already_set) {
