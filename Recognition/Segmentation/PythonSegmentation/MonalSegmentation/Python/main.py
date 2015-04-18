@@ -1,4 +1,6 @@
-
+import numpy as np
+import cv2
+import pykmeansppcpplib
 #kmeans function
 def kmeans(img,numklust):
 	#start kmeans
@@ -150,8 +152,16 @@ def doSegmentation(cropImg, optionalArgs):
 
 	res2=kmeans(labf,3)
 
+	
 	color=getShapeColors(res2,3)
-
+	color1=color[0]
+	color2=color[1]
+	color3=color[2]
+	"""
+	print color1
+	print color2
+	print color3
+	print res2.shape
 	"""
 	clusterMaskss,cowunts=makeMasks(res2, 3, color)
 
@@ -189,7 +199,7 @@ def doSegmentation(cropImg, optionalArgs):
 		bul2=False
 	if((perM3/tot_per)>per1TH or not bul3):
 		bul3=False
-   
+	"""
 	print "perm test A"
 	print bul1
 	print bul2
@@ -644,5 +654,7 @@ def doSegmentation(cropImg, optionalArgs):
 	#-------------------------------------------------------------------------
 	
 	return (shapeSeg, shapeColor, charSeg, charColor)
+
+
 
 
