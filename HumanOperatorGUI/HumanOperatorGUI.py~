@@ -20,31 +20,56 @@ root = Tk()
 #TODO: redo the confirmation windows
 #Confirmation windows
 def confirmBeginImaging():
-	tkMessageBox.askokcancel("Begin Imaging?", "Please confirm that you with to begin imaging")
-	#put method calls here
+	result = tkMessageBox.askquestion("Begin Imaging?", "Please confirm that you with to begin imaging")
+	if result == 'yes':
+		print "Beginning imaging..."
+		#put method calls here
+	else:
+		print "Did not start imaging"
+			
 
 def confirmStopImaging():
-	tkMessageBox.askokcancel("Stop Imaging?", "Please confirm that you with to end imaging")
-	#put method calls here
+	result = tkMessageBox.askquestion("Stop Imaging?", "Please confirm that you with to end imaging")
+	if result == 'yes':
+		print "Stopping imaging"
+		#put method calls here
+	else:
+		print "Did not stop imaging"
 
 def confirmBeginMission():
-	tkMessageBox.askokcancel("Begin Mission?", "Please confirm that you wish to begin the mission")
-	#put method calls here	
+	result = tkMessageBox.askquestion("Begin Mission?", "Please confirm that you wish to begin the mission")
+	if result == 'yes':
+		print "Beginning mission"
+		#put method calls here	
+	else:
+		print "Did not begin mission"
 
 def confirmEndMission():
-	tkMessageBox.askokcancel("End Mission?", "Please confirm mission termination")
-	#put method calls here
+	result = tkMessageBox.askqintuestion("End Mission?", "Please confirm mission termination")
+	if result == 'yes':
+		print "Ending mission. Landing plane"
+		#put method calls here
+	else:
+		print "Did not end mission"
 
 def confirmSendImagesToJudges():
-	tkMessageBox.askokcancel("Send images to judges?", "Please confirm that you wish to send captured images for judging")
-	#put method calls here
+	result = tkMessageBox.askquestion("Send images to judges?", "Please confirm that you wish to send captured images for judging")
+	if result == 'yes':
+		print "Sending Images"
+		#put method calls here
+	else:
+		print "Did not send images to judges"
 
 def confirmGetReimagingWayPoints():
-	tkMessageBox.askokcancel("Get reimaging waypoints?", "Please confirm that you with to get reimaging waypoints")
-	#put method calls here
+	result = tkMessageBox.askquestion("Get reimaging waypoints?", "Please confirm that you with to get reimaging waypoints")
+	if result == 'yes':
+		print "Reimaging waypoints"
+		#put method calls here
+	else:
+		print "Did not reimage waypoints"
 
 def handler():
-    if tkMessageBox.askokcancel("Quit?", "Are you sure you want to quit? This will end the mission."):
+    if tkMessageBox.askquestion("Quit?", "Are you sure you want to quit? This will end the mission."):
         root.quit()
 
 #Name of panel
