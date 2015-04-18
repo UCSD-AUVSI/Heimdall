@@ -647,7 +647,7 @@ def doSegmentation(cropImg, optionalArgs):
 	shapeSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32, shapeSegMask, 3, 8, 20)
 	charSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32copy, charSegMask, 3, 8, 20)
 	"""
-	res2=cv2.cvtColor(res2,cv2.COLOR_LAB2BGR)
+	#res2=cv2.cvtColor(res2,cv2.COLOR_LAB2BGR)
 	writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)
     
 	if(KEq2):
