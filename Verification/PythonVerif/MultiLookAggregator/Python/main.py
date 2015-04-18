@@ -13,10 +13,18 @@ from collections import Counter
 
 
 
-def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, ShapeNameConfidence, CharColorVals, CharColorStr, CharNames, CharNameConfidences, TargetLat, TargetLong, TargetOrientation, OriginalImageFilename, askFJorClusrters):    
+def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorStr, CharName, TargetLat, TargetLong, TargetOrientation, OriginalImageFilename, imageData, askFJorClusrters):    
     # create the new target
     new_target = Target(scolor = ShapeColorStr,shape=ShapeName,shape_conf=1, ccolor = CharColorStr, chars = [CharName],char_confs=[1], lat = TargetLat, long = TargetLong)
     
+    # create directory and add image to it
+    path = "output_images_directory"
+    if not os.path.isdir(path):
+        os.mkdir(path,0755)
+    new_file_name = OriginalImageFilename+"_"+str(TargetLat)+"_"+str(TargetLong)+".jpg"
+    #save target
+    cv2.imwrite(os.path.join(path, new_file_name), imageData)
+
     # pass the target to the results
     add_target(new_target)
 

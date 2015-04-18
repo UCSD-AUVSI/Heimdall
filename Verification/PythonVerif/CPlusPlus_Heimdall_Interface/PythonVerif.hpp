@@ -35,7 +35,8 @@ public:
 									double target_latitude,
 									double target_longitude,
 									double target_orientation,
-									std::string original_image_filename);
+									std::string original_image_filename,
+									cv::Mat inputCropImage);
 	
 };
 

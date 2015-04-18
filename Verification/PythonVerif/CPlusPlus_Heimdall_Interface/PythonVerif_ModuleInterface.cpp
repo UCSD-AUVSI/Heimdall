@@ -34,6 +34,7 @@ void PythonVerify :: execute(imgdata_t *imdata, std::string args)
 		vdoer.verifModuleFolderName = args;
 		vdoer.pythonFilename = "main.py";
 		vdoer.pythonFunctionName = "doVerif";
+		cv::Mat inputCropImage = cv::imdecode(*imdata->image_data, CV_LOAD_IMAGE_COLOR);
 		vdoer.ProcessVerification(	imdata->scolorR,
 									imdata->scolorG,
 									imdata->scolorB,
@@ -47,7 +48,8 @@ void PythonVerify :: execute(imgdata_t *imdata, std::string args)
 									imdata->targetlat,
 									imdata->targetlongt,
 									imdata->targetorientation,
-									imdata->name_of_original_image_file_for_debugging);
+									imdata->name_of_original_image_file_for_debugging,
+									inputCropImage);
 	}
 	
 	setDone(imdata, VERIF);

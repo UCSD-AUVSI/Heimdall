@@ -26,7 +26,8 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 											double target_latitude,
 											double target_longitude,
 											double target_orientation,
-											std::string original_image_filename)
+											std::string original_image_filename,
+											cv::Mat inputCropImage)
 {
 	if(path_to_HeimdallBuild_directory == nullptr) {
 		std::cout << "ERROR: PythonVerif: \"path_to_HeimdallBuild_directory\" not set!" << std::endl;
@@ -36,7 +37,9 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 	if(PrepareForPythonStuff()) {
 		aquire_py_GIL lock;
 		
+
 		// setup directories and namespaces for Python interpeter
+		NDArrayConverter cvt;
 		bp::object main = bp::import("__main__");
 		bp::object global(main.attr("__dict__"));
 		std::string dirToAdd = (*path_to_HeimdallBuild_directory)+std::string("/Verification/PythonVerif/")+verifModuleFolderName+std::string("/Python");
@@ -64,6 +67,9 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 			PyErr_Print(); return;
 		}
 		
+		//convert C++ cv::Mat to Python
+		PyObject* givenImgCpp = cvt.toNDArray(inputCropImage);
+		bp::object givenImgPyObj( bp::handle<>(bp::borrowed(givenImgCpp)) );
 		
 		//get handle to the function
 		bp::object pythoncvfunctionhandle;
@@ -110,7 +116,7 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 				pythoncvfunctionhandle(	bpShapeColorVals, bpShapeColorStr, bpShapeName,
 										bpCharColorVals,  bpCharColorStr,  bpCharName,
 										bpTargetLat, bpTargetLong, bpTargetOrientation,
-										bpOrigImageFilename,
+										bpOrigImageFilename,givenImgPyObj,
 										extraArgs);
 			}
 			catch(bp::error_already_set) {
@@ -123,7 +129,7 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 				pythoncvfunctionhandle(	bpShapeColorVals, bpShapeColorStr, bpShapeName,
 										bpCharColorVals,  bpCharColorStr,  bpCharName,
 										bpTargetLat, bpTargetLong, bpTargetOrientation,
-										bpOrigImageFilename,
+										bpOrigImageFilename,givenImgPyObj,
 										bp::object());
 			}
 			catch(bp::error_already_set) {
@@ -131,6 +137,7 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 				PyErr_Print(); return;
 			}
 		}
+		Py_DECREF(givenImgCpp);
 	}
 }
 
