@@ -1,4 +1,6 @@
-
+import numpy as np
+import cv2
+import pykmeansppcpplib
 #kmeans function
 def kmeans(img,numklust):
 	#start kmeans
@@ -150,8 +152,14 @@ def doSegmentation(cropImg, optionalArgs):
 
 	res2=kmeans(labf,3)
 
+	
 	color=getShapeColors(res2,3)
 
+	"""
+	print color1
+	print color2
+	print color3
+	print res2.shape
 	"""
 	clusterMaskss,cowunts=makeMasks(res2, 3, color)
 
@@ -189,7 +197,7 @@ def doSegmentation(cropImg, optionalArgs):
 		bul2=False
 	if((perM3/tot_per)>per1TH or not bul3):
 		bul3=False
-   
+	"""
 	print "perm test A"
 	print bul1
 	print bul2
@@ -507,10 +515,10 @@ def doSegmentation(cropImg, optionalArgs):
 	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,6,14,24)
 	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,3,14,24)
 	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,2,14,24)
-
+	cv2.imshow("lab",lab2)
 
 	writingImg=np.uint8(shapeSeg*255)
-	writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)
+	#writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)
 	if(KEq2):
 		charColors=getShapeColors(writingImg, 3)
 		charMasks,charCowunts=makeMasks(writingImg, 3, charColors)
@@ -639,10 +647,22 @@ def doSegmentation(cropImg, optionalArgs):
 	shapeSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32, shapeSegMask, 3, 8, 20)
 	charSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32copy, charSegMask, 3, 8, 20)
 	"""
+	#res2=cv2.cvtColor(res2,cv2.COLOR_LAB2BGR)
+	writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)
+    
+	if(KEq2):
+		charColors=getShapeColors(writingImg, 3)  
+	else:
+		charColors=getShapeColors(writingImg, 4)
+ 
+	color=getShapeColors(res2,3)
+ 
 	shapeColor = color[maskNumber]
 	charColor = charColors[charMaskNum]
 	#-------------------------------------------------------------------------
 	
 	return (shapeSeg, shapeColor, charSeg, charColor)
+
+
 
 
