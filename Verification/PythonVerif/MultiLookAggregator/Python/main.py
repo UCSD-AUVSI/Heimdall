@@ -15,7 +15,7 @@ from collections import Counter
 
 def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorStr, CharName, TargetLat, TargetLong, TargetOrientation, OriginalImageFilename, imageData, askFJorClusrters):    
     # create the new target
-    new_target = Target(scolor = ShapeColorStr,shape=ShapeName,shape_conf=1, ccolor = CharColorStr, chars = [CharName],char_confs=[1], lat = TargetLat, long = TargetLong)
+    new_target = Target(scolor = ShapeColorStr,shape=ShapeName,shape_conf=1, ccolor = CharColorStr, char = CharName,char_confs=[1], lat = TargetLat, long = TargetLong)
     
     # create directory and add image to it
     path = "output_images_directory"
@@ -58,12 +58,12 @@ class Target():
     """
     Defines a target with shape, shape color, char, char color, lat ,and long
     """
-    def __init__(self,scolor=None,shape=None,shape_conf=0,ccolor=None,chars=None,char_confs=None,lat=0,long=0,overall_conf=0):
+    def __init__(self,scolor=None,shape=None,shape_conf=0,ccolor=None,char=None,char_confs=None,lat=0,long=0,overall_conf=0):
         self.shape=shape
         self.shape_conf = shape_conf
         self.scolor=scolor
         self.ccolor=ccolor
-        self.chars=chars
+        self.char=char
         self.char_confs = char_confs
         self.lat=lat
         self.long=long
@@ -82,8 +82,8 @@ class Target():
         """
         total=0
         if(self.shape == target.shape and self.shape != ""):
-            total+=(self.shape_conf*target.shape_conf)*2
-        if(self.scolor == target.scolor and self.scolor != ""):
+            total+=1
+        if(self.char == target.char and self.char != ""):
             total+=1
         if(self.scolor == target.scolor and self.scolor != ""):
             total+=1
@@ -94,15 +94,12 @@ class Target():
         """
         Prints out the target
         """
-        char = ""
-        if(len(self.chars)>0):
-            char = self.chars[0]
-        return '{:>12}  {:>12}  {:>12} {:>12} '.format(xstr(self.shape), xstr(self.scolor), xstr(char), xstr(self.ccolor))
+        return '{:>12}  {:>12}  {:>12} {:>12} {:>12} {:>12}'.format(xstr(self.shape), xstr(self.scolor), xstr(self.char), xstr(self.ccolor), str(self.lat), str(self.long))
     def judges_output(self):
         """
         Prints judges output
         """
-        return '{:>12}  {:>12}  {:>12} {:>12} {:>12} {:>12}\n'.format(xstr(self.shape), xstr(self.scolor), xstr(self.chars), xstr(self.ccolor),xstr(self.lat),xstr(self.long))
+        return '{:>12}  {:>12}  {:>12} {:>12} {:>12} {:>12}\n'.format(xstr(self.shape), xstr(self.scolor), xstr(self.char), xstr(self.ccolor),xstr(self.lat),xstr(self.long))
 
 def guess_target(targets):
     """
@@ -111,23 +108,19 @@ def guess_target(targets):
     """
     # get list of each attribute
     shapes=[]
-    sconf=[]
     scolors=[]
     chars=[]
-    cconf=[]
     ccolors=[]
-    total = 0
+    total = 0.0
     for target in targets:
-        total = total+1
+        total = total+1.0
         shapes.append(target.shape)
-        sconf.append(target.shape_conf)
         scolors.append(target.scolor)
-        chars.append(target.chars)
-        cconf.append(target.char_confs)
+        chars.append(target.char)
         ccolors.append(target.ccolor)
 
     # get the chars in a dict
-    chars_confs = bestChar(chars,cconf)
+    chars_confs = aggregateList(chars)
     shapes_conf = aggregateList(shapes)
     scolors_conf= aggregateList(scolors)
     ccolors_conf =  aggregateList(ccolors)
@@ -137,12 +130,17 @@ def guess_target(targets):
     top_sc = highestItem(scolors_conf)
     top_cc = highestItem(ccolors_conf)
 
-    
+    print top_char
+    print top_shape
+    print top_sc
+    print top_cc
+    print (top_char["conf"]*top_shape["conf"]*top_sc["conf"]*top_cc["conf"])
+    print total
     #calc overall confidence
     overall_conf = (top_char["conf"]*top_shape["conf"]*top_sc["conf"]*top_cc["conf"])/total
     #create the combine Target
     combined = Target(scolor=top_sc["name"],shape =top_shape["name"], shape_conf =1 , ccolor=top_cc["name"],
-        chars=top_char["name"],char_confs =1, lat=targets[0].lat,long=targets[0].long, overall_conf=overall_conf)
+        char=top_char["name"],char_confs =1, lat=targets[0].lat,long=targets[0].long, overall_conf=overall_conf)
 
     #return the target and confidence
     return combined
@@ -176,22 +174,6 @@ def highestItem(common):
         highest = 0
     return {"name":name,"conf":highest}
 
-def bestChar(chars, char_confs):
-    # list of list of chars
-    # list of char confs
-    char_count = {}
-    count = 0
-    for listchars in chars:
-        index=0
-        for char in listchars:
-            if char in char_count:
-                char_count[char]+=char_confs[count][index]
-            else:
-                char_count[char] = char_confs[count][index]
-            index= index+1
-        count = count+1
-
-    return char_count
 
 
 def get_ranked_results():
@@ -204,6 +186,10 @@ def get_ranked_results():
     except:
         targets=[]
 
+    print "Targets"
+    for target in targets:
+        print target
+    print ""
     # create dist matrix
     matrix = np.zeros((len(targets),len(targets)), np.float32)
     sim_matrix = matrix_sim(matrix,targets)
@@ -213,10 +199,12 @@ def get_ranked_results():
         returnedClusters = pydbscancpplib.TargetClusterDBSCAN(sim_matrix, 1, 500)
         outputTargets=[]
         for cluster in returnedClusters:
+            print "Cluster"
             clusterTargets = []
             for item in cluster:
+                print targets[item]
                 clusterTargets.append(targets[item])
-
+            print ""
             #find what we think the target is
             outputTargets.append(guess_target(clusterTargets))
 
