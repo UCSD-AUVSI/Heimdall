@@ -136,6 +136,7 @@ def numPixTouchPerm(clusterMaskss, vert, hori, numKlusters):
 
 
 def doSegmentation(cropImg, optionalArgs):
+	import cv2
 	
 	imrows,imcols = cropImg.shape[:2]
 	print "Monal-python-segmentation is processing an image of size: " + str(imcols) + "x" + str(imrows)
