@@ -172,6 +172,8 @@ def highestItem(common):
                 name = result
     if name== "":
         highest = 0
+    if highest == 0:
+        highest = .5
     return {"name":name,"conf":highest}
 
 
