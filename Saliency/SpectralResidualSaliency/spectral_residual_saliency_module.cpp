@@ -11,7 +11,7 @@
 using std::cout; using std::endl;
 
 
-const bool DEBUG_EXIF_INFO = true;
+const bool DEBUG_EXIF_INFO = false;
 
 
 // Calculate pixels per feet (resolution) of given image, AFTER scaling
@@ -37,11 +37,14 @@ std::pair<double, double> my2find_target_geoloc(int targetrow, int targetcol, in
     // Tranlate to polar coordinates, in feet
     double centerdiff = sqrt(pow(rowdiff, 2) + pow(coldiff, 2));
     double centerfeetdiff = centerdiff / pxperfeet;
-    double centerangle = atan(coldiff/-rowdiff) + (((-rowdiff)>0)?0.0:kPI);
+    double centerangle = atan2(coldiff, rowdiff); //clockwise from up (we use coordinate system North-Is-Up == 0 degrees, East-Is-Right == 90 degrees)
+                                                  //the image may not be facing up==north, so planeheading is used as the offset
+                                                  //atan2(x,y) is clockwise from up
+                                                  //atan2(y,x) is counterclockwise from right (ordinary polar coordinates)
     
-    // Project to Lat/Long
-    double latfeetdiff = centerfeetdiff * cos(planeheading + centerangle);
-    double longtfeetdiff = centerfeetdiff * sin(planeheading + centerangle);
+    // Project to Lat/Long; convert planeheading from degrees to radians
+    double latfeetdiff = centerfeetdiff * cos(planeheading*0.01745329251994329577 + centerangle);
+    double longtfeetdiff = centerfeetdiff * sin(planeheading*0.01745329251994329577 + centerangle);
 
     // Convert Lat/Long feet differences into degrees to get final lat/long
     double target_lat = planelat + latfeetdiff/365221.43; //365221 feet in 1 degree of latitude arc, small angle assumptions for field; 
@@ -116,7 +119,7 @@ void SpectralResidualSaliency :: execute(imgdata_t *imdata, std::string args){
 		curr_imdata->targetlongt = std::get<1>(target_geoloc);
 		
 		consoleOutput.Level0()<<"curr_imdata->target: (lat, longt) == ("<<(curr_imdata->targetlat)<<", "<<(curr_imdata->targetlongt)<<")"<<endl;
-		consoleOutput.Level0()<<"##################################################################################"<<endl;
+		consoleOutput.Level4()<<"##################################################################################"<<endl;
 		
 		if(++i < foundCrops.size()){
 			imgdata_t *new_imdata = new imgdata_t();

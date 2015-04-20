@@ -117,6 +117,8 @@ class EXIFInfo {
     double Longitude;                 // Image longitude expressed as decimal
     double Altitude;                  // Altitude in meters, relative to sea level
     char AltitudeRef;                 // 0 = above sea level, -1 = below sea level
+    double ImgDirection;              // Image direction as decimal
+    double GPSSpeed;                  // speed of GPS receiver
     struct Coord_t {
       double degrees;               
       double minutes;

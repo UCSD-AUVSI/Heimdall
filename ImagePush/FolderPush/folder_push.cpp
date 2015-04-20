@@ -22,7 +22,7 @@ using std::endl;
 
 
 const bool kUseEXIFForInfo = true;
-const double altitudeEXIFoffset_m = 129.0; //the throwing field next to The Village, where the April 2015 quadcopter flight was
+double GroundLevelAltitude_in_m = 0.0;
 
 
 
@@ -166,14 +166,19 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
             if(code){
                 cout << "Error parsing EXIF code" << endl;
             }
-
+			
+			// this is hacked in because EXIF does not normally have a field for the altitude of the ground
+			// when we record "planealt" we want to record RELATIVE TO THE GROUND
+			GroundLevelAltitude_in_m = file_exif.GeoLocation.GPSSpeed;
+			
             imdata->planelat      = file_exif.GeoLocation.Latitude;
             imdata->planelongt    = file_exif.GeoLocation.Longitude;
-            imdata->planealt      = (file_exif.GeoLocation.Altitude - altitudeEXIFoffset_m) * 3.28084; //meters -> feet
-            
+            imdata->planealt      = (file_exif.GeoLocation.Altitude - GroundLevelAltitude_in_m) * 3.28084; //meters -> feet
+            imdata->planeheading  = file_exif.GeoLocation.ImgDirection;
+			
             if(DEBUG_EXIF_INFO) {
 				cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
-				cout<<"imdata->plane: (lat,longt) and altitude == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<(imdata->planealt)<<" feet"<<endl;
+				cout<<"imdata->plane: (lat,longt) and altitude and heading == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<(imdata->planealt)<<" feet at heading "<<(imdata->planeheading)<<endl;
 			}
         }
         else{

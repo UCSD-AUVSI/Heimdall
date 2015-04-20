@@ -50,7 +50,7 @@ struct imgdata_t{
 	double charconfidence;
 	
 	//see FolderPush; gotten from Exif data
-	double planelat, planelongt, planealt;
+	double planelat, planelongt, planealt; //altitude is relative to the ground, not sea level!!!
     
     double planeroll, planepitch, planeheading; // Heading: Radians
 	double targetlat, targetlongt;

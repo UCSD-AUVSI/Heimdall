@@ -21,7 +21,7 @@ const std::map<std::string, std::vector<std::string>> alg_choice_map =
     {"qrcode",      {"PYTHON_QRCODE", "STUB_QRCODE", "NONE"}},
     {"srec",        {"POLYGON_SREC", "STUB_SREC", "NONE"}},
     {"ocr",         {"GOCR_OCR", "TESS_OCR", "STUB_OCR", "PYTHON_OCR", "NONE"}},
-    {"color",       {"COLOR2014", "STUB_COLOR", "", "NONE"}},
+    {"color",       {"COLOR2014", "STUB_COLOR", "PYTHON_COLORCLASS", "NONE"}},
     {"verif",       {"DISPLAY_VERIF", "PLANE_VERIF", "EXPERIMENT_VERIF", "PYTHON_VERIF", "STUB_VERIF", "NONE"}}
 };
 

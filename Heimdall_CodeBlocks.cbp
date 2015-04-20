@@ -762,6 +762,12 @@
 		<Unit filename="SharedUtils/cvplot.h">
 			<Option virtualFolder="SharedUtils/" />
 		</Unit>
+		<Unit filename="SharedUtils/exif.cpp">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
+		<Unit filename="SharedUtils/exif.h">
+			<Option virtualFolder="SharedUtils/" />
+		</Unit>
 		<Unit filename="SharedUtils/optimization/MetropolisMonteCarlo.cpp">
 			<Option virtualFolder="SharedUtils/optimization/" />
 		</Unit>
