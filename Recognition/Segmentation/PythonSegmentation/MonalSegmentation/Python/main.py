@@ -510,13 +510,18 @@ def doSegmentation(cropImg, optionalArgs):
 	shapeSegMask=hulll2
 
 	if(KEq2):
-		shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24)
+		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24)
 	else:
-		shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,3,14,24)
+		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,3,14,24)
+	
+	shapeSeg = shapeSegTupleResults[0]
+	
 	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,6,14,24)
 	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,3,14,24)
 	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,2,14,24)
-	cv2.imshow("lab",lab2)
+	#cv2.imshow("lab",lab2)
+	#cv2.imshow("shapeseg",shapeSeg)
+	#cv2.waitKey(0)
 
 	writingImg=np.uint8(shapeSeg*255)
 	#writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)

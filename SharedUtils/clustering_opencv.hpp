@@ -10,22 +10,27 @@
 
 class ClusterablePoint3D_OpenCV : public ClusterablePoint
 {
-public:
-	myColor_3f* pixel;
+	myColor_3f originalPixelColor;
+	int row, col;
 	
-	ClusterablePoint3D_OpenCV() : pixel(nullptr) {}
-	ClusterablePoint3D_OpenCV(myColor_3f* PIXEL) : pixel(PIXEL) {}
+public:
+	myColor_3f& GetPixelRef() {return originalPixelColor;}
+	myColor_3f  GetPixel() {return originalPixelColor;}
+	int GetRow() {return row;}
+	int GetCol() {return col;}
+	
+	ClusterablePoint3D_OpenCV() : row(0), col(0), originalPixelColor(myColor_3f(0.0f, 0.0f, 0.0f)) {}
+	ClusterablePoint3D_OpenCV(int ROW, int COL, myColor_3f GIVENCOLOR) : row(ROW), col(COL), originalPixelColor(GIVENCOLOR) {}
 	
 	virtual double DistTo(ClusterablePoint* other)
 	{
 		ClusterablePoint3D_OpenCV* b = dynamic_cast<ClusterablePoint3D_OpenCV*>(other);
-		return sqrt(pow((*pixel)[0]-(*b->pixel)[0],2.0) + pow((*pixel)[1]-(*b->pixel)[1],2.0) + pow((*pixel)[2]-(*b->pixel)[2],2.0));
+		return sqrt(pow(GetPixel()[0]-b->GetPixel()[0],2.0) + pow(GetPixel()[1]-b->GetPixel()[1],2.0) + pow(GetPixel()[2]-b->GetPixel()[2],2.0));
 	}
 	
 	virtual ClusterablePoint* MeanOf(const std::vector<ClusterablePoint*> & some_cluster)
 	{
-		ClusterablePoint3D_OpenCV* mean = new ClusterablePoint3D_OpenCV(nullptr);
-		mean->pixel = new myColor_3f();
+		ClusterablePoint3D_OpenCV* mean = new ClusterablePoint3D_OpenCV();
 		
 		if(some_cluster.empty() == false)
 		{
@@ -33,34 +38,20 @@ public:
 			{
 				ClusterablePoint3D_OpenCV* b = dynamic_cast<ClusterablePoint3D_OpenCV*>(some_cluster[i]);
 				assert(b != nullptr);
-				(*mean->pixel)[0] += (*b->pixel)[0];
-				(*mean->pixel)[1] += (*b->pixel)[1];
-				(*mean->pixel)[2] += (*b->pixel)[2];
+				mean->GetPixelRef()[0] += b->GetPixel()[0];
+				mean->GetPixelRef()[1] += b->GetPixel()[1];
+				mean->GetPixelRef()[2] += b->GetPixel()[2];
 			}
-			((*mean->pixel)[0]) /= ((double)(some_cluster.size()));
-			((*mean->pixel)[1]) /= ((double)(some_cluster.size()));
-			((*mean->pixel)[2]) /= ((double)(some_cluster.size()));
+			mean->GetPixelRef()[0] /= ((double)(some_cluster.size()));
+			mean->GetPixelRef()[1] /= ((double)(some_cluster.size()));
+			mean->GetPixelRef()[2] /= ((double)(some_cluster.size()));
 		}
 		return mean;
 	}
 };
 
 
-//------------------------------
-/*class ClusterablePoint3D_better_OpenCV : public ClusterablePoint
-{
-public:
-	myColor_3f pixel;
-	int image_i;
-	int image_j;
-	
-		...alternative implementation to using pointers; not used
-};*/
-//------------------------------
 
-
-/// map 'ClusterablePoint's around an existing vector of colors
-std::vector<ClusterablePoint*>* WrapClusterablePointsToCVColors(std::vector<myColor_3f> & cv_colors);
 
 
 /// get all pixels in an image as 'ClusterablePoint's
@@ -71,11 +62,15 @@ std::vector<ClusterablePoint*>* GetSetOfPixelColors_3Df(cv::Mat* image);
 std::vector<ClusterablePoint*>* GetSetOfPixelColors_WithMask_3Df(cv::Mat* image, cv::Mat* mask_CV_8U_type);
 
 
-/// convert clustered pixels back to an image that displays the clusters by their colors
-/// modifies the original image, so you should have made a copy of it before clustering it
+/// produces a reduced-color image that visualizes the clusters (num colors in image == num clusters)
 cv::Mat GetClusteredImage_3Df(const std::vector<std::vector<ClusterablePoint*>> & clusters,
 							std::vector<ClusterablePoint*> cluster_colors,
-							cv::Mat* original_image);
+							int original_img_rows, int original_img_cols);
+
+/// get mask of each cluster; return a vector of binary uint8 masks
+std::vector<cv::Mat> GetClusterMasks_3Df(const std::vector<std::vector<ClusterablePoint*>> & clusters,
+							std::vector<ClusterablePoint*> cluster_colors,
+							int original_img_rows, int original_img_cols);
 
 /// get the mean color of each cluster
 std::vector<ClusterablePoint*> GetClusterMeanColors_3Df(const std::vector<std::vector<ClusterablePoint*>> & clusters);
