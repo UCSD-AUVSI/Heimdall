@@ -187,7 +187,7 @@ std::string get_typeid_name_of_class(const T& t) {
 }
 
 //Helper functions and variables for trig functions
-const double kPI = 4 * atan(1);
+const double kPI = 3.141592653589793238;
 double to_degrees(double radians);
 double to_radians(double degrees);
 

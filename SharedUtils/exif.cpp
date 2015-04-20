@@ -505,6 +505,22 @@ int EXIFInfo::parseFromEXIFSegment(const unsigned char *buf, unsigned len) {
               this->GeoLocation.Altitude = -this->GeoLocation.Altitude;
           }
           break;
+          
+        case 13:
+          // speed of GPS receiver (GPSSpeed)
+          if (format == 5) {
+            this->GeoLocation.GPSSpeed = 
+              parseEXIFRational(buf + data + tiff_header_start, alignIntel);
+          }
+          break;
+          
+        case 17:
+          // Direction of Image (GPSImgDirection)
+          if (format == 5) {
+            this->GeoLocation.ImgDirection = 
+              parseEXIFRational(buf + data + tiff_header_start, alignIntel);
+          }
+          break;
       }
       offs += 12;
     }
@@ -548,6 +564,8 @@ void EXIFInfo::clear() {
   GeoLocation.Longitude   = 0;
   GeoLocation.Altitude    = 0;
   GeoLocation.AltitudeRef = 0;
+  GeoLocation.ImgDirection= 0;
+  GeoLocation.GPSSpeed    = 0;
   GeoLocation.LatComponents.degrees   = 0;
   GeoLocation.LatComponents.minutes   = 0;
   GeoLocation.LatComponents.seconds   = 0;
