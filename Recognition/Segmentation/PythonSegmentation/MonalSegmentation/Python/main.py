@@ -508,17 +508,19 @@ def doSegmentation(cropImg, optionalArgs):
 	cropf32=np.float32(lab2)/255
 
 	shapeSegMask=hulll2
-
+	
+	PrintUsefulKMeansInfoToConsole = False
+	
 	if(KEq2):
-		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24)
+		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24,PrintUsefulKMeansInfoToConsole)
 	else:
-		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,3,14,24)
+		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,3,14,24,PrintUsefulKMeansInfoToConsole)
 	
 	shapeSeg = shapeSegTupleResults[0]
 	
-	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,6,14,24)
-	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,3,14,24)
-	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,2,14,24)
+	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,6,14,24,PrintUsefulKMeansInfoToConsole)
+	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,3,14,24,PrintUsefulKMeansInfoToConsole)
+	#shapeSeg=pykmeansppcpplib.ClusterKmeansPPwithMask(shapeSeg,shapeSegMask,2,14,24,PrintUsefulKMeansInfoToConsole)
 	#cv2.imshow("lab",lab2)
 	#cv2.imshow("shapeseg",shapeSeg)
 	#cv2.waitKey(0)
@@ -650,8 +652,8 @@ def doSegmentation(cropImg, optionalArgs):
 				if jj > int(float(imcols)*0.25) and jj < int(float(imcols)*0.75):
 					charSegMask[ii][jj] = 255
 	
-	shapeSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32, shapeSegMask, 3, 8, 20)
-	charSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32copy, charSegMask, 3, 8, 20)
+	shapeSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32, shapeSegMask, 3, 8, 20, PrintUsefulKMeansInfoToConsole)
+	charSeg = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32copy, charSegMask, 3, 8, 20, PrintUsefulKMeansInfoToConsole)
 	"""
 	#res2=cv2.cvtColor(res2,cv2.COLOR_LAB2BGR)
 	writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)

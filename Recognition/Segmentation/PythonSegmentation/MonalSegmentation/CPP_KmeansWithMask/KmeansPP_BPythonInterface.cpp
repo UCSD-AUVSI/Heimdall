@@ -6,11 +6,14 @@
 #include "SharedUtils/PythonUtils.hpp"
 #include "SharedUtils/clustering/kmeansplusplus.hpp"
 #include "SharedUtils/clustering_opencv.hpp"
+#include <chrono>
 namespace bp = boost::python;
 using std::cout; using std::endl;
 
 
-static RNG_rand_r myrng;
+static RNG_rand_r myrng; //no longer used due to parallelization (each thread needs its own RNG)
+
+#define PROFILING_KMEANS 0
 
 
 
@@ -26,8 +29,13 @@ static RNG_rand_r myrng;
 */
 
 bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskForClustering,
-				int k_num_cores, int num_lloyd_iterations, int num_kmeanspp_iterations)
+				int k_num_cores, int num_lloyd_iterations, int num_kmeanspp_iterations, bool print_debug_console_output)
 {
+#if PROFILING_KMEANS
+	cout << "KMEANS_CPP_WITH_MASK ----------- start" << endl;
+	auto tstart = std::chrono::steady_clock::now();
+#endif
+	
 	NDArrayConverter cvt;
 	cv::Mat srcCropImage = cvt.toMat(filteredCropImage);
 	cv::Mat srcMaskImage = cvt.toMat(maskForClustering);
@@ -48,8 +56,16 @@ bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskFo
 	// get clusterable pixels
 	std::vector<ClusterablePoint*>* clusterablePixels(GetSetOfPixelColors_WithMask_3Df(&srcCropImage, &srcMaskImage));
 	
+#if PROFILING_KMEANS
+	auto tstartclustering = std::chrono::steady_clock::now();
+#endif
+	
 	// do kmeans++
-	std::vector<std::vector<ClusterablePoint*>> resultsClusters(KMEANSPLUSPLUS(clusterablePixels, &myrng, k_num_cores, num_lloyd_iterations, num_kmeanspp_iterations));
+	std::vector<std::vector<ClusterablePoint*>> resultsClusters(KMEANSPLUSPLUS(clusterablePixels, &myrng, k_num_cores, num_lloyd_iterations, num_kmeanspp_iterations, print_debug_console_output));
+	
+#if PROFILING_KMEANS
+	auto tendclustering = std::chrono::steady_clock::now();
+#endif
 	
 	// get the color of each cluster
 	std::vector<ClusterablePoint*> clusterColors(GetClusterMeanColors_3Df(resultsClusters));
@@ -85,6 +101,12 @@ bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskFo
 	//get mask of each cluster
 	PyObject* drawnClustersCPP = cvt.toNDArray(drawnClusters);
 	bp::object drawnClustersPython(bp::handle<>(bp::borrowed(drawnClustersCPP)));
+	
+#if PROFILING_KMEANS
+	auto tend = std::chrono::steady_clock::now();
+	cout << "CPP_KMEANS_WITHMASK -- total time: " << std::chrono::duration<double, std::milli>(tend-tstart).count() << " milliseconds" << endl;
+	cout << "CPP_KMEANS_WITHMASK -- clustering time: " << std::chrono::duration<double, std::milli>(tendclustering-tstartclustering).count() << " milliseconds" << endl;
+#endif
 	
 	return bp::make_tuple(drawnClustersPython, returnedClusterColors, returnedClusterMasks);
 }

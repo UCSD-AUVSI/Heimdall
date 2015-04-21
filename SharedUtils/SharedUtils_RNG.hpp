@@ -43,6 +43,9 @@ public:
 	RNG_rand_r() {
 		Seed_And_Initialize();
 	}
+	RNG_rand_r(unsigned int seedoffset) {
+		myseed = time(nullptr) + seedoffset;
+	}
 	
 	virtual void Seed_And_Initialize() {
 		myseed = time(nullptr);
