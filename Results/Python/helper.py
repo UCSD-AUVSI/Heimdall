@@ -52,9 +52,17 @@ def matrix_sim(matrix,targets):
 		idy = 0
 		for item in row:
 			if(idy<idx):
+				print "----------------------------------------------"
+				print targets[idx]
+				print targets[idy]
 				distance = targets[idx].check_distance(targets[idy])
 				element = targets[idx].check_elements(targets[idy])
-				matrix[idx,idy] = (distance*.999+element*.001)
+				sim = distance + 100*element
+				print "Distance: "+str(distance)
+				print "Element#: " +str(element)
+				print "Combined: "+str(sim)
+				print "-----------------------------------------------"
+				matrix[idx,idy] = sim
 			idy = idy+1;
 		idx = idx+1
 	return matrix

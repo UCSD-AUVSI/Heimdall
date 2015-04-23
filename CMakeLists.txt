@@ -42,6 +42,9 @@ add_subdirectory(SharedUtils)
 add_subdirectory(TruthViewer)
 add_subdirectory(Verification)
 
+file(COPY Results DESTINATION ${CMAKE_BINARY_DIR})
+
+
 FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/debug)
 FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/bdstore)
 FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/psin)
