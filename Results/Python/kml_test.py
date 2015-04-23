@@ -1,7 +1,7 @@
 import simplekml
 import pickle
 import os
-from main import *
+from target import *
 kml = simplekml.Kml()
 print os.listdir(os.getcwd())
 print os.getcwd()
