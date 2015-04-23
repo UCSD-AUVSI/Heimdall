@@ -14,6 +14,7 @@ from collections import Counter
 
 
 def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorStr, CharName, TargetLat, TargetLong, TargetOrientation, OriginalImageFilename, imageData, askFJorClusrters):    
+    
     # create the new target
     new_target = Target(scolor = ShapeColorStr,shape=ShapeName,shape_conf=1, ccolor = CharColorStr, char = CharName,char_confs=[1], lat = TargetLat, long = TargetLong)
     
@@ -75,7 +76,8 @@ class Target():
         dist = haversine(target.long,target.lat,self.long,self.lat)
         if(dist==0):
             dist = .001
-        return (dist*dist)
+	print "Pre dist: "+str(dist)
+        return dist
     def check_elements(self,target):
         """
         Calculates similarity between two targets attributes
@@ -89,7 +91,7 @@ class Target():
             total+=1
         if(self.ccolor == target.ccolor and self.ccolor != ""):
             total+=1
-        return (1.0 - total/4.0)*(1.0 - total/4.0)
+        return (0.5 - total/4)
     def __str__(self):
         """
         Prints out the target
@@ -167,9 +169,9 @@ def highestItem(common):
     name= ""
     for result in common:
         if(common[result]>=highest):
-            if name == "":
-                highest = common[result]
-                name = result
+	    if result != "":
+            	highest = common[result]
+            	name = result
     if name== "":
         highest = 0
     if highest == 0:
@@ -198,7 +200,7 @@ def get_ranked_results():
 
     if len(sim_matrix) > 3 :
         #cluster targets
-        returnedClusters = pydbscancpplib.TargetClusterDBSCAN(sim_matrix, 1, 500)
+        returnedClusters = pydbscancpplib.TargetClusterDBSCAN(sim_matrix, 1, 200)
         outputTargets=[]
         for cluster in returnedClusters:
             print "Cluster"

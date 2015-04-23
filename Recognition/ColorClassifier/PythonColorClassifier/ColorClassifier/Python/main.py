@@ -7,10 +7,11 @@ import os
 
 
 def getColor(color, testCode):
+	print "starting Get Color"
 	try:
-		color_db=pickle.load(open("/home/marcof/Heimdall/build/Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/color_db.p","rb"))
+		color_db=pickle.load(open("/home/marcof/Documents/AUVSI/Heimdall/build/Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/color_db.p","rb"))
 	except :
-		print "Exception "+ sys.exc_info()[0]
+		print "Exception "+ str(sys.exc_info()[0])
 		raise BaseException
 	cielab_output = []
 	name = []
@@ -22,6 +23,8 @@ def getColor(color, testCode):
 		name.append(dictionary["name"])
 		check.append({"cielab":cielab,"name":dictionary["name"]})
 	print len(check)
+	print check[0]
+	print check[1]
 	#put cielab data into matrix
 	trainData=np.matrix(cielab_output, dtype=np.float32)
 	#put names which are numbers right now into a matrix
@@ -61,12 +64,21 @@ def getColor(color, testCode):
 COLOR_TO_NUMBER = {"White":1,"Black":2,"Red":3,"Orange":4,"Yellow":5,"Blue":6,"Green":7,"Purple":8,"Pink":9,"Brown":10,"Grey":11,"Teal":12}
 
 def bgr_to_lab(bgr):
+	print bgr
 	#create blank image 1x1 pixel
 	blank_image=np.zeros((1,1,3),np.uint8)
+	print blank_image
 	#set image pixels to bgr input
 	blank_image[:]= bgr
+	print blank_image
 	#turn into LAB
-	cielab = cv2.cvtColor(blank_image,cv2.COLOR_BGR2LAB)
+	try:
+		cielab = cv2.cvtColor(blank_image,cv2.COLOR_BGR2LAB)
+	except :
+		print "Exception "+ str(sys.exc_info()[0])
+		raise BaseException
+	print "after try"
+	print cielab
 	return cielab[0][0]
 def lab_to_bgr(lab):
 	#create blank image 1x1 pixel
@@ -82,17 +94,24 @@ def rgb_to_bgr(rgb):
 def doColorClassification(givenSColor, givenCColor, optionalArgs):
 	
 	print "Python Color Classification (this is the Python)"
-	
+	print sys.version
 	print givenSColor
 	print givenCColor
+	print cv2.__version__
 
 	if len(givenSColor) != 3:
 		print "WARNING: SColor wasn't a 3-element list!!!"
 	if len(givenCColor) != 3:
 		print "WARNING: CColor wasn't a 3-element list!!!"
-	print "go"
-	returnedSColor = getColor(bgr_to_lab(rgb_to_bgr(givenSColor)), 1)
-	returnedCColor = getColor(bgr_to_lab(rgb_to_bgr(givenCColor)), 1)
+	print "To BGR"
+	bgrS = rgb_to_bgr(givenSColor)
+	bgrC = rgb_to_bgr(givenCColor)
+	print "TO LAB"
+	labS = bgr_to_lab(bgrS)
+	labC = bgr_to_lab(bgrC)
+	print "getColor"
+	returnedSColor = getColor(labS, 1)
+	returnedCColor = getColor(labC, 1)
 	
 	return (returnedSColor, returnedCColor)
 
