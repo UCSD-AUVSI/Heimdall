@@ -30,6 +30,7 @@
 #include "kmeansplusplus.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include <algorithm>
+#include <thread>
 
 #include <iostream>
 #define PRINTDEBUGINFO(stuffTOPRINT) 
@@ -44,7 +45,7 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 {
 	assert(random_NG != nullptr);
 	
-	//initialize stuff
+	///initialize stuff
 	int num_keypoints = keypoints->size();
 	int num_keypoints_minus1 = (num_keypoints - 1);
 	std::vector<ClusterablePoint*> initial_cluster_cores;
@@ -53,18 +54,18 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 	double curr_euclid_dist = 0.0;
 	
 	
-	//step 1
+	///step 1
 	int last_core_idx = random_NG->rand_int(0, num_keypoints_minus1);
 	initial_cluster_cores.push_back((*keypoints)[last_core_idx]);
 	
 	PRINTDEBUGINFO("INITIAL CORE IDX (index of first chosen point): " << last_core_idx);
 	
 	
-	//this loop explained as step 5
+	///this loop explained as step 5
 	while(initial_cluster_cores.size() < k__num_cluster_cores)
 	{
 		
-		//step 2 or 4
+		///step 2 or 4
 		for(int i=0; i<num_keypoints; i++) {
 			curr_euclid_dist = ((*keypoints)[i])->DistTo((*keypoints)[last_core_idx]);
 			min_euclid_distances[i] = std::min(curr_euclid_dist, min_euclid_distances[i]);
@@ -79,25 +80,25 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 		PRINTDEBUGINFO("sum of euclid distances: " << running_total_min_euclid_distances.back());
 		
 		
-		//step 3
-		//choose a point randomly, but weighted by distance,
-		//so points further away from all existing clusters are preferred
+		///step 3
+		///choose a point randomly, but weighted by distance,
+		///so points further away from all existing clusters are preferred
 		double chosen_sum_euclid_distances_rand = random_NG->rand_double(0.0, running_total_min_euclid_distances.back());
 		
-		//binary search to quickly get the chosen point
+		///binary search to quickly get the chosen point
 		std::vector<double>::iterator foundit = std::upper_bound(running_total_min_euclid_distances.begin(),
 																running_total_min_euclid_distances.end(),
 																chosen_sum_euclid_distances_rand);
 		
-		//the array was not only sorted ascending, but each point corresponds 1-to-1 with the original array of keypoints
-		//so we can get keypoint index as the distance between the pointer of foundit and the start of the array
+		///the array was not only sorted ascending, but each point corresponds 1-to-1 with the original array of keypoints
+		///so we can get keypoint index as the distance between the pointer of foundit and the start of the array
 		last_core_idx = (&(*foundit)) - (&(running_total_min_euclid_distances[0]));
 		
 		
 		PRINTDEBUGINFO("randomly chosen new last_core_idx: " << last_core_idx);
 		
 		
-		//fix if the randomly chosen point was already a guessed cluster core
+		///fix if the randomly chosen point was already a guessed cluster core
 		if(min_euclid_distances[last_core_idx] == 0.0)
 		{
 			int starting_idx = last_core_idx;
@@ -119,7 +120,7 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 		PRINTDEBUGINFO("updated new last_core_idx (in case it was already in cluster): " << last_core_idx);
 		
 		
-		//now add the new guessed cluster core
+		///now add the new guessed cluster core
 		initial_cluster_cores.push_back((*keypoints)[last_core_idx]);
 	}
 	
@@ -128,47 +129,75 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 
 
 
+static void one_kmeanspp_iteration(std::vector<ClusterablePoint*>* keypoints,
+							RNG* random_NG,
+							int k__num_cluster_cores,
+							int num_lloyd_iterations,
+							std::vector<std::vector<ClusterablePoint*>>** returnedClusters,
+							double* returnedPotential,
+							bool print_debug_console_output)
+{
+	///use KMEANS++ to get good initial guesses for cluster cores
+	std::vector<ClusterablePoint*> clustercores = KMEANSPLUSPLUS_get_cluster_cores(keypoints, random_NG, k__num_cluster_cores);
+	
+	///then call plain KMEANS (step 6)
+	(*returnedClusters) = new std::vector<std::vector<ClusterablePoint*>>( KMEANS(keypoints, &clustercores, num_lloyd_iterations, returnedPotential) );
+	
+	if(print_debug_console_output) {
+		std::cout<<"kmeans++ clustered with potential "<<(*returnedPotential)<<std::endl;
+	}
+}
+
+
+
 std::vector<std::vector<ClusterablePoint*>> KMEANSPLUSPLUS(std::vector<ClusterablePoint*>* keypoints,
 													RNG* random_NG,
 													int k__num_cluster_cores,
 													int num_lloyd_iterations,
-													int num_kmeanspp_iterations)
+													int num_kmeanspp_iterations,
+													bool print_debug_console_output /*= false*/)
 {
-	//call "KMEANSPLUSPLUS_run_once" "num_kmeanspp_iterations" times
-	//return the cluster-set with the lowest potential
+	///call "KMEANSPLUSPLUS_run_once" "num_kmeanspp_iterations" times
+	///return the cluster-set with the lowest potential
 	
-	std::vector<ClusterablePoint*> clustercores;
 	std::vector<std::vector<ClusterablePoint*>> best_clusters;
 	double min_total_dist_potential = 1.8e16; //should be positive infinity
-	double last_total_dist_potential = 0.0;
 	
+	std::vector<std::thread*>                                 threads(num_kmeanspp_iterations);
+	std::vector<RNG_rand_r*>                                  threadRNGs(num_kmeanspp_iterations);
+	std::vector<std::vector<std::vector<ClusterablePoint*>>*> resultsClusters(num_kmeanspp_iterations);
+	std::vector<double>                                       resultsPotentials(num_kmeanspp_iterations);
 	
-	for(int iii=0; iii<num_kmeanspp_iterations; iii++)
-	{
-		clustercores.clear();
-		
-		
-		//use KMEANS++ to get good initial guesses for cluster cores
-		clustercores = KMEANSPLUSPLUS_get_cluster_cores(keypoints, random_NG, k__num_cluster_cores);
-		
-		
-		//then call plain KMEANS (step 6)
-		std::vector<std::vector<ClusterablePoint*>> last_clusters = KMEANS(keypoints, &clustercores, num_lloyd_iterations, &last_total_dist_potential);
-		
-		
-		consoleOutput.Level3() << "last potential: " << last_total_dist_potential << std::endl;
-		
-		
-		//keep the result with the lowest potential (the best clustering) (step 7)
-		if(last_total_dist_potential < min_total_dist_potential) {
-			min_total_dist_potential = last_total_dist_potential;
-			best_clusters = last_clusters;
-		}
+	for(int iii=0; iii<num_kmeanspp_iterations; iii++) {
+		threadRNGs[iii] = new RNG_rand_r(iii);
+		threads[iii] = new std::thread(&one_kmeanspp_iteration,
+												keypoints,
+												threadRNGs[iii],
+												k__num_cluster_cores,
+												num_lloyd_iterations,
+												&resultsClusters[iii],
+												&resultsPotentials[iii],
+												print_debug_console_output);
 	}
 	
+	for(int iii=0; iii<num_kmeanspp_iterations; iii++) {
+		threads[iii]->join();
+		
+		///keep the result with the lowest potential (the best clustering) (step 7)
+		if(resultsPotentials[iii] < min_total_dist_potential) {
+			min_total_dist_potential = resultsPotentials[iii];
+			best_clusters = *resultsClusters[iii];
+		}
+		
+		delete threads[iii]; threads[iii] = nullptr;
+		delete resultsClusters[iii]; resultsClusters[iii] = nullptr;
+	}
 	
-	consoleOutput.Level3() << "kmeans++ finished... lowest found potential: " << min_total_dist_potential << std::endl;
+	if(print_debug_console_output) {
+		std::cout << "kmeans++ finished... lowest found potential: " << min_total_dist_potential << std::endl;
+	}
 	
+	assert((int)best_clusters.size() == k__num_cluster_cores);
 	return best_clusters;
 }
 

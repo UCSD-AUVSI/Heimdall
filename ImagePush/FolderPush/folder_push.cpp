@@ -177,8 +177,8 @@ void FolderPush :: execute(imgdata_t *imdata, std::string args){
             imdata->planeheading  = file_exif.GeoLocation.ImgDirection;
 			
             if(DEBUG_EXIF_INFO) {
-				cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
-				cout<<"imdata->plane: (lat,longt) and altitude and heading == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<(imdata->planealt)<<" feet at heading "<<(imdata->planeheading)<<endl;
+				consoleOutput.Level4()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
+				consoleOutput.Level0()<<"image loaded: imdata->plane: (lat,longt) and altitude and heading == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<(imdata->planealt)<<" feet at heading "<<(imdata->planeheading)<<endl;
 			}
         }
         else{

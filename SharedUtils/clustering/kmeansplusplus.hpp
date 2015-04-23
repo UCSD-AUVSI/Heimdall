@@ -7,4 +7,5 @@ std::vector<std::vector<ClusterablePoint*>> KMEANSPLUSPLUS(std::vector<Clusterab
 													RNG* random_NG,
 													int k__num_cluster_cores,
 													int num_lloyd_iterations,
-													int num_kmeanspp_iterations);
+													int num_kmeanspp_iterations,
+													bool print_debug_console_output = false);
