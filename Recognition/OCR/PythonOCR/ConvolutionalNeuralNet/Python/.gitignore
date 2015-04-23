@@ -1,3 +1,4 @@
 DatasetsLoaders.py
-*.pkl.*
 *.pyc
+weights/*
+testsamples/*

@@ -46,9 +46,6 @@ from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
 from logistic_sgd import LogisticRegression
-from DatasetsLoaders import send_host_datasets_to_device
-from DatasetsLoaders import load_chars74k
-from DatasetsLoaders import load_MNIST
 from mlp import HiddenLayer, DropoutHiddenLayer, _dropout_from_layer, _add_noise_to_input, ReLu
 
 
@@ -66,7 +63,7 @@ class LeNetConvPoolLayer(object):
 		:param input: symbolic image tensor, of shape image_shape
 		
 		:type filter_shape: tuple or list of length 4
-		:param filter_shape: (number of filters, num input feature maps, filter height, filter width)
+		:param filter_shape: (number of filters, num input feature channels, filter height, filter width)
 		
 		:type image_shape: tuple or list of length 4
 		:param image_shape: (batch size, num input feature maps, image height, image width)
@@ -342,6 +339,8 @@ class OCR_CNN(object):
 	
 	def Train(self, datasets, datasetsOnDevice, learning_rate, weightmomentum, n_epochs, pickleNetworkName, filterFilesSavedBaseName="", deviceTrainSetSize=36000, deviceValidSetSize=3200):
 		
+		import DatasetsLoaders
+		
 		if datasetsOnDevice:
 			train_set_x, train_set_y = datasets[0]
 			valid_set_x, valid_set_y = datasets[1]
@@ -466,7 +465,7 @@ class OCR_CNN(object):
 			if datasetsOnDevice == False:
 				# we need to produce a dataset to train this iteration
 				
-				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
+				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
 				if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
 					print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
 					n_train_batches = numTrainPts/self.batch_size
@@ -572,6 +571,7 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 	:type nkerns: list of ints
 	:param nkerns: number of kernels on each layer
 	"""
+	import DatasetsLoaders
 	
 	if useMNIST:
 		learning_rate = 0.20
@@ -582,7 +582,7 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 		params.nkerns=[20, 50]
 		params.poolsizes = [2, 2]
 		numOutClasses = 10
-		datasets = load_MNIST('mnist.pkl.gz')
+		datasets = DatasetsLoaders.load_MNIST('mnist.pkl.gz')
 		datasetsOnDevice = True
 		pickleNetworkName = "cnn28x28MNISTtheano_paramsWb"
 		filterFilesSavedBaseName = ""
@@ -596,7 +596,7 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 		batch_size = params.batchSize
 		deviceTrainSetSize = params.deviceTrainSetSize
 		deviceValidSetSize = params.deviceValidSetSize
-		datasets = load_chars74k(params.widthOfImages)
+		datasets = DatasetsLoaders.load_chars74k(params.widthOfImages)
 		datasetsOnDevice = False
 		pickleNetworkName = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/weights_saved/cnn40x40theano_paramsWb"
 		filterFilesSavedBaseName = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/filters_saved/filt"
@@ -615,7 +615,8 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 
 def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", batchSize=1):
 	
-	datasets = load_chars74k(defaultCNNParams().widthOfImages)
+	import DatasetsLoaders
+	datasets = DatasetsLoaders.load_chars74k(defaultCNNParams().widthOfImages)
 	datasetsOnDevice = False
 	
 	if wasGivenPrebuiltCNN == False:
@@ -633,7 +634,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		deviceTrainSetSize = 70000
 		deviceValidSetSize = batchSize
 		
-		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
+		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
 		if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
 			print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
 			n_train_batches = numTrainPts/self.batch_size
@@ -700,8 +701,64 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 	#======================================================================================================================
 
 
+'''
+	ConvertOrientationClassToDegrees()
+		convert to a system where 0 is top-is-up, 90 is top-is-right, 180 is upside down, 270 is top-is-left
+		this is clockwise from vertical
+'''
+def ConvertOrientationClassToDegrees(classOutOf144):
+	anglepred = 0
+	if classOutOf144 >= 36:
+		anglepred = 270
+		classOutOf144 = (classOutOf144 - 36)
+		if classOutOf144 >= 36:
+			anglepred = 180
+			classOutOf144 = (classOutOf144 - 36)
+			if classOutOf144 >= 36: 
+				anglepred = 90
+				classOutOf144 = (classOutOf144 - 36)
+	return anglepred
 
-def predict_CNN_on_img(givenCNN, img, widthOfImage, batchSize=1, debuggingMode=False):
+
+'''
+	ConvertClassToCharPlusOrientation()
+		this only works when converting from
+		1 of 144 classes to orientations at 90 degree offsets
+'''
+def ConvertClassToCharPlusOrientation(prediction):
+	anglepred = "top-is-up"
+	if prediction >= 36:
+		anglepred = "top-is-left"
+		prediction = (prediction - 36)
+		if prediction >= 36:
+			anglepred = "top-is-down"
+			prediction = (prediction - 36)
+			if prediction >= 36: 
+				anglepred = "top-is-right"
+				prediction = (prediction - 36)
+	if prediction < 10:
+		predchar = chr(prediction+48)
+	else:
+		predchar = chr(prediction+55)
+	return (predchar, anglepred)
+
+
+'''
+	cv2rotateImg()
+		OpenCV doesnt have an imrotate() function, so this is how you do it
+'''
+def cv2rotateImg(image,angledegrees):
+	import cv2
+	center = tuple(numpy.array(image.shape)/2)
+	shape = tuple(image.shape)
+	return cv2.warpAffine(image, cv2.getRotationMatrix2D(center,angledegrees,1.), dsize=shape, flags=cv2.INTER_LINEAR)
+				
+
+'''
+	predict_CNN_on_img()
+		Use a saved CNN to make a prediction given one image
+'''
+def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesInbetween=0, returnDetailedInfo=False, numTopGuessesToReturn=1):
 	
 	imdata = img.astype(dtype=theano.config.floatX)
 	
@@ -717,30 +774,83 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, batchSize=1, debuggingMode=F
 				imdata = numpy.pad(imdata, [(0,0),(neededCols/2,(widthOfImage-imdata.shape[ij])-(neededCols/2))], 'constant', constant_values=(0))
 	
 	imdata = numpy.reshape(imdata, (1,widthOfImage*widthOfImage))
-	if batchSize > 1:
-		imdataCopy = numpy.copy(imdata)
-		for i in range(batchSize-1):
-			imdata = numpy.concatenate([imdata,imdataCopy])
-		print("new numpy array shape: "+str(imdata.shape))
 	
-	# make prediction
-	predim = T.matrix('predim')
-	predict = theano.function(inputs=[predim], outputs=givenCNN.allLayers[-1].y_pred, givens={givenCNN.x: predim})
+	predim = T.matrix('predim') #symbolic variable representing image array, used to compile prediction function
 	
-	CNNprediction = predict(imdata)
+	if anglesInbetween == 0:
+		# simple prediction based on argmax of outputs, i.e. what it was trained for
+		
+		predict = theano.function(inputs=[predim], outputs=givenCNN.allLayers[-1].y_pred, givens={givenCNN.x: predim})
+		CNNprediction = predict(imdata)
+		
+		if debuggingMode:
+			print("the CNN predicted this: \""+str(CNNprediction)+"\"")
+			print("maximum grayscale pixel value in image == "+str(numpy.amax(imdata)))
+			import cv2
+			cv2.imshow("testimg_processed 222", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
+			cv2.waitKey(0)
+		
+		print("numTopGuessesToReturn ignored when no inbetween angles are checked.....")
+		return ConvertClassToCharPlusOrientation(CNNprediction[0])
 	
-	if debuggingMode:
-		print("the CNN predicted this: \""+str(CNNprediction)+"\"")
-		print("maximum grayscale pixel value in image == "+str(numpy.amax(imdata)))
+	else:
 		import cv2
-		cv2.imshow("testimg_processed 222", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
-		cv2.waitKey(0)
-	
-	return CNNprediction[0]
+		# consider in-between angles such as 45 degrees, instead of just 90-degree increments
+		
+		predict = theano.function(inputs=[predim], outputs=givenCNN.allLayers[-1].p_y_given_x, givens={givenCNN.x: predim})
+		allpredictions = []
+		deltaAngle = 90.0/float(anglesInbetween+1)
+		
+		for aidx in range(anglesInbetween+1):
+			
+			if aidx > 0:
+				imrotated = cv2rotateImg(numpy.reshape(imdata, (widthOfImage,widthOfImage)), float(aidx)*deltaAngle)
+				imrotated = numpy.reshape(imrotated, (1, widthOfImage*widthOfImage))
+			else:
+				imrotated = imdata
+			
+			allpredictions = numpy.append(allpredictions, predict(imrotated))
+			
+			if debuggingMode:
+				cv2.imshow("imrotated"+str(aidx), cv2.resize(numpy.reshape(imrotated, (widthOfImage,widthOfImage))/255., (200,200)))
+		
+		topidxs = numpy.argpartition(allpredictions, -numTopGuessesToReturn)[-numTopGuessesToReturn:]
+		topidxs = topidxs[numpy.argsort(allpredictions[topidxs])]
+		#now a list of "numTopGuessesToReturn" indices sorted in ascending order of confidence
+		
+		angoffsets = (topidxs / 144)
+		classes = (topidxs - (angoffsets*144))
+		
+		chars = []
+		orientations = []
+		confidences = []
+		for cidx in range(len(classes)):
+			characteridx = (topidxs[cidx]%36)
+			if characteridx < 10:
+				chars.append(chr(characteridx+48))
+			else:
+				chars.append(chr(characteridx+55))
+			thisorientation = float(ConvertOrientationClassToDegrees(topidxs[cidx]%144)) - deltaAngle*float(angoffsets[cidx])
+			if thisorientation < 0.0:
+				orientations.append(thisorientation+360.0)
+			else:
+				orientations.append(thisorientation)
+			confidences.append(float(allpredictions[topidxs[cidx]]))
+		
+		if debuggingMode or True:
+			print("topidxs numeric == "+str(topidxs))
+			print("chars numeric == "+str(classes))
+			print("chars == "+str(chars))
+			print("orientations == "+str(orientations))
+			print("confidences == "+str(confidences))
+		
+		if returnDetailedInfo:
+			return (chars, orientations, confidences)
+		else:
+			return (chars[-1], orientations[-1])
 
 
-
-def test_saved_net_on_image_in_memory(img, trainedWeightsFile):
+def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, anglesInbetween, returnDetailedInfo, numTopGuessesToReturn):
 	
 	# construct CNN
 	builtCNN = OCR_CNN(batch_size=1, useDropout=False, params=defaultCNNParams())
@@ -748,11 +858,11 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile):
 	for nnlayeridx in range(len(builtCNN.allLayers)):
 		builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
 	
-	return predict_CNN_on_img(builtCNN, img, widthOfImages, batchSize=1)
+	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, numTopGuessesToReturn=numTopGuessesToReturn)
 
 
 
-def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", batchSize=1):
+def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN=""):
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
@@ -786,7 +896,7 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		npim = numpy.asarray(im)
 		im.close()
 		
-		prediction = predict_CNN_on_img(builtCNN, npim, desiredWidth, batchSize=batchSize, debuggingMode=False)
+		prediction = predict_CNN_on_img(builtCNN, npim, desiredWidth, debuggingMode=False)
 		
 		anglepred = "top-is-up"
 		if prediction >= 36:
