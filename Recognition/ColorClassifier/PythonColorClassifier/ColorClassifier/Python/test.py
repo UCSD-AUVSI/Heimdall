@@ -1,6 +1,8 @@
 from main import *
-
-while True:
-	test_point=[201.0,192.0,228.0]
+i=2
+while i==2:
+	test_point=[99.0,49.0,105.0]
 	test_point2=[50.0,50.0,50.0]
 	doColorClassification(test_point,test_point2,0)
+	i=3
+

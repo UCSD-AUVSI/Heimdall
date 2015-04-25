@@ -3,6 +3,8 @@ Utility functions for working with the color names and color value
 formats defined by the HTML and CSS specifications for use in
 documents on the Web.
 
+This file 
+
 What this module supports
 -------------------------
 
