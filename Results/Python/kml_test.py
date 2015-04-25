@@ -6,7 +6,7 @@ kml = simplekml.Kml()
 print os.listdir(os.getcwd())
 print os.getcwd()
 try:
-	targets = pickle.load(open("targets.p","rb"))
+	targets = pickle.load(open("../targets.p","rb"))
 except:
 	#print sys.argv[0]()
 	print "load failed"

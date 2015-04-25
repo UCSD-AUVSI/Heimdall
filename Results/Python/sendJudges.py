@@ -17,7 +17,7 @@ def sendJudges():
     ranked_targets = get_ranked_results()
     #get top 6
     #save as judges.txt
-    with open("judges.txt","w") as f:
+    with open("../judges.txt","w") as f:
         f.write('{:>12}  {:>12}  {:>12} {:>12} {:>12} {:>12}\n'.format("ShapeName", "ShapeColor", "Character", "CharColor","Lat","Long"))
         for x in range(0,6):
             if(len(ranked_targets)>x):
@@ -119,7 +119,7 @@ def get_ranked_results():
     returns the list
     """
     try:
-        targets = pickle.load(open("targets.p","rb"))
+        targets = pickle.load(open("../targets.p","rb"))
     except:
         targets=[]
 
@@ -152,7 +152,4 @@ def get_ranked_results():
         for item in rankedTargets:
             print str(item) + " conf="+ str(item.overall_conf)
             count = count +1
-
-
-
     return rankedTargets

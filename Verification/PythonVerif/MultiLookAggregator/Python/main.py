@@ -23,7 +23,7 @@ def doVerif(ShapeColorVals, ShapeColorStr, ShapeName, CharColorVals, CharColorSt
     path = PATH + "images"
     if not os.path.isdir(path):
         os.mkdir(path,0755)
-    new_file_name = OriginalImageFilename+"_"+str(TargetLat)+"_"+str(TargetLong)+".jpg"
+    new_file_name = str(ShapeName)+"_"+ShapeColorStr+"_"+str(TargetLat)+"_"+str(TargetLong)+".jpg"
     #save target
     cv2.imwrite(os.path.join(path, new_file_name), imageData)
 
