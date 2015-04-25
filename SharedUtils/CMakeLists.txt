@@ -15,9 +15,12 @@ set(sharedutils_source_files
 	GlobalVars.hpp
 	)
 
-set(sharedutilspython_source_files
+set(sharedutilspython_cvmatconvert_source_files
 	PythonCVMatConvert.cpp
 	PythonCVMatConvert.h
+	)
+
+set(sharedutilspython_source_files
 	PythonUtils.hpp
 	PythonUtils.cpp
 	)
@@ -36,6 +39,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 add_library(EnableKeyPressToExit ${EnableKeyPressToExit_source_files})
 add_library(sharedutils ${sharedutils_source_files})
 add_library(sharedutilspython SHARED ${sharedutilspython_source_files})
+add_library(sharedutilspython_cvmatconv SHARED ${sharedutilspython_cvmatconvert_source_files})
 
 target_link_libraries(sharedutils gocr optimization backbone)
 target_link_libraries(sharedutilspython python2.7 boost_python-py27)

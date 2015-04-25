@@ -1,4 +1,4 @@
 DatasetsLoaders.py
 *.pyc
 weights/*
-testsamples/*
+samples/*

@@ -1,6 +1,6 @@
 set(pythonsegmentation_source_files
-    PythonSegmentation_ModuleInterface.cpp
-    PythonSegmentation_ModuleInterface.hpp
+	PythonSegmentation_ModuleInterface.cpp
+	PythonSegmentation_ModuleInterface.hpp
 	PythonSegmentation.cpp
 	PythonSegmentation.hpp
 )

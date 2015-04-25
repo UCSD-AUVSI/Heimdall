@@ -7,7 +7,7 @@ import getopt, sys
 
 def ObjDetectFull(origImg, fileNameBase):
 	
-	crops = main.doSaliency(origImg)
+	crops = main.doSaliency(origImg, 0)
 	
 	folderToPlaceCrops = "../../../../../../output_images"
 	

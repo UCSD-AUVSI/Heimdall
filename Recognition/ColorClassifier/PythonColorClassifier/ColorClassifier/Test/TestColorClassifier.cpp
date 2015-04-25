@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	if(argc < 1) { std::cout<<"?? no arguments for executable??"<<std::endl; return 1; }
 	path_to_HeimdallBuild_directory = new std::string(GetPathToTestExecutable(argv[0]));
 	
-	cout << "Test Python Example Color Classifier" << endl;
+	cout << "Test Python Example Color Classifier" << endl << std::flush;
 	
 	
 	std::string returned_scolor;

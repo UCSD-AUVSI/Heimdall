@@ -1,7 +1,6 @@
 #include "PythonColorClassifier.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include "SharedUtils/PythonCVMatConvert.h"
 #include "SharedUtils/GlobalVars.hpp"
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/PythonUtils.hpp"
@@ -76,13 +75,13 @@ void PythonColorClassifierClass::ProcessColorClassification(unsigned char scolor
 		
 		//convert colors to 3-element lists
 		std::vector<double> scolorVec(3, 0.0);
-		scolorVec[0] = scolorR;
-		scolorVec[1] = scolorG;
-		scolorVec[2] = scolorB;
+		scolorVec[0] = (double)scolorR;
+		scolorVec[1] = (double)scolorG;
+		scolorVec[2] = (double)scolorB;
 		std::vector<double> ccolorVec(3, 0.0);
-		ccolorVec[0] = ccolorR;
-		ccolorVec[1] = ccolorG;
-		ccolorVec[2] = ccolorB;
+		ccolorVec[0] = (double)ccolorR;
+		ccolorVec[1] = (double)ccolorG;
+		ccolorVec[2] = (double)ccolorB;
 		bp::list scolorArg = std_vector_to_py_list<double>(scolorVec);
 		bp::list ccolorArg = std_vector_to_py_list<double>(ccolorVec);
 		

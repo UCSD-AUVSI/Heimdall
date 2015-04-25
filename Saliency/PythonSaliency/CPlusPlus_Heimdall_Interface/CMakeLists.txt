@@ -7,6 +7,6 @@ set(pythonsaliency_source_files
 
 add_library(pythonsaliency ${pythonsaliency_source_files})
 
-target_link_libraries(pythonsaliency sharedutilspython saliency SaliencyResultsTruthTesterLibrary ${OpenCV_LIBS})
+target_link_libraries(pythonsaliency sharedutilspython sharedutilspython_cvmatconv saliency SaliencyResultsTruthTesterLibrary ${OpenCV_LIBS})
 
 include_directories(${CMAKE_SOURCE_DIR} ${PYTHON_INCLUDE_PATH})
