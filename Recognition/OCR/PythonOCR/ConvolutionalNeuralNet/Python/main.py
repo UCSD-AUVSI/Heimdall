@@ -6,7 +6,43 @@ def doOCR(givenCSEG, optionalArgs):
 	
 	print "Python OCR (this is the Python)"
 	
-	char = test_saved_net_on_image_in_memory(givenCSEG, "weights.pkl")
+	if len(givenCSEG.shape) > 2:
+		grayscaleCSEG = cv2.cvtColor(givenCSEG, cv2.COLOR_BGR2GRAY)
+	else:
+		grayscaleCSEG = givenCSEG
 	
-	return (char, 0.9, 0.0, 'B', 0.75, 0.0)
+	inrows, incols = grayscaleCSEG.shape
+	
+	#------------------------------
+	# OCR settings
+	
+	needImgSize = 40  #images must be resized to this since the network has been trained for this
+	
+	#anglesInbetween = 3 #predict with 22.5 degree precision (90/(3+1))
+	anglesInbetween = 1 #predict with 45 degree precision (90/(1+1))
+	
+	weightsfilebase = "weights/cnn40x40theano_paramsWb_131399_score_14.125.pkl"
+	returnDetailedInfo = True
+	numTopGuessesToReturn = 2
+	
+	#------------------------------
+	
+	if inrows != needImgSize or incols != needImgSize:
+		resizedCSEG = cv2.resize(grayscaleCSEG, (needImgSize,needImgSize)).astype(float)
+	else:
+		resizedCSEG = grayscaleCSEG.astype(float)
+	
+	(chars,orientations,confidences) = test_saved_net_on_image_in_memory(resizedCSEG, weightsfilebase,
+									needImgSize,
+									anglesInbetween=anglesInbetween,
+									returnDetailedInfo=returnDetailedInfo,
+									numTopGuessesToReturn=numTopGuessesToReturn)
+	
+	return (chars[-1], confidences[-1], orientations[-1], chars[-2], confidences[-2], orientations[-2])
+
+
+
+
+
+
 

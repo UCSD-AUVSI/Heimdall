@@ -1,6 +1,6 @@
 
 # put the shared library where the python files will be able to use it
-SET(LIBRARY_OUTPUT_PATH ../Python)
+SET(LIBRARY_OUTPUT_PATH ../../../../Results/Python)
 
 set(pydbscancpplib_source_files
 	DBSCAN_BPythonInterface.cpp
