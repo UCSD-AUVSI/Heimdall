@@ -43,7 +43,7 @@ static inline int* refcountFromPyObject(const PyObject* obj)
 }
 
 
-class NumpyAllocator;
+class MyNumpyAllocator;
 
 enum { ARG_NONE = 0, ARG_MAT = 1, ARG_SCALAR = 2 };
 

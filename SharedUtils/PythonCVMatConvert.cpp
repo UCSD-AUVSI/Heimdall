@@ -61,11 +61,11 @@ static PyObject* failmsgp(const char *fmt, ...)
   return 0;
 }
 
-class NumpyAllocator : public MatAllocator
+class MyNumpyAllocator : public MatAllocator
 {
 public:
-    NumpyAllocator() {}
-    ~NumpyAllocator() {}
+    MyNumpyAllocator() {}
+    ~MyNumpyAllocator() {}
 
     void allocate(int dims, const int* sizes, int type, int*& refcount,
                   uchar*& datastart, uchar*& data, size_t* step)
@@ -116,7 +116,7 @@ public:
     }
 };
 
-NumpyAllocator g_numpyAllocator;
+MyNumpyAllocator g_numpyAllocator;
 
 NDArrayConverter::NDArrayConverter() { init(); }
 
