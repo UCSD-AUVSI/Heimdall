@@ -44,6 +44,7 @@ class SimulatedAnnealing : public Optimizer_MainAlgorithm
 	*/
 	
 	double warmedUpTemperature;
+	Optimizer_Params* saved_best_params_from_warmup;
 	
 public:
 	int samples_warmup;
@@ -51,7 +52,7 @@ public:
 	virtual void InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
 	virtual void DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
 	
-	SimulatedAnnealing() : Optimizer_MainAlgorithm(), samples_warmup(50), warmedUpTemperature(1.0) {}
+	SimulatedAnnealing() : Optimizer_MainAlgorithm(), samples_warmup(50), warmedUpTemperature(1.0), saved_best_params_from_warmup(nullptr) {}
 };
 
 #endif

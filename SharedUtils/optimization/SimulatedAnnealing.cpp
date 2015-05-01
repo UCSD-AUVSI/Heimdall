@@ -95,25 +95,33 @@ void SimulatedAnnealing::InitialWarmup(Optimizer_Optimizee * givenModule, Optimi
 		testedParams[ii]->Print(cout);
 		cout<<endl<<"THIS SCORE: "<<testedScores[ii]<<endl;
 		
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
-	if(thisLoopIterNum > numInitialSamples){thisLoopIterNum = numInitialSamples;}
 	
 	double highestScoreSeen = -1e12;
 	int highestScoreIdx = -1;
-	for(int ii=0; ii<thisLoopIterNum; ii++) {
+	for(int ii=0; ii<numInitialSamples; ii++) {
 		if(testedScores[ii] > highestScoreSeen) {
 			highestScoreSeen = testedScores[ii];
 			highestScoreIdx = ii;
 		}
 	}
+	for(int ii=0; ii<numInitialSamples; ii++) {
+		if(ii == highestScoreIdx) {
+			saved_best_params_from_warmup = testedParams[ii];
+		} else {
+			delete testedParams[ii];
+		}
+	}
+	cout<<"highest score seen in the warmup: "<<highestScoreSeen<<endl;
+	testedParams.clear();
 	
 	cout<<"changes in energy:"<<endl;
 	cout<<"======================================================================"<<endl;
 	
 	double averageChangesInEnergy = 0.0;
 	double numPtsDifferences = 0.0;
-	for(int ii=1; ii<thisLoopIterNum; ii++) {
+	for(int ii=1; ii<numInitialSamples; ii++) {
 		for(int jj=0; jj<ii; jj++) {
 			numPtsDifferences += 1.0;
 			averageChangesInEnergy += fabs(testedScores[ii] - testedScores[jj]);
@@ -122,7 +130,7 @@ void SimulatedAnnealing::InitialWarmup(Optimizer_Optimizee * givenModule, Optimi
 		}
 	}
 	averageChangesInEnergy /= numPtsDifferences;
-	warmedUpTemperature = (averageChangesInEnergy / 1.2); //negative step acceptance of about 30 %
+	warmedUpTemperature = (averageChangesInEnergy / 1.2); //aim for a negative step acceptance of about 30 %
 	
 	cout<<"======================================================================"<<endl;
 	cout<<"averageChangesInEnergy == "<<averageChangesInEnergy<<endl;
@@ -160,7 +168,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 	std::vector<Optimizer_ResultsStats*> best_seen_results;
 	
 	Optimizer_Params* previous_params = givenModule->CreateNewParams();
-	Optimizer_Params* latest_params = givenModule->CreateNewParams();
+	Optimizer_Params* latest_params = saved_best_params_from_warmup;
 	double previous_score, latest_score, scoreDelta;
 	
 	Optimizer_Optimizee_Output* output = givenModule->CreateOutput();
