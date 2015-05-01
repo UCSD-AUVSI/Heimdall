@@ -144,8 +144,10 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 	cout<<"~~~~~~~~ SimulatedAnnealing::DoPostWarmupLoops()"<<endl;
 	
 	double StepScalar = 0.50; //to start with, can cover up to 50% of the space in one step, i.e. step size +/- 25%
-	double StepReductionAmountPerDrop = 0.75; //the step size at any level is: StepScalar*(StepReductionAmountPerDrop^(num drops))
+	const double StepReductionAmountPerDrop = 0.75; //the step size at any level is: StepScalar*(StepReductionAmountPerDrop^(num drops))
 												//thus this affects the cooling rate
+	const double OriginalStepScalar = StepScalar; //to find proportional temperature drop
+	double CurrentTemperature = warmedUpTemperature;
 	
 	assert(givenModule != nullptr);
 	assert(givenData != nullptr);
@@ -203,6 +205,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 				
 				double stepwidthcalculated = StepScalar;
 				stepwidthcalculated *= pow(StepReductionAmountPerDrop, ((double)numDrops));
+				CurrentTemperature = warmedUpTemperature * (stepwidthcalculated / OriginalStepScalar); //proportional drop in temperature
 				latest_params->GenerateNewArgs(stepwidthcalculated, true);
 			}
 		}
@@ -228,7 +231,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 			scoreDelta = (latest_score - previous_score);
 			
 			//check if step was accepted (probabilistic)
-			bool accepted = ((scoreDelta >= 0.0) || myRNG.rand_double(0.0,1.0) < exp(scoreDelta/(warmedUpTemperature*negtrials_adjuster.getTemperatureScalar())));
+			bool accepted = ((scoreDelta >= 0.0) || myRNG.rand_double(0.0,1.0) < exp(scoreDelta/(CurrentTemperature*negtrials_adjuster.getTemperatureScalar())));
 			
 			//if reject, step back; otherwise keep
 			if(accepted == false) {
@@ -257,6 +260,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 				if(numNegativeDeltaScores >= numPositiveDeltaScores) {
 					cout<<"DROPPING THE STEP SIZE AND TEMPERATURE LEVEL"<<endl;
 					numDrops++;
+					recent_scoredeltas.clear(); //force it to do a bunch more iterations before considering a drop again
 				}
 			}
 			
