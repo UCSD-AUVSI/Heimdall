@@ -7,7 +7,7 @@
 class SimulatedAnnealing : public Optimizer_MainAlgorithm
 {
 	/*
-		P(dE) = min(1,exp(dE/T))
+		P(dE) = min(1,exp(dE/T)) when we want the maximum E (so dE > 0 steps are desired)
 		
 		There are two effects affecting the accept rate:
 		1. step size -- affects fraction of yes vs. no
@@ -32,7 +32,7 @@ class SimulatedAnnealing : public Optimizer_MainAlgorithm
 		Perhaps...
 		Pick some (~30-40?) initial sample points completely at random and find the average change in energy <|dE|> between them
 		Then start from the best of those initial points,
-		with a max-step size of like 50-60% the space width and an initial temperature T0 ~ (<|dE|>/0.7)
+		with a max-step size of like 50% the space width and an initial temperature T0 ~ (<|dE|>/1.2) for ~30% negative accept rate
 		Step size scales down linearly from there, so (T/T0) ~ (dstep/dstep0)
 		
 		Finally... rate of cooling is another parameter
@@ -40,14 +40,18 @@ class SimulatedAnnealing : public Optimizer_MainAlgorithm
 		S.A. is based on analogy with thermodynamics, so cooling should be slow enough that system is always NEAR EQUILIBRIUM
 		i.e. at each temperature decrease step, expect an initial decrease in energy, followed by fluctuations about new equilibrium
 		Determining whether system is at equilibrium requires low-pass filter like moving average to track -slope- of dE/dt,
-		or perhaps looking at the ratio (avg +dE)/(avg |-dE|) and seeing when it is approx. <= 1
+		or looking at the ratio (num +dE)/(num |-dE|) with a number of recent steps and seeing when it is approx. <= 1
 	*/
 	
 	double warmedUpTemperature;
 	
 public:
+	int samples_warmup;
+	
 	virtual void InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
 	virtual void DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
+	
+	SimulatedAnnealing() : Optimizer_MainAlgorithm(), samples_warmup(50), warmedUpTemperature(1.0) {}
 };
 
 #endif

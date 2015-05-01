@@ -49,12 +49,14 @@ void OptimizeableSaliency_Params::GenerateNewArgs(double arg, bool fullRange)
 		assert(argsMin != nullptr && argsMax != nullptr);
 		
 		if(arg > 0.0) {
+			//this case used by S.A. post-warmup
 			for(int ii=0; ii<params.size(); ii++) {
 				double arghalfdiff = 0.5*((*argsMax)[ii] - (*argsMin)[ii]);
 				params[ii] += RNG::rand_double_static(-1.0*arg*arghalfdiff, arg*arghalfdiff);
 			}
 			ConstrainArgs();
 		} else {
+			//this case used by S.A. warmup
 			for(int ii=0; ii<params.size(); ii++) {
 				params[ii] = RNG::rand_double_static((*argsMin)[ii], (*argsMax)[ii]);
 			}
@@ -62,10 +64,12 @@ void OptimizeableSaliency_Params::GenerateNewArgs(double arg, bool fullRange)
 		
 	} else {
 		if(arg > 0.0) {
+			//this case isn't used
 			for(int ii=0; ii<params.size(); ii++) {
 				params[ii] += RNG::rand_double_static(-1.0*arg*paramsStepSizes[ii], arg*paramsStepSizes[ii]);
 			}
 		} else {
+			//this case is used by MCMC fixed size
 			for(int ii=0; ii<params.size(); ii++) {
 				params[ii] += RNG::rand_double_static(-1.0*paramsStepSizes[ii], paramsStepSizes[ii]);
 			}
@@ -193,7 +197,7 @@ double OptimizeableSaliency_ResultsStats::CalculateFitnessScore()
 	double perfect_precis = perfect_successes_weighted / ((double)( NumReturnedCrops ));
 	double perfect_recall = perfect_successes_weighted / ((double)(Truth_DesiredTargets + Truth_DesiredFalsePs));
 	
-	double recall_weight    = 2.5; //recall is 2.5x as important as precision
+	double recall_weight    = 3.0; //recall is 3.0x as important as precision
 	double precision_weight = 1.0;
 	
 	/*

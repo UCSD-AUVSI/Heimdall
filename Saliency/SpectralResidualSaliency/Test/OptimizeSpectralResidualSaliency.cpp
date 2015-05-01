@@ -16,7 +16,6 @@ using std::endl;
 #include "SharedUtils/optimization/SimulatedAnnealing.hpp"
 
 
-static int choose_a_random_training_subset_of_size = 500; //when > num images, will load all
 
 static const std::string output_folder_for_final_results("../../output_images");
 
@@ -82,17 +81,30 @@ public:
 int main(int argc, char** argv)
 {
 	cout << "Optimize Spectral Residual Saliency" << endl;
-	if(argc < 2) {
-		consoleOutput.Level0() << "usage:  [PATH TO FOLDER WITH IMAGES]" << endl;
+	if(argc < 4) {
+		consoleOutput.Level0() << "usage:  {TRUTH-FILE}  {PATH TO FOLDER WITH IMAGES}  {NUM-IMAGES-TO-LOAD}   {optional: 0-MCMC 1-SA}   {optional: SA-warmup-samples}" << endl;
 		return 1;
 	}
-	if(!check_if_directory_exists(argv[1])) {
-		consoleOutput.Level0() << "ERROR: path \""<<argv[1]<<"\" not found!!" << endl;
+	if(!check_if_file_exists(argv[1])) {
+		consoleOutput.Level0() << "ERROR: truth file \""<<argv[1]<<"\" not found!!" << endl;
 		return 1;
+	}
+	if(!check_if_directory_exists(argv[2])) {
+		consoleOutput.Level0() << "ERROR: path \""<<argv[2]<<"\" not found!!" << endl;
+		return 1;
+	}
+	int num_images_to_load = atoi(argv[3]);
+	bool useMCMC = true;
+	int SAsampleswarmup = 50;
+	if(argc >= 4) {
+		useMCMC = atoi(argv[4]) == 0;
+	}
+	if(argc >= 5) {
+		SAsampleswarmup = atoi(argv[5]);
 	}
 	
 	OptimizeableSaliency_SourceData srcImgDataClass;
-	loadImagesIntoCompressedMemory(argv[1], choose_a_random_training_subset_of_size,
+	loadImagesIntoCompressedMemory(argv[2], num_images_to_load,
 									srcImgDataClass.pngImgs, srcImgDataClass.tImgFnames);
 	
 	cout << "found " << srcImgDataClass.pngImgs.size() << " images to test with!" << endl;
@@ -102,7 +114,7 @@ int main(int argc, char** argv)
 	SpectralResidualSaliencyClass saldoer;
 	saldoer.args.save_output_to_this_folder = output_folder_for_final_results;
 	
-	OptimizeableSaliency_TruthFilename = new std::string("/media/C:/LinuxShared/AUVSI/2014-2015-train-with-truth/Truth2013.txt");
+	OptimizeableSaliency_TruthFilename = new std::string(argv[1]);
 	OptimizeableSaliency_FolderToSaveOutput = new std::string("../../output_images");
 	
 	
@@ -110,11 +122,15 @@ int main(int argc, char** argv)
 	mtSalOpt.actualSaliencyModule = &saldoer;
 	mtSalOpt.paramsInstanceForCreatingCopies = new OptimizingState_SRS();
 	
-	//Optimizer_MCMC optimizer;
-	SimulatedAnnealing optimizer;
-	
-	optimizer.InitialWarmup(&mtSalOpt, &srcImgDataClass);
-	
+	Optimizer_MainAlgorithm* optimizerr = nullptr;
+	if(useMCMC) {
+		optimizerr = new Optimizer_MCMC();
+	} else {
+		optimizerr = new SimulatedAnnealing();
+		static_cast<SimulatedAnnealing*>(optimizerr)->samples_warmup = SAsampleswarmup;
+	}
+	optimizerr->InitialWarmup(&mtSalOpt, &srcImgDataClass);
+	optimizerr->DoPostWarmupLoops(&mtSalOpt, &srcImgDataClass);
 	
 	return 0;
 }

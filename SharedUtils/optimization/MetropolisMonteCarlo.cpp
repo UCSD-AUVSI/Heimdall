@@ -41,10 +41,10 @@ void Optimizer_MCMC::InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_
 	
 	Optimizer_Optimizee_Output* output = givenModule->CreateOutput();
 	
-	MetropolisMonteCarloAdapter negtrials_adjuster(1.0);
+	MetropolisMonteCarloAdapter negtrials_adjuster;
 	negtrials_adjuster.desiredNegativeAcceptancePercent = 33.3;
-	negtrials_adjuster.numNegTrialsBeforeAdjustingTemperature = 6;
-	negtrials_adjuster.maxStepsToConsiderWhenAdjustingTemperature = 10;
+	negtrials_adjuster.numNegTrialsBeforeAdjustingScalar = 6;
+	negtrials_adjuster.maxStepsToConsiderWhenAdjustingScalar = 10;
 	negtrials_adjuster.maxStepsToConsiderForConvergenceCriteria = 30;
 //--------------------------------------------------------------------------------------------
 	
@@ -60,7 +60,9 @@ void Optimizer_MCMC::InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_
 			cout<<"=============================== starting experiment number "<<(++numLoops)<<endl;
 			if(firstLoop == false) {
 				previous_params->CopyFromOther(latest_params);
-				latest_params->GenerateNewArgs(-1.0, false);//negtrials_adjuster.getTemperature());
+				latest_params->GenerateNewArgs(-1.0, false);
+										//step size is fixed to what was suggested by the algorithm
+										//use Simulated Annealing if you want an adaptive step size
 			}
 		}
 		
@@ -89,7 +91,8 @@ void Optimizer_MCMC::InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_
 		} else {
 			scoreDelta = (latest_score - previous_score);
 			
-			bool accepted = ((scoreDelta >= 0.0) || myRNG.rand_double(0.0,1.0) < exp(scoreDelta/negtrials_adjuster.getTemperature()));
+			//for this MCMC the temperature is entirely determined by the adapter, while the step size is fixed
+			bool accepted = ((scoreDelta >= 0.0) || myRNG.rand_double(0.0,1.0) < exp(scoreDelta/negtrials_adjuster.getTemperatureScalar()));
 			
 			negtrials_adjuster.UpdateTrials(scoreDelta, accepted, MoreConsoleOutput);
 			
@@ -147,6 +150,7 @@ void MetropolisMonteCarloAdapter::UpdateTrials(double new_score_delta, bool tria
 	
 	totalDeltaTrials++;
 	if(new_score_delta < 0.0) {
+		//save latest results
 		totalDeltaTrialsNegative++;
 		if(trial_was_accepted) {
 			totalDeltaTrialsNegativeAccepted++;
@@ -156,10 +160,10 @@ void MetropolisMonteCarloAdapter::UpdateTrials(double new_score_delta, bool tria
 		}
 		lastFewNegativeTrialResults.push_back(trial_was_accepted);
 		
-		//update temperature?
-		if(totalDeltaTrialsNegative >= numNegTrialsBeforeAdjustingTemperature) {
+		if(totalDeltaTrialsNegative >= numNegTrialsBeforeAdjustingScalar) {
+			//update scalar?
 			latestNegativeAcceptancePct = 0.0;
-			int loopmax = MIN(lastFewNegativeTrialResults.size(), maxStepsToConsiderWhenAdjustingTemperature);
+			int loopmax = MIN(lastFewNegativeTrialResults.size(), maxStepsToConsiderWhenAdjustingScalar);
 			for(int ii=0; ii<loopmax; ii++)
 				if(lastFewNegativeTrialResults[ii])
 					latestNegativeAcceptancePct += 100.0;
@@ -169,6 +173,7 @@ void MetropolisMonteCarloAdapter::UpdateTrials(double new_score_delta, bool tria
 			if (ADAPTIVE_TEMPERATURE_SCALAR < 0.00000000001) {
 				ADAPTIVE_TEMPERATURE_SCALAR = 0.00000000001;
 			}
+			//converged (stable)?
 			double convergenceNegAccPct = 0.0;
 			loopmax = lastFewNegativeTrialResults.size();
 			if(loopmax == maxStepsToConsiderForConvergenceCriteria) {
@@ -176,6 +181,7 @@ void MetropolisMonteCarloAdapter::UpdateTrials(double new_score_delta, bool tria
 					if(lastFewNegativeTrialResults[ii])
 						convergenceNegAccPct += 100.0;
 				convergenceNegAccPct /= (double)loopmax;
+				//how close you can get to the desired % depends on the precision, i.e. how many steps are considered
 				if(fabs(convergenceNegAccPct - desiredNegativeAcceptancePercent) < (0.000000001+50.0/((double)maxStepsToConsiderForConvergenceCriteria))) {
 					cout<<"ADAPTIVE-MCMC HAS CONVERGED TO BEST PROBABILITY-TEMPERATURE SCALAR"<<endl;
 					converged = true;

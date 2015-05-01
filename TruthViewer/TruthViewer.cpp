@@ -71,16 +71,16 @@ int main(int argc, char** argv)
 		else {
 			std::cout << "Image: " << loadedFile.images[i].image_file << std::endl;
 			for(int t=0; t<loadedFile.images[i].targets_in_image.size(); t++) {
-				std::cout << "  Target:" << std::endl;
 				cv::Rect boxToDraw;
 				cv::Rect boxToCrop;
+				int readxx, readyy;
 				std::string shapename;
 				
-				boxToCrop.x = atoi(GetTruthEntryValue("pos_x", loadedFile.images[i].targets_in_image[t]).c_str());
+				boxToCrop.x = readxx = atoi(GetTruthEntryValue("pos_x", loadedFile.images[i].targets_in_image[t]).c_str());
 				boxToCrop.x -= cropPaddingPixels;
 				boxToDraw.x = boxToCrop.x - 4; //accomodate for line widths
 			
-				boxToCrop.y = atoi(GetTruthEntryValue("pos_y", loadedFile.images[i].targets_in_image[t]).c_str());
+				boxToCrop.y = readyy = atoi(GetTruthEntryValue("pos_y", loadedFile.images[i].targets_in_image[t]).c_str());
 				boxToCrop.y -= cropPaddingPixels;
 				boxToDraw.y = boxToCrop.y - 4; //accomodate for line widths
 				
@@ -100,6 +100,8 @@ int main(int argc, char** argv)
 				
 				shapename = GetTruthEntryValue("shape", loadedFile.images[i].targets_in_image[t]);
 				
+				std::cout << "   Target: " << shapename << " at (x,y) == (" << readxx << "," << readyy << ")" << std::endl;
+				
 				if(saveCrops) {
 					cv::imwrite(std::string("../../output_images/")+loadedFile.images[i].image_file.substr(0,loadedFile.images[i].image_file.size()-4)+std::string("_")+shapename+std::string("_")+to_istring(t)+std::string(".png"), loadedImage(boxToCrop));
 				}
@@ -108,7 +110,7 @@ int main(int argc, char** argv)
 				}
 			}
 			for(int t=0; t<loadedFile.images[i].falsepositives_in_image.size(); t++) {
-				std::cout << "  FalsePositive:" << std::endl;
+				std::cout << "   FalsePositive:" << std::endl;
 				cv::Rect boxToDraw;
 				cv::Rect boxToCrop;
 				

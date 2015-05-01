@@ -29,45 +29,31 @@ class MetropolisMonteCarloAdapter
 	int totalDeltaTrials;
 	int totalDeltaTrialsNegative;
 	int totalDeltaTrialsNegativeAccepted;
-	double METROPOLIS_TEMPERATURE;
 	double ADAPTIVE_TEMPERATURE_SCALAR;
 	std::deque<bool> lastFewNegativeTrialResults;
 	double latestNegativeAcceptancePct;
 	
 public:
-	int numNegTrialsBeforeAdjustingTemperature;
-	int maxStepsToConsiderWhenAdjustingTemperature;
+	int numNegTrialsBeforeAdjustingScalar;
+	int maxStepsToConsiderWhenAdjustingScalar;
 	int maxStepsToConsiderForConvergenceCriteria;
 	double desiredNegativeAcceptancePercent;
 	
 	
 	MetropolisMonteCarloAdapter() :
 		converged(false),
-		numNegTrialsBeforeAdjustingTemperature(9),
-		maxStepsToConsiderWhenAdjustingTemperature(11),
+		numNegTrialsBeforeAdjustingScalar(9),
+		maxStepsToConsiderWhenAdjustingScalar(11),
 		desiredNegativeAcceptancePercent(18.0),
 		maxStepsToConsiderForConvergenceCriteria(20),
 		totalDeltaTrials(0),
 		totalDeltaTrialsNegative(0),
 		totalDeltaTrialsNegativeAccepted(0),
-		METROPOLIS_TEMPERATURE(1.0),
-		ADAPTIVE_TEMPERATURE_SCALAR(1.0) {}
-	
-	MetropolisMonteCarloAdapter(double initial_temp) :
-		converged(false),
-		numNegTrialsBeforeAdjustingTemperature(9),
-		maxStepsToConsiderWhenAdjustingTemperature(11),
-		desiredNegativeAcceptancePercent(18.0),
-		maxStepsToConsiderForConvergenceCriteria(20),
-		totalDeltaTrials(0),
-		totalDeltaTrialsNegative(0),
-		totalDeltaTrialsNegativeAccepted(0),
-		METROPOLIS_TEMPERATURE(initial_temp),
 		ADAPTIVE_TEMPERATURE_SCALAR(1.0) {}
 	
 	bool IsConverged() const {return converged;}
 	
-	double getTemperature() const {return (METROPOLIS_TEMPERATURE * ADAPTIVE_TEMPERATURE_SCALAR);}
+	double getTemperatureScalar() const {return ADAPTIVE_TEMPERATURE_SCALAR;}
 	
 	double getPositivePercent() const {
 		return 100.0 * ((double)(totalDeltaTrials - totalDeltaTrialsNegative)) / ((double)totalDeltaTrials);

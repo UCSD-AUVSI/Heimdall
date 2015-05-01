@@ -25,6 +25,7 @@ using std::cout; using std::endl;
 static const std::string image_entry_keyword	= "Image: ";
 static const std::string target_entry_keyword	= "  Target:";
 static const std::string falsepos_entry_keyword	= "  FalsePositive:";
+static const std::string qrcode_entry_keyword	= "  QRCode:";
 
 
 std::string GetTruthEntryValue(std::string entryName, TruthFile_TargetInImage target)
@@ -135,8 +136,13 @@ bool LoadTruthFile(std::string truthFilename, TruthFile & returnedTruth)
 								break;
 							}
 						}
-					} else if(line == falsepos_entry_keyword) {
-						consoleOutput.Level(CONSOLE_VERBOSITY)<<"FOUND FALSE POSITIVE IN IMAGE \""<<returnedTruth.images.back().image_file<<"\""<<endl;
+					} else if(line == falsepos_entry_keyword || line == qrcode_entry_keyword) {
+						if(line == falsepos_entry_keyword) {
+							consoleOutput.Level(CONSOLE_VERBOSITY)<<"FOUND FALSE POSITIVE IN IMAGE \""<<returnedTruth.images.back().image_file<<"\""<<endl;
+						} else {
+							consoleOutput.Level(CONSOLE_VERBOSITY)<<"FOUND QR CODE IN IMAGE \""<<returnedTruth.images.back().image_file<<"\"... treating as false positive since ShapeRec, OCR, etc. will fail"<<endl;
+						}
+						
 						//we have a false positive; read its properties
 						returnedTruth.images.back().falsepositives_in_image.push_back(TruthFile_FalsePositiveInImage());
 						numKeywordsFoundValidForTarget = 0;
