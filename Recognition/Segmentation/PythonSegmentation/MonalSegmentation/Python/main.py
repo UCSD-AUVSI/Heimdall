@@ -706,8 +706,8 @@ def doSegmentation(cropImg, optionalArgs):
     
 
 	thirdpassMasks=thirdRunKmeansSegTuple[2]
-	cv2.imshow("mask2",thirdpassMasks[1]*255)
-	cv2.imshow("mask1",thirdpassMasks[0]*255)
+	#cv2.imshow("mask2",thirdpassMasks[1]*255)
+	#cv2.imshow("mask1",thirdpassMasks[0]*255)
 	shapeColor = color[maskNumber]
 	charColor = charColors[charMaskNum]
 	#-------------------------------------------------------------------------
