@@ -7,7 +7,6 @@ import copy
 from operator import itemgetter
 import pickle
 import os
-from helper import *
 from target import *
 from collections import Counter
 import json

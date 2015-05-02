@@ -37,6 +37,10 @@ except:
 #color_db.append({"lab":bgr_to_lab(rgb_to_bgr([0,154,154])),"name":12})
 #color_db.append({"lab":bgr_to_lab(rgb_to_bgr([0,103,103])),"name":12})
 
+#color_db.append({"lab":bgr_to_lab(rgb_to_bgr([0,103,103])),"name":12})
+#color_db.append({"lab":bgr_to_lab(rgb_to_bgr([194,118,63])),"name":4})
+#color_db.append({"lab":bgr_to_lab(rgb_to_bgr([194,118,63])),"name":4})
+
 
 
 #save new colors

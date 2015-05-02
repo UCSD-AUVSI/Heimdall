@@ -7,7 +7,6 @@ import copy
 from operator import itemgetter
 import pickle
 import os
-from helper import *
 from collections import Counter
 
 class Target():

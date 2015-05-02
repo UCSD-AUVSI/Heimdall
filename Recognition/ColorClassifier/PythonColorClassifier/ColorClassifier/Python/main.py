@@ -64,6 +64,7 @@ def bgr_to_lab(bgr):
 	#set image pixels to bgr input
 	blank_image[:]= bgr
 	#turn into LAB
+	print "before first cv2 command"
 	try:
 		cielab = cv2.cvtColor(blank_image,cv2.COLOR_BGR2LAB)
 	except :
@@ -103,12 +104,12 @@ def doColorClassification(givenSColor, givenCColor, optionalArgs):
 	print "RGB SColor: "+str(givenSColor)
 	print "BGR SColor: "+str(bgrS)
 	print "Lab SColor: "+ str(labS)
-	returnedSColor = getColor(labS, 2)
+	returnedSColor = getColor(labS, 0)
 	print "----------------------------------------"
 	print "RGB CColor: "+str(givenCColor)
 	print "BGR SColor: "+str(bgrS)
 	print "Lab CColor: "+ str(labC)
-	returnedCColor = getColor(labC, 1)
+	returnedCColor = getColor(labC, 0)
 	print "----------------------------------------"
 	return (returnedSColor, returnedCColor)
 
