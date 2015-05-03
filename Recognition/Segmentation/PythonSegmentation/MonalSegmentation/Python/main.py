@@ -693,7 +693,7 @@ def doSegmentation(cropImg, optionalArgs):
 	#charSeg=np.uint8(charSeg)
 	cropp32=np.float32(lab2)/255
 	#"""
-	thirdRunKmeansSegTuple = pykmeansppcpplib.ClusterKmeansPPwithMask(cropp32,charSegdilate,2,24,24,PrintUsefulKMeansInfoToConsole)
+	thirdRunKmeansSegTuple = pykmeansppcpplib.ClusterKmeansPPwithMask(cropp32,charSeg,2,24,24,PrintUsefulKMeansInfoToConsole)
 	#"""	
 	img3rdthirty=thirdRunKmeansSegTuple[0]
 	img3rd=np.uint8(img3rdthirty*255)
