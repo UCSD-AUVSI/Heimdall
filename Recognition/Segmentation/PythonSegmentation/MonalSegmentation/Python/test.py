@@ -38,8 +38,8 @@ def testimg(sysargv):
 	
 	if showImages:
 		cv2.imshow("original image", loaded_image_mat)
-		cv2.imshow("shape seg", shapeSeg/255.0) #images are floating point from 0.0 to 255.0, convert from 0.0 to 1.0 for imshow
-		cv2.imshow("char seg", charSeg/255.0)
+		cv2.imshow("shape seg", shapeSeg*255.0) #images are floating point from 0.0 to 255.0, convert from 0.0 to 1.0 for imshow
+		cv2.imshow("char seg", charSeg*255.0)
 		cv2.waitKey(0) #wait for keypress
 	
 
