@@ -35,7 +35,7 @@
 #include <iostream>
 #define PRINTDEBUGINFO(stuffTOPRINT) 
 									//std::cout<<stuffTOPRINT<<std::endl;
-									//this was an ugly macro, don't do this
+using std::cout; using std::endl;
 
 
 
@@ -53,6 +53,13 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 	std::vector<double> running_total_min_euclid_distances(num_keypoints, 0.0);
 	double curr_euclid_dist = 0.0;
 	
+	if(num_keypoints_minus1 < 0) {
+		cout<<"no keypoints to cluster!"<<endl;
+		return initial_cluster_cores;
+	} else if(num_keypoints_minus1 == 0) {
+		cout<<"only one keypoints to cluster!"<<endl;
+		return initial_cluster_cores;
+	}
 	
 	///step 1
 	int last_core_idx = random_NG->rand_int(0, num_keypoints_minus1);
@@ -111,7 +118,7 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 					last_core_idx--;
 				}
 				if(min_euclid_distances[last_core_idx] == 0.0) {
-					std::cout << "ERROR IN KMEANS++: K (NUM CLUSTERS) >= NUM POINTS" << std::endl;
+					cout << "ERROR IN KMEANS++: K (NUM CLUSTERS) >= NUM POINTS" << endl;
 					return initial_cluster_cores;
 				}
 			}
@@ -140,11 +147,14 @@ static void one_kmeanspp_iteration(std::vector<ClusterablePoint*>* keypoints,
 	///use KMEANS++ to get good initial guesses for cluster cores
 	std::vector<ClusterablePoint*> clustercores = KMEANSPLUSPLUS_get_cluster_cores(keypoints, random_NG, k__num_cluster_cores);
 	
-	///then call plain KMEANS (step 6)
-	(*returnedClusters) = new std::vector<std::vector<ClusterablePoint*>>( KMEANS(keypoints, &clustercores, num_lloyd_iterations, returnedPotential) );
-	
-	if(print_debug_console_output) {
-		std::cout<<"kmeans++ clustered with potential "<<(*returnedPotential)<<std::endl;
+	if(clustercores.empty() == false) {
+		///then call plain KMEANS (step 6)
+		(*returnedClusters) = new std::vector<std::vector<ClusterablePoint*>>( KMEANS(keypoints, &clustercores, num_lloyd_iterations, returnedPotential) );
+		
+		if(print_debug_console_output) { cout << "kmeans++ clustered with potential " << (*returnedPotential) << endl; }
+	} else {
+		(*returnedClusters) = new std::vector<std::vector<ClusterablePoint*>>();
+		(*returnedPotential) = 0.0;
 	}
 }
 

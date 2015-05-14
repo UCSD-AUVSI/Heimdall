@@ -9,15 +9,15 @@ import time
 #
 def callback(data):
 	json_data = json.loads(data)
-	command = json_data["command"]
+	cmd = json_data["cmd"]
 
-	print "\nreceived "+command +" message from MissionDirector"
+	print "\nreceived "+cmd +" message from MissionDirector"
 	print json_data
 
-	if command == "get_top_filename":
+	if cmd == "get_top_filename":
 		# get top filename
 		output = {}
-		output["command"] = "send_image_path"
+		output["cmd"] = "send_image_path"
 		output["filename"] = "/images/BestPic.jpg"
 		time.sleep(10)
 
