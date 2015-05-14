@@ -4,7 +4,10 @@ set(bigdog_source_files
     mainwindow.cpp
     model.cpp
     viewcontroller.cpp
-    )       
+    )
+
+if(Qt5Widgets_FOUND)
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -27,3 +30,5 @@ target_link_libraries(BigDog
 #target_link_libraries(BigDog Qt5Widgets)
 #target_link_libraries(BigDog Qt5Gui)
 #target_link_libraries(BigDog Qt5Core)
+
+endif(Qt5Widgets_FOUND)

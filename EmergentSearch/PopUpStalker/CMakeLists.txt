@@ -7,6 +7,8 @@ set(popupstalker_source_files
     util.cpp
     )       
 
+if(Qt5Widgets_FOUND)
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -26,3 +28,5 @@ add_executable(PopUpStalker ${popupstalker_source_files})
 target_link_libraries(PopUpStalker
     Qt5::Widgets
     ${PTHREAD_LIB})
+
+endif(Qt5Widgets_FOUND)

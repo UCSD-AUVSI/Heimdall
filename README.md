@@ -4,6 +4,18 @@ Repository for UCSD AUVSI computer vision software suite
 
 ## Notes
 
+#### (Partial) List of Libraries Needed To Build
+
+cmake
+libopencv-dev
+libzmq-dev
+python-dev
+libboost-python-dev
+libtesseract-dev
+libleptonica-dev
+
+Optional: QT widgets 5
+
 #### EXIF data required for georeferencing by the Saliency (Salient Object Detection) module:
 
 * `GPSLatitude`
