@@ -2,6 +2,7 @@
 #define __GENERIC_SALIENCY_IMPLEMENTATION_HPP__
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <vector>
 #include <string>
 #include "SharedUtils/optimization/OptimizeableModule.hpp"
@@ -14,11 +15,25 @@ extern std::string * OptimizeableSaliency_FolderToSaveOutput;
 /*----------------------------------------------------
 	1. Data holder - e.g. images
 */
-class OptimizeableSaliency_SourceData : public Optimizer_SourceData
-{
+class OptimizeableSaliency_SourceData : public Optimizer_SourceData {
+public:
+	std::vector<std::string> tImgFnames;
+	virtual bool ImagesAreCompressed() = 0;
+	virtual cv::Mat* GetDecodedImage(int idx) = 0;
+};
+
+class OptimizeableSaliency_SourceData_Compressed : public OptimizeableSaliency_SourceData {
 public:
 	std::vector<std::vector<unsigned char>*> pngImgs;
-	std::vector<std::string> tImgFnames;
+	virtual bool ImagesAreCompressed() {return true;}
+	virtual cv::Mat* GetDecodedImage(int idx) {assert(idx >= 0 && idx < (int)pngImgs.size()); return new cv::Mat(cv::imdecode(*(pngImgs[idx]), CV_LOAD_IMAGE_UNCHANGED));}
+};
+
+class OptimizeableSaliency_SourceData_UnCompressed : public OptimizeableSaliency_SourceData {
+public:
+	std::vector<cv::Mat*> imgs;
+	virtual bool ImagesAreCompressed() {return false;}
+	virtual cv::Mat* GetDecodedImage(int idx) {assert(idx >= 0 && idx < (int)imgs.size()); return imgs[idx];}
 };
 
 

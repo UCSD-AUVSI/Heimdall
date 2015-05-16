@@ -85,19 +85,30 @@ int main(int argc, char** argv)
 	
 	cout << "Optimize-Canny3D-Saliency" << endl;
 	if(argc < 2) {
-		consoleOutput.Level0() << "usage:  [PATH TO FOLDER WITH IMAGES]" << endl;
+		consoleOutput.Level0() << "usage:  {PATH TO FOLDER WITH IMAGES}  {optional:compress-images-in-memory}" << endl;
 		return 1;
 	}
 	if(!check_if_directory_exists(argv[1])) {
 		consoleOutput.Level0() << "ERROR: path \""<<argv[1]<<"\" not found!!" << endl;
 		return 1;
 	}
+	bool memoryCompress = false;
+	if(argc > 2) {
+        memoryCompress = atoi(argv[2]) != 0;
+	}
 	
-	OptimizeableSaliency_SourceData srcImgDataClass;
-	loadImagesIntoCompressedMemory(argv[1], choose_a_random_training_subset_of_size,
-									srcImgDataClass.pngImgs, srcImgDataClass.tImgFnames);
+	OptimizeableSaliency_SourceData* srcImgDataClass = nullptr;
+	if(memoryCompress) {
+        srcImgDataClass = new OptimizeableSaliency_SourceData_Compressed();
+        loadImagesIntoCompressedMemory(argv[1], choose_a_random_training_subset_of_size,
+									static_cast<OptimizeableSaliency_SourceData_Compressed*>(srcImgDataClass)->pngImgs, srcImgDataClass->tImgFnames);
+	} else {
+        srcImgDataClass = new OptimizeableSaliency_SourceData_UnCompressed();
+        loadImagesUncompressedMemory(argv[1], choose_a_random_training_subset_of_size,
+									static_cast<OptimizeableSaliency_SourceData_UnCompressed*>(srcImgDataClass)->imgs, srcImgDataClass->tImgFnames);
+	}
 	
-	cout << "found " << srcImgDataClass.pngImgs.size() << " images to test with!" << endl;
+	cout << "found " << srcImgDataClass->tImgFnames.size() << " images to test with!" << endl;
 	//exit(0);
 	
 //--------------------------------------------------------------------------------------------
@@ -115,7 +126,7 @@ int main(int argc, char** argv)
 	mtSalOpt.paramsInstanceForCreatingCopies = new OptimizingState_C3D();
 	
 	Optimizer_MCMC optimizer;
-	optimizer.InitialWarmup(&mtSalOpt, &srcImgDataClass);
+	optimizer.InitialWarmup(&mtSalOpt, srcImgDataClass);
 	
 	
 	return 0;

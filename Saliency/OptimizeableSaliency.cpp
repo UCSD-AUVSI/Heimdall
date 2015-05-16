@@ -15,6 +15,7 @@ const int NUM_SIMULTANEOUS_THREADS = 4;
 /*extern*/ std::string * OptimizeableSaliency_FolderToSaveOutput = nullptr;
 
 const int DEFAULT_ALLOWED_NUM_FALSE_POSITIVES = 30;
+const int UPPER_LIMIT_OF_AVG_NUM_CROPS_PER_IMAGE = 10;
 
 
 void OptimizeableSaliency_Params::CopyFromOther(Optimizer_Params const*const other)
@@ -88,6 +89,7 @@ void OptimizeableSaliency_Multithreaded::ProcessData(Optimizer_SourceData * give
 	assert(givenDataCast != nullptr && returnedOutputCast != nullptr);
 	
 //============================================================================================
+    const int numGivenImages = ((int)givenDataCast->tImgFnames.size());
 	bool these_params_experiment_aborted;
 	int imgLoopImgNum;
 	int imgLoopLim;
@@ -97,7 +99,7 @@ void OptimizeableSaliency_Multithreaded::ProcessData(Optimizer_SourceData * give
 	
 	
 	these_params_experiment_aborted = false;
-	imgLoopLim = ((int)givenDataCast->pngImgs.size());
+	imgLoopLim = numGivenImages;
 	if(imgLoopLim % NUM_SIMULTANEOUS_THREADS == 0) {
 		imgLoopLim /= NUM_SIMULTANEOUS_THREADS;
 	} else {
@@ -113,9 +115,9 @@ void OptimizeableSaliency_Multithreaded::ProcessData(Optimizer_SourceData * give
 #endif
 		for(threadnum = 0; threadnum<NUM_SIMULTANEOUS_THREADS; threadnum++) {
 			imgLoopImgNum = ((jj*NUM_SIMULTANEOUS_THREADS) + threadnum);
-			if(imgLoopImgNum < givenDataCast->pngImgs.size()) {
+			if(imgLoopImgNum < numGivenImages) {
 				consoleOutput.Level(3)<<"about to process image "<<imgLoopImgNum<<endl;
-				decoded_images.push_back(new cv::Mat(cv::imdecode(*(givenDataCast->pngImgs[imgLoopImgNum]), CV_LOAD_IMAGE_UNCHANGED)));
+				decoded_images.push_back(givenDataCast->GetDecodedImage(imgLoopImgNum));
 #if DO_MULTITHREADING_SALIENCY_OPTIMIZATION
 				std::thread* newthr = 
 					new std::thread(
@@ -143,17 +145,18 @@ void OptimizeableSaliency_Multithreaded::ProcessData(Optimizer_SourceData * give
 			all_threads[threadnum]->join();
 			delete all_threads[threadnum];
 			all_threads[threadnum] = nullptr;
-			delete decoded_images[threadnum];
-			decoded_images[threadnum] = nullptr;
+			if(givenDataCast->ImagesAreCompressed()) {
+                delete decoded_images[threadnum];
+                decoded_images[threadnum] = nullptr;
+            }
 		}
 		all_threads.clear();
 		decoded_images.clear();
-
-		
-		returnedOutputCast->CompressCropsSoFar();
+        
+		//returnedOutputCast->CompressCropsSoFar();
 		
 		int thisNumCrops = returnedOutputCast->NumCrops();
-		if(thisNumCrops > 400) {
+		if(thisNumCrops > (UPPER_LIMIT_OF_AVG_NUM_CROPS_PER_IMAGE*numGivenImages)) {
 			cout<<"~~~~~~~~~~~~~ ABORTING THESE PARAMS: NUM CROPS IS ALREADY == "<<thisNumCrops<<endl;
 			jj = imgLoopLim;
 			these_params_experiment_aborted = true;
@@ -197,7 +200,7 @@ double OptimizeableSaliency_ResultsStats::CalculateFitnessScore()
 	double perfect_precis = perfect_successes_weighted / ((double)( NumReturnedCrops ));
 	double perfect_recall = perfect_successes_weighted / ((double)(Truth_DesiredTargets + Truth_DesiredFalsePs));
 	
-	double recall_weight    = 3.0; //recall is 3.0x as important as precision
+	double recall_weight    = 6.0; //recall is 6.0x as important as precision
 	double precision_weight = 1.0;
 	
 	/*

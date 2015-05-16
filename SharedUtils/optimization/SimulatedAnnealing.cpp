@@ -76,7 +76,7 @@ void SimulatedAnnealing::InitialWarmup(Optimizer_Optimizee * givenModule, Optimi
 		if(global__key_has_been_pressed || isLastLoop) {
 			cout<<endl<<"======================================== "<<thisLoopIterNum<<" experiments done!"<<endl;
 		} else {
-			cout<<"=============================== starting experiment number "<<thisLoopIterNum<<endl;
+			cout<<"=============================== starting experiment number "<<thisLoopIterNum<<"  (warmup)"<<endl;
 		}
 		
 		givenModule->ReceivedUpdatedArgs(testedParams[ii]);
@@ -130,7 +130,7 @@ void SimulatedAnnealing::InitialWarmup(Optimizer_Optimizee * givenModule, Optimi
 		}
 	}
 	averageChangesInEnergy /= numPtsDifferences;
-	warmedUpTemperature = (averageChangesInEnergy / 1.2); //aim for a negative step acceptance of about 30 %
+	warmedUpTemperature = (averageChangesInEnergy / 1.9); //aim for a negative step acceptance of about 25 %
 	
 	cout<<"======================================================================"<<endl;
 	cout<<"averageChangesInEnergy == "<<averageChangesInEnergy<<endl;
@@ -156,7 +156,11 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 	RNG_rand_r myRNG;
 	
 	std::ofstream all_scores_history_file;
-	all_scores_history_file.open("simulated_annealing_history.txt");
+	int testfilenameidx = 0;
+	while(check_if_file_exists(std::string("simulated_annealing_history_")+to_istring(testfilenameidx)+std::string(".txt")) == true) {
+        testfilenameidx++;
+    }
+    all_scores_history_file.open(std::string("simulated_annealing_history_")+to_istring(testfilenameidx)+std::string(".txt"));
 	
 	const bool MoreConsoleOutput = false;
 	bool firstLoop = true;
@@ -168,6 +172,11 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 	std::vector<double> best_seen_scores;
 	std::vector<Optimizer_Params*> best_seen_params;
 	std::vector<Optimizer_ResultsStats*> best_seen_results;
+	
+	const int thisdrop_num_top_results_to_consider = 5;
+	std::vector<double> thisdrop_top_scores;
+	std::vector<Optimizer_Params*> thisdrop_top_params;
+	std::vector<Optimizer_ResultsStats*> thisdrop_top_results;
 	
 	Optimizer_Params* previous_params = givenModule->CreateNewParams();
 	Optimizer_Params* latest_params = saved_best_params_from_warmup;
@@ -184,10 +193,9 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 	//this helps ensure that the negative acceptance rate remains reasonable,
 	//since we might not be able to assume that the step size (temperature) is directly proportional to average energy change <|dE|>
 	//in fact we can just leave this as the probability temperature, and let it adapt rather than make assumptions about proportionality
-	MetropolisMonteCarloAdapter negtrials_adjuster;
-	negtrials_adjuster.desiredNegativeAcceptancePercent = 30.0;
-	negtrials_adjuster.numNegTrialsBeforeAdjustingScalar = 20;
-	negtrials_adjuster.maxStepsToConsiderWhenAdjustingScalar = 20;
+	SimulatedAnnealingAdapter negtrials_adjuster;
+	negtrials_adjuster.desiredNegativeAcceptancePercent = 25.0;
+	negtrials_adjuster.numNegTrialsBeforeAdjustingScalar = 18;
 //--------------------------------------------------------------------------------------------
 	
 	
@@ -217,13 +225,64 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 		latest_results = output->CalculateResults();
 		
 		//print to history file
-		all_scores_history_file<<"score: "<<latest_score<<", numLoopsDone: "<<numLoopsDone<<", numDrops: "<<numDrops<<", tempscalar: "<<negtrials_adjuster.getTemperatureScalar()<<endl;
+		all_scores_history_file<<"score: "<<latest_score<<", numLoopsDone: "<<numLoopsDone<<", numDrops: "<<numDrops<<", tempscalar: "<<negtrials_adjuster.getTemperatureScalar()<<", recentNegAcceptRate: "<<negtrials_adjuster.getLatestNegAcceptRate()<<endl;
 		latest_results->Print(all_scores_history_file, false);
 		//print to console
 		latest_results->Print(cout, false);
 		previous_score = latest_score;
 		latest_score = latest_results->CalculateFitnessScore();
 		cout << "THIS SCORE: "<<latest_score<<endl;
+		
+		//---------------------------------------------------
+        if(thisdrop_top_params.size() == thisdrop_num_top_results_to_consider) {
+            double worstscore = 1000000.0;
+            int worstscoreidx = -1;
+            for(int ii=0; ii<thisdrop_num_top_results_to_consider; ii++) {
+                if(thisdrop_top_scores[ii] < worstscore) {
+                    worstscore = thisdrop_top_scores[ii];
+                    worstscoreidx = ii;
+                }
+            }
+            if(latest_score > worstscore) {
+                delete thisdrop_top_params[worstscoreidx];
+                delete thisdrop_top_results[worstscoreidx];
+                thisdrop_top_params.erase(thisdrop_top_params.begin() + worstscoreidx);
+                thisdrop_top_results.erase(thisdrop_top_results.begin() + worstscoreidx);
+                thisdrop_top_scores.erase(thisdrop_top_scores.begin() + worstscoreidx);
+            }
+        }
+		if(thisdrop_top_scores.size() < thisdrop_num_top_results_to_consider) {
+            thisdrop_top_params.push_back(givenModule->CreateNewParams());
+            thisdrop_top_params.back()->CopyFromOther(latest_params);
+            thisdrop_top_results.push_back(givenModule->CreateResultsStats());
+            thisdrop_top_results.back()->CopyFromOther(latest_results);
+            thisdrop_top_scores.push_back(latest_score);
+		}
+        if(best_seen_params.size() == num_best_seen_results) {
+            double worstscore = 1000000.0;
+            int worstscoreidx = -1;
+            for(int ii=0; ii<num_best_seen_results; ii++) {
+                if(best_seen_scores[ii] < worstscore) {
+                    worstscore = best_seen_scores[ii];
+                    worstscoreidx = ii;
+                }
+            }
+            if(latest_score > worstscore) {
+                delete best_seen_params[worstscoreidx];
+                delete best_seen_results[worstscoreidx];
+                best_seen_params.erase(best_seen_params.begin() + worstscoreidx);
+                best_seen_results.erase(best_seen_results.begin() + worstscoreidx);
+                best_seen_scores.erase(best_seen_scores.begin() + worstscoreidx);
+            }
+        }
+        if(best_seen_params.size() < num_best_seen_results) {
+            best_seen_params.push_back(givenModule->CreateNewParams());
+            best_seen_params.back()->CopyFromOther(latest_params);
+            best_seen_results.push_back(givenModule->CreateResultsStats());
+            best_seen_results.back()->CopyFromOther(latest_results);
+            best_seen_scores.push_back(latest_score);
+        }
+		//---------------------------------------------------
 		
 		if(firstLoop) {
 			firstLoop = false;
@@ -261,32 +320,21 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 					cout<<"DROPPING THE STEP SIZE AND TEMPERATURE LEVEL"<<endl;
 					numDrops++;
 					recent_scoredeltas.clear(); //force it to do a bunch more iterations before considering a drop again
-				}
-			}
-			
-			if(best_seen_params.size() == num_best_seen_results) {
-				double worstscore = 100000.0;
-				int worstscoreidx = 0;
-				for(int ii=0; ii<num_best_seen_results; ii++) {
-					if(best_seen_scores[ii] < worstscore) {
-						worstscore = best_seen_scores[ii];
-						worstscoreidx = ii;
+					int randomScoreToRewindTo = myRNG.rand_int(0, thisdrop_num_top_results_to_consider - 1);
+					latest_score = thisdrop_top_scores[randomScoreToRewindTo];
+					latest_params->CopyFromOther(thisdrop_top_params[randomScoreToRewindTo]);
+					latest_results->CopyFromOther(thisdrop_top_results[randomScoreToRewindTo]);
+					for(int ii=0; ii<thisdrop_num_top_results_to_consider; ii++) {
+                        delete thisdrop_top_params[ii];
+                        delete thisdrop_top_results[ii];
+					}
+					thisdrop_top_scores.clear();
+					thisdrop_top_params.clear();
+					thisdrop_top_results.clear();
+					if(numDrops >= max_num_drops) {
+                        maxLoopsBeforeQuitting = 1; //force the end of the optimization at the next run
 					}
 				}
-				if(latest_score > worstscore) {
-					delete best_seen_params[worstscoreidx];
-					delete best_seen_results[worstscoreidx];
-					best_seen_params.erase(best_seen_params.begin() + worstscoreidx);
-					best_seen_results.erase(best_seen_results.begin() + worstscoreidx);
-					best_seen_scores.erase(best_seen_scores.begin() + worstscoreidx);
-				}
-			}
-			if(best_seen_params.size() < num_best_seen_results) {
-				best_seen_params.push_back(givenModule->CreateNewParams());
-				best_seen_params.back()->CopyFromOther(latest_params);
-				best_seen_results.push_back(givenModule->CreateResultsStats());
-				best_seen_results.back()->CopyFromOther(latest_results);
-				best_seen_scores.push_back(latest_score);
 			}
 		}
 		
@@ -294,7 +342,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 			cout<<"------------------------------"<<endl;
 			
 			std::ofstream outf;
-			outf.open("simulated_annealing_results.txt");
+			outf.open(std::string("simulated_annealing_results_")+to_istring(testfilenameidx)+std::string(".txt"));
 			for(int ii=0; ii<best_seen_params.size(); ii++) {
 				outf<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
 				outf<<"score: "<<best_seen_scores[ii]<<endl;
@@ -306,7 +354,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 			}
 			outf.close();
 			
-			output->SaveToDisk(); //save most recent results
+			//output->SaveToDisk(); //save most recent crop results
 		}
 		
 		cout<< (thisIsTheLastLoop ? "FINAL PARAMETERS: " : "PARAMS SO FAR: ");
@@ -320,6 +368,49 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 }
 
 
+
+
+
+
+void SimulatedAnnealingAdapter::UpdateTrials(double new_score_delta, bool trial_was_accepted, bool print_more_to_console)
+{
+	if(new_score_delta < 0.0) {
+		//save latest results
+		lastFewNegativeTrialResults.push_back(trial_was_accepted);
+		
+		if((int)lastFewNegativeTrialResults.size() >= numNegTrialsBeforeAdjustingScalar) {
+			//update scalar?
+			latestNegativeAcceptancePct = 0.0;
+			for(int ii=0; ii<lastFewNegativeTrialResults.size(); ii++)
+				if(lastFewNegativeTrialResults[ii])
+					latestNegativeAcceptancePct += 100.0;
+			latestNegativeAcceptancePct /= ((double)lastFewNegativeTrialResults.size());
+			double bdelta = 0.01*(latestNegativeAcceptancePct - desiredNegativeAcceptancePercent);
+			ADAPTIVE_TEMPERATURE_SCALAR /= pow(1.0+bdelta,0.9);
+			if (ADAPTIVE_TEMPERATURE_SCALAR < 0.00000000001) {
+				ADAPTIVE_TEMPERATURE_SCALAR = 0.00000000001;
+			}
+			//this reduces the overshooting effect of the controller
+			int numToPop = (numNegTrialsBeforeAdjustingScalar / 2);
+			for(int ii=0; ii<numToPop; ii++) {
+                lastFewNegativeTrialResults.pop_front();
+			}
+        }
+	}
+	cout<<"recent -delta accept pct: "<<RoundDoubleToInt(latestNegativeAcceptancePct);
+	if(new_score_delta < 0.0) {
+		cout<<",  adaptive temperature scalar: "<<ADAPTIVE_TEMPERATURE_SCALAR;
+	}
+	cout<<endl;
+	
+	if(print_more_to_console) {
+		if(new_score_delta < 0.0) {
+			cout << "NEGATIVE STEP: SCORE DELTA: "<<new_score_delta<<(trial_was_accepted?" ACCEPTED~~~~~~~~~~~~~~********":" REJECTED~~~~~~~~~~~~~~")<<endl;
+		} else {
+			cout << "POSITIVE STEP: SCORE DELTA: "<<new_score_delta<<(trial_was_accepted?" ACCEPTED":" REJECTED")<<endl;
+		}
+	}
+}
 
 
 

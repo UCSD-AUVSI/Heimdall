@@ -165,8 +165,8 @@ bool filename_extension_is_image_type(const std::string & filename_extension);
 
 bool read_file_contents(std::string filename, std::string & returnedFileContents);
 
-bool check_if_file_exists(const std::string & filename);
-bool check_if_directory_exists(const std::string & dir_name);
+bool check_if_file_exists(std::string filename);
+bool check_if_directory_exists(std::string dir_name);
 
 void DeleteFilesOfTypeInFolder(std::string folder, std::string filename_extension);
 

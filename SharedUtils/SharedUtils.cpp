@@ -311,7 +311,7 @@ bool read_file_contents(std::string filename, std::string & returnedFileContents
 }
 
 
-bool check_if_file_exists(const std::string & filename)
+bool check_if_file_exists(std::string filename)
 {
 	std::ifstream myfile(filename);
 	if(myfile.is_open() && myfile.good()) {
@@ -322,7 +322,7 @@ bool check_if_file_exists(const std::string & filename)
 }
 
 
-bool check_if_directory_exists(const std::string & dir_name)
+bool check_if_directory_exists(std::string dir_name)
 {
 	return dir_name.empty()==false && check_if_file_exists(dir_name);
 /*	tinydir_dir dir;

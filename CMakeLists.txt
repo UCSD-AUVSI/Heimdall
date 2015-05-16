@@ -21,7 +21,7 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # if on linux then use g++ with c++11
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -g -fPIC -fPIE")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fPIC -fPIE")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 set(PTHREAD_LIB "pthread")

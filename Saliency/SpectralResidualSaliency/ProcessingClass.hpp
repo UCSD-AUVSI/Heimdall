@@ -17,17 +17,25 @@ public:
 	double centerSurroundThreshold_hystlow_FRACTION;
 	double percentOfCropToBeTargetAfterPadding;
 	std::string save_output_to_this_folder;
-	
+
+/*
+Dataset: 2015 April 31 Training Set  (48 images)
+score: 0.754096
+params: (102.283, 1.88841, 27.2135, 456.142, 43.4693, 0.22672, 0.149246, 0.679372)
+num crops: 123
+num successes: targets: 41
+num successes: falseps: 29
+*/
 	SpectralSaliencyArgs() :
 		normalizeSaliencyMaps(true),
-		expectedTargetLength(58.9711),
-		expectedLargerTargetRatio(2.08015),
-		minTargetLength(20.2645),
-		maxTargetLength(205.586),
-		largerGaussBlurDiamPixels(35.1689),
-		centerSurroundThreshold(0.323944),
-		centerSurroundThreshold_hystlow_FRACTION(0.345039),
-		percentOfCropToBeTargetAfterPadding(0.346016),
+		expectedTargetLength(102.283),
+		expectedLargerTargetRatio(1.88841),
+		minTargetLength(27.2135),
+		maxTargetLength(456.142),
+		largerGaussBlurDiamPixels(43.4693),
+		centerSurroundThreshold(0.22672),
+		centerSurroundThreshold_hystlow_FRACTION(0.149246),
+		percentOfCropToBeTargetAfterPadding(0.679372),
 		/*expectedTargetLength(80.0),
 		minTargetLength(12.0),
 		maxTargetLength(200.0),

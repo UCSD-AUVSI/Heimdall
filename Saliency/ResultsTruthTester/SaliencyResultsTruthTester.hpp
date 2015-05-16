@@ -9,7 +9,7 @@ OptimizeableSaliency_Output
 	ReadFolderWithCrops(std::string truthImageFileFolder,
 						std::string folderWithCrops,
 						bool cropCoordinatesAreInFilename,
-						bool compress=true);
+						bool compress=false);
 
 
 /*#ifndef imgdata_t

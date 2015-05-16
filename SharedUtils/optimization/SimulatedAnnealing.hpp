@@ -21,6 +21,7 @@ class SimulatedAnnealing : public Optimizer_MainAlgorithm
 					hopefully wouldn't have to adapt too much... especially since, what happens at the next temperature drop?
 		
 		negative-accept-rates:
+		25 % means |-dE|/T0 ~ 1.39
 		30 % means |-dE|/T0 ~ 1.20
 		36.7%means |-dE|/T0 = 1.00
 		40 % means |-dE|/T0 ~ 0.91
@@ -48,11 +49,38 @@ class SimulatedAnnealing : public Optimizer_MainAlgorithm
 	
 public:
 	int samples_warmup;
+	int max_num_drops;
 	
 	virtual void InitialWarmup(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
 	virtual void DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Optimizer_SourceData * givenData);
 	
-	SimulatedAnnealing() : Optimizer_MainAlgorithm(), samples_warmup(50), warmedUpTemperature(1.0), saved_best_params_from_warmup(nullptr) {}
+	SimulatedAnnealing() : Optimizer_MainAlgorithm(), samples_warmup(50), max_num_drops(50), warmedUpTemperature(1.0), saved_best_params_from_warmup(nullptr) {}
 };
+
+
+/*
+	This is a tool used by the MCMC optimizer; this is not the optimizer itself
+*/
+class SimulatedAnnealingAdapter
+{
+	double ADAPTIVE_TEMPERATURE_SCALAR;
+	std::deque<bool> lastFewNegativeTrialResults;
+	double latestNegativeAcceptancePct;
+public:
+	int numNegTrialsBeforeAdjustingScalar;
+	double desiredNegativeAcceptancePercent;
+	
+	
+	SimulatedAnnealingAdapter() :
+		numNegTrialsBeforeAdjustingScalar(9),
+		desiredNegativeAcceptancePercent(18.0),
+		ADAPTIVE_TEMPERATURE_SCALAR(1.0) {}
+	
+	double getLatestNegAcceptRate() const {return latestNegativeAcceptancePct;}
+	double getTemperatureScalar() const {return ADAPTIVE_TEMPERATURE_SCALAR;}
+	
+	void UpdateTrials(double new_score_delta, bool trial_was_accepted, bool print_more_to_console);
+};
+
 
 #endif
