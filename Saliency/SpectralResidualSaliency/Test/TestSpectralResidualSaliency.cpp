@@ -5,6 +5,7 @@ using std::endl;
 #include <opencv2/highgui/highgui.hpp>
 #include "SharedUtils/SharedUtils.hpp"
 #include "Saliency/SpectralResidualSaliency/ProcessingClass.hpp"
+#include <chrono>
 
 const std::string folderOutputPath("../../output_images");
 
@@ -25,6 +26,11 @@ int main(int argc, char** argv)
 		cout<<"error: directory \""<<imageFolderPath<<"\" invalid!"<<endl;
 	}
 	std::vector<std::string> imageFilenames = GetImageFilenamesInFolder(argv[1]);
+	if(imageFilenames.empty()) {
+		cout<<"warning: no images found in that directory!!"<<endl;
+	}
+	
+	std::vector<double> timings;
 	
 	for(int jj=0; jj<imageFilenames.size(); jj++)
 	{
@@ -42,7 +48,13 @@ int main(int argc, char** argv)
 		SpectralResidualSaliencyClass saldoer;
 		//saldoer.args.save_output_to_this_folder = folderOutputPath;
 		//saldoer.saveIntermediateResults = true;
+		
+		auto tstart = std::chrono::steady_clock::now();
 		saldoer.ProcessSaliency(&fullsizeImage, &foundCrops, &cropGeolocations, 0);
+		auto tend = std::chrono::steady_clock::now();
+		timings.push_back(std::chrono::duration<double,std::milli>(tend-tstart).count());
+		std::cout<<"that test took "<<timings.back()<<" milliseconds"<<std::endl;
+		
 		//cv::waitKey(0);
 		
 		cv::Mat bw_salmap;
@@ -102,6 +114,13 @@ int main(int argc, char** argv)
 		//cv::imwrite(folderOutputPath+std::string("/")+imgName+std::string("_1_centersurround.png"), bw_csmap);
 		//cv::imwrite(folderOutputPath+std::string("/")+imgName+std::string("_binary_result.png"), bw_binmap);
 	}
+	
+	double averagetime = 0.0;
+	for(int ii=0; ii<timings.size(); ii++) {
+		averagetime += timings[ii];
+	}
+	averagetime /= ((double)(timings.size()));
+	std::cout<<std::endl<<"average time saliency took to process an image: "<<averagetime<<" milliseconds"<<std::endl<<std::endl;
 	
 	return 0;
 }

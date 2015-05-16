@@ -46,6 +46,7 @@ using std::cout; using std::endl;
 #ifndef CV_BGR2GRAY
 #define CV_BGR2GRAY cv::COLOR_BGR2GRAY
 #endif
+#include <thread>
 
 
 /**
@@ -58,17 +59,17 @@ bool modified_StaticSaliencySpectralResidual::computeSaliency( const cv::Mat ima
 {
   cv::Mat grayTemp;
   std::vector<cv::Mat> mv;
-  cv::Size resizedImageSize(image.size());
+  cv::Size givenImageSize(image.size());
   
   
-  cv::Mat realImage( resizedImageSize, CV_64F );
-  cv::Mat imaginaryImage( resizedImageSize, CV_64F );
+  cv::Mat realImage( givenImageSize, CV_64F );
+  cv::Mat imaginaryImage( givenImageSize, CV_64F );
   imaginaryImage.setTo( 0 );
-  cv::Mat combinedImage( resizedImageSize, CV_64FC2 );
+  cv::Mat combinedImage( givenImageSize, CV_64FC2 );
   cv::Mat imageDFT;
   cv::Mat logAmplitude;
-  cv::Mat angle( resizedImageSize, CV_64F );
-  cv::Mat magnitude( resizedImageSize, CV_64F );
+  cv::Mat angle( givenImageSize, CV_64F );
+  cv::Mat magnitude( givenImageSize, CV_64F );
   cv::Mat logAmplitude_blur;
 
   if( image.channels() == 3 )
@@ -125,62 +126,66 @@ bool modified_StaticSaliencySpectralResidual::computeSaliency( const cv::Mat ima
 }
 
 
+//returns saliency map for one channel of a multi-channel image
+//
+void single_channel_spectsal_compute(cv::Mat* singleChannelImg, cv::Mat* returnedSum)
+{
+	cv::Size givenImageSize(singleChannelImg->size());
+	
+	cv::Mat logAmplitude;
+	singleChannelImg->convertTo( logAmplitude, CV_64F ); //save real part in "logAmplitude" for now
+	cv::Mat combinedImage( givenImageSize, CV_64FC2 );
+	cv::Mat imageDFT;
+	cv::Mat angle( givenImageSize, CV_64F );
+	cv::Mat magnitude( givenImageSize, CV_64F );
+	cv::Mat logAmplitude_blur;
+	
+	std::vector<cv::Mat> mv;
+	mv.push_back( logAmplitude ); //real part for DFT
+	mv.push_back( cv::Mat::zeros(givenImageSize, CV_64F) ); //imaginary part for DFT
+	merge( mv, combinedImage );
+	cv::dft( combinedImage, imageDFT );
+	cv::split( imageDFT, mv );
+
+	//-- Get magnitude and phase of frequency spectrum --//
+	cv::cartToPolar( mv.at( 0 ), mv.at( 1 ), magnitude, angle, false );
+	cv::log( magnitude, logAmplitude );
+	//-- Blur log amplitude with averaging filter --//
+	cv::blur( logAmplitude, logAmplitude_blur, cv::Size( 3, 3 ), cv::Point( -1, -1 ), cv::BORDER_REFLECT_101 );
+	
+	cv::exp( logAmplitude - logAmplitude_blur, magnitude );
+	//-- Back to cartesian frequency domain --//
+	cv::polarToCart( magnitude, angle, mv.at( 0 ), mv.at( 1 ), false );
+	cv::merge( mv, imageDFT );
+	cv::dft( imageDFT, combinedImage, cv::DFT_INVERSE );
+	cv::split( combinedImage, mv );
+	
+	cv::cartToPolar( mv.at( 0 ), mv.at( 1 ), magnitude, angle, false );
+	cv::GaussianBlur( magnitude, magnitude, cv::Size( 5, 5 ), 8, 0, cv::BORDER_REFLECT_101 );
+	
+	(*returnedSum) = magnitude.mul( magnitude );  //return saliency map ^2 so that several a 3-channel image can be done using sqrt( ch0^2 + ch1^2 + ch2^2 )
+}
+
+
 bool modified_StaticSaliencySpectralResidual::computeSaliencyImpl_multiChannel(const cv::Mat image, cv::OutputArray saliencyMap)
 {
-	std::vector<cv::Mat> mv;
-	
-	cv::Mat magSum;
-	cv::Size resizedImageSize(image.size());
+	int ii;
+	cv::Size givenImageSize(image.size());
 	std::vector<cv::Mat> imgChannels;
 	cv::split(image, imgChannels);
 	
-	cv::Mat realImage( resizedImageSize, CV_64F );
-	cv::Mat imaginaryImage( resizedImageSize, CV_64F );
-	imaginaryImage.setTo( 0 );
-	cv::Mat combinedImage( resizedImageSize, CV_64FC2 );
-	cv::Mat imageDFT;
-	cv::Mat logAmplitude;
-	cv::Mat angle( resizedImageSize, CV_64F );
-	cv::Mat magnitude( resizedImageSize, CV_64F );
-	cv::Mat logAmplitude_blur;
-	
-	for(int kk=0; kk<imgChannels.size(); kk++)
-	{
-		imgChannels[kk].convertTo( realImage, CV_64F );
-		
-		mv.clear();
-		imaginaryImage.setTo( 0 );
-		
-		mv.push_back( realImage );
-		mv.push_back( imaginaryImage );
-		merge( mv, combinedImage );
-		cv::dft( combinedImage, imageDFT );
-		cv::split( imageDFT, mv );
-
-		//-- Get magnitude and phase of frequency spectrum --//
-		cv::cartToPolar( mv.at( 0 ), mv.at( 1 ), magnitude, angle, false );
-		cv::log( magnitude, logAmplitude );
-		//-- Blur log amplitude with averaging filter --//
-		cv::blur( logAmplitude, logAmplitude_blur, cv::Size( 3, 3 ), cv::Point( -1, -1 ), cv::BORDER_REFLECT_101 );
-
-		cv::exp( logAmplitude - logAmplitude_blur, magnitude );
-		//-- Back to cartesian frequency domain --//
-		cv::polarToCart( magnitude, angle, mv.at( 0 ), mv.at( 1 ), false );
-		cv::merge( mv, imageDFT );
-		cv::dft( imageDFT, combinedImage, cv::DFT_INVERSE );
-		cv::split( combinedImage, mv );
-
-		cv::cartToPolar( mv.at( 0 ), mv.at( 1 ), magnitude, angle, false );
-		cv::GaussianBlur( magnitude, magnitude, cv::Size( 5, 5 ), 8, 0, cv::BORDER_REFLECT_101 );
-		magnitude = magnitude.mul( magnitude );
-		
-		if(kk == 0) {
-			magnitude.copyTo(magSum);
-		} else {
-			magSum += magnitude;
-		}
+	std::vector<cv::Mat> resultsSavedHere(3);
+	std::vector<std::thread*> threadslaunched;
+	for(ii=0; ii<imgChannels.size(); ii++) {
+		threadslaunched.push_back(new std::thread(single_channel_spectsal_compute, &(imgChannels[ii]), &(resultsSavedHere[ii])));
 	}
 	
+	cv::Mat magSum(givenImageSize, CV_64F, cv::Scalar(0));
+	for(ii=0; ii<imgChannels.size(); ii++) {
+		threadslaunched[ii]->join();
+		delete threadslaunched[ii]; threadslaunched[ii] = nullptr;
+		magSum += resultsSavedHere[ii];
+	}
 	
 	magSum.convertTo(magSum, CV_32F);
 	
