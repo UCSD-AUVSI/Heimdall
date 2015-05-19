@@ -170,30 +170,40 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
 	returnedCrops->clear();
 	returned_geolocations->clear();
 	double minVal,maxVal;
-	std::vector<double> resImRatio;
+	std::vector<double> resImRatioROWS;
+	std::vector<double> resImRatioCOLS;
 	modified_StaticSaliencySpectralResidual mssaliency;
 	cv::Mat binaryMap;
 	cv::Mat saliencyMap;
 	cv::Mat totalSaliencyMapTwo;
 	
 	for(int loopsii=0; loopsii<2; loopsii++) {
-		resImRatio.push_back(0.0);
+		resImRatioCOLS.push_back(0.0);
+		resImRatioROWS.push_back(0.0);
 		if(loopsii == 0) {
-			resImRatio[loopsii] = (9.0 / args.expectedTargetLength);
+			resImRatioCOLS[loopsii] = resImRatioROWS[loopsii] = (9.0 / args.expectedTargetLength);
 		} else {
-			resImRatio[loopsii] = (9.0 / (args.expectedTargetLength * args.expectedLargerTargetRatio));
+			resImRatioCOLS[loopsii] = resImRatioROWS[loopsii] = (9.0 / (args.expectedTargetLength * args.expectedLargerTargetRatio));
 		}
 		//cout << "SpectralSaliency -- resImRatio == "<<resImRatio<<endl;
-		double maxcols = ((double)fullsizeImage->cols) * resImRatio[loopsii];
-		double maxrows = ((double)fullsizeImage->rows) * resImRatio[loopsii];
+		double maxcols = ((double)fullsizeImage->cols) * resImRatioCOLS[loopsii];
+		double maxrows = ((double)fullsizeImage->rows) * resImRatioROWS[loopsii];
 		//cout<<"maxcols, maxrows == "<<maxcols<<", "<<maxrows<<endl;
 		//assert(maxcols < 800.0 && maxrows < 800.0);
+		
+		int trresizedcols = cv::getOptimalDFTSize((int)floor(maxcols));
+		int trresizedrows = cv::getOptimalDFTSize((int)floor(maxrows));
+		cv::Size resizedSize(trresizedcols, trresizedrows);
+		resImRatioCOLS[loopsii] = (((double)trresizedcols)/((double)fullsizeImage->cols));
+		resImRatioROWS[loopsii] = (((double)trresizedrows)/((double)fullsizeImage->rows));
+		
 		
 		/*
 			Converting to CIELab is slow, so resize FIRST
 		*/
 		cv::Mat fullsizeImage_CIELAB;
-		cv::resize(*fullsizeImage, fullsizeImage_CIELAB, cv::Size(0,0), resImRatio[loopsii], resImRatio[loopsii], cv::INTER_AREA);
+		//cv::resize(*fullsizeImage, fullsizeImage_CIELAB, cv::Size(0,0), resImRatioCOLS[loopsii], resImRatioROWS[loopsii], cv::INTER_AREA);
+		cv::resize(*fullsizeImage, fullsizeImage_CIELAB, resizedSize, 0.0, 0.0, cv::INTER_AREA);
 		fullsizeImage_CIELAB.convertTo(fullsizeImage_CIELAB, CV_32FC3);
 		fullsizeImage_CIELAB /= 255.0f;
 		
@@ -301,10 +311,10 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
 		for(int ii=0; ii<contours.size(); ii++) {
 			cv::Rect bounds = cv::boundingRect(contours[ii]);
 			
-			double b_x = (   ((double)bounds.x) / resImRatio[0]   );
-			double b_y = (   ((double)bounds.y) / resImRatio[0]   );
-			double b_wid = (   ((double)(bounds.width)) / resImRatio[0]   );
-			double b_hei = (   ((double)(bounds.height)) / resImRatio[0]   );
+			double b_x = (   ((double)bounds.x) / resImRatioCOLS[0]   );
+			double b_y = (   ((double)bounds.y) / resImRatioROWS[0]   );
+			double b_wid = (   ((double)(bounds.width)) / resImRatioCOLS[0]   );
+			double b_hei = (   ((double)(bounds.height)) / resImRatioROWS[0]   );
 			
 			double b_length = sqrt(b_wid*b_hei);
 			
