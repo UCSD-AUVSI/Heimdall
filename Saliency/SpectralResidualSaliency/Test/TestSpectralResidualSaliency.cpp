@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 				cout << "crop"<<to_istring(ii)<<" rectangle: "<<cropRect<<endl;
 				
 				//cv::imshow(cropname, foundCrops[ii]);
-				cv::imwrite(folderOutputPath+std::string("/")+imgName+std::string("_crop")+to_istring(ii)+std::string(".png"), foundCrops[ii]);
+				cv::imwrite(folderOutputPath+std::string("/")+imgName+std::string("_crop")+to_istring(ii)+std::string(".jpg"), foundCrops[ii]);
 				
 				cv::rectangle(bw_salmap, cropRect, cv::Scalar(0,255,255), 1, 4);
 				cv::rectangle(bw_csmap,  cropRect, cv::Scalar(0,255,255), 1, 4);

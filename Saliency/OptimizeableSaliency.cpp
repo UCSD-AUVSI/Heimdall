@@ -15,7 +15,7 @@ const int NUM_SIMULTANEOUS_THREADS = 4;
 /*extern*/ std::string * OptimizeableSaliency_FolderToSaveOutput = nullptr;
 
 const int DEFAULT_ALLOWED_NUM_FALSE_POSITIVES = 30;
-const int UPPER_LIMIT_OF_AVG_NUM_CROPS_PER_IMAGE = 10;
+const int UPPER_LIMIT_OF_AVG_NUM_CROPS_PER_IMAGE = 6;
 
 
 void OptimizeableSaliency_Params::CopyFromOther(Optimizer_Params const*const other)
@@ -198,9 +198,11 @@ double OptimizeableSaliency_ResultsStats::CalculateFitnessScore()
 	perfect_successes_weighted = MAX(1e-6, perfect_successes_weighted);
 	
 	double perfect_precis = perfect_successes_weighted / ((double)( NumReturnedCrops ));
+	perfect_precis *= perfect_precis; //make moderate precision scores more acceptable; at high precision the differences mean less
+	
 	double perfect_recall = perfect_successes_weighted / ((double)(Truth_DesiredTargets + Truth_DesiredFalsePs));
 	
-	double recall_weight    = 6.0; //recall is 6.0x as important as precision
+	double recall_weight    = 5.0; //recall is more important than precision
 	double precision_weight = 1.0;
 	
 	/*
