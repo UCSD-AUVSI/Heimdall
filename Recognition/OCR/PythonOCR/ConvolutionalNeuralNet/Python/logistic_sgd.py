@@ -129,7 +129,8 @@ class LogisticRegression(object):
 	self.b.set_value(cPickle.load(fin), borrow=True)
         fin.close()
 
-    def negative_log_likelihood(self, y):
+    def CostToMinimize(self, y):
+    	#def negative_log_likelihood(self, y):
         """Return the mean of the negative log-likelihood of the prediction
         of this model under a given target distribution.
 
@@ -161,7 +162,7 @@ class LogisticRegression(object):
         return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
         # end-snippet-2
 
-    def errors(self, y):
+    def calculateErrors(self, y):
         """Return a float representing the number of errors in the minibatch
         over the total number of examples of the minibatch ; zero one
         loss over the size of the minibatch
