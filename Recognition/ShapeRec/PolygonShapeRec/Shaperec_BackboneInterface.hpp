@@ -4,10 +4,11 @@
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 
-class ShapeRecModule_Main;
 
+class ShapeRecModule_Main;
 //instantiated in ShapeRec_BackboneInterface.cpp
 extern ShapeRecModule_Main* global_PolygonShapeRec_instance;
+
 
 
 class PolygonShapeRec : AUVSI_Algorithm

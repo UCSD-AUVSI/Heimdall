@@ -6,6 +6,7 @@
 
 #include "test_data_results_shaperec.hpp"
 #include "SharedUtils/SharedUtils.hpp"
+using std::cout; using std::endl;
 
 
 
@@ -86,11 +87,11 @@ void CheckValidityOfResults_shaperec	(std::ostream* PRINTHERE, test_data_results
 {
     if(results_to_check.empty())
     {
-        consoleOutput.Level3() << "no good guesses of a shape name!";
+        consoleOutput.Level3() << "no good guesses of a shape name!" << endl;
 
         if(correct_shape_name != nullptr && correct_shape_name->empty())
         {
-            consoleOutput.Level1() << "shapenamer was right! (said there was no shape, and there wasn't)";
+            consoleOutput.Level1() << "shapenamer was right! (said there was no shape, and there wasn't)" << endl;
             //TRY_GET_OPTIONAL_INFO(shapenamer_singleguess_successes)++;
             //TRY_GET_OPTIONAL_INFO(shapenamer_1stguess_successes)++;
             //TRY_GET_OPTIONAL_INFO(shapenamer_total_partial_successes)++;
@@ -98,7 +99,7 @@ void CheckValidityOfResults_shaperec	(std::ostream* PRINTHERE, test_data_results
         }
         else
         {
-            consoleOutput.Level1() << "shapenamer was wrong! (did not find a shape, when there was one)";
+            consoleOutput.Level1() << "shapenamer was wrong! (did not find a shape, when there was one)" << endl;
             TRY_GET_OPTIONAL_INFO(shapenamer_did_not_find_a_shape_when_there_was_one)++;
         }
     }
@@ -117,14 +118,14 @@ void CheckValidityOfResults_shaperec	(std::ostream* PRINTHERE, test_data_results
                 get_chars_before_delim(results_to_check[0].reference_shape_name,'_').c_str(),
                 correct_shape_name->c_str()))
             {
-                consoleOutput.Level1() << "shapenamer was right! (found one shape, correct)";
+                consoleOutput.Level1() << "shapenamer was right! (found one shape, correct)" << endl;
                 TRY_GET_OPTIONAL_INFO(shapenamer_singleguess_successes)++;
                 TRY_GET_OPTIONAL_INFO(shapenamer_1stguess_successes)++;
                 TRY_GET_OPTIONAL_INFO(shapenamer_total_partial_successes)++;
             }
             else
             {
-                consoleOutput.Level1() << "shapenamer was wrong! (found one shape, but was incorrect)";
+                consoleOutput.Level1() << "shapenamer was wrong! (found one shape, but was incorrect)" << endl;
                 TRY_GET_OPTIONAL_INFO(shapenamer_wrong_guesses)++;
             }
         }
