@@ -45,6 +45,7 @@ import theano.tensor as T
 from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
+import linear_svm_multiclass
 from logistic_sgd import LogisticRegression
 from mlp import HiddenLayer, DropoutHiddenLayer, _dropout_from_layer, _add_noise_to_input, ReLu
 
@@ -77,6 +78,9 @@ class LeNetConvPoolLayer(object):
 		
 		outpimsize = (image_shape[3] - filter_shape[3] + 1)
 		#print("constructing LeNetConvPoolLayer... image_shape == "+str(image_shape)+", filter_shape == "+str(filter_shape)+", num outputs == "+str(filter_shape[0]*outpimsize*outpimsize/(poolsize[0]*poolsize[1])))
+		
+		# save a copy of input filter shape
+		self.filter_shape = filter_shape
 		
 		# there are "num input feature maps * filter height * filter width"
 		# inputs to each hidden unit
@@ -134,6 +138,14 @@ class LeNetConvPoolLayer(object):
 			improcessed = (improcessed-filtermin)*(255.0/(filtermax-filtermin))
 			#print("    post-processed filter (min,max) == ("+str(numpy.amin(improcessed))+", "+str(numpy.amax(improcessed))+")")
 			cv2.imwrite(filenamebase+str(i)+".png", cv2.resize(improcessed, (60,60), interpolation=cv2.INTER_NEAREST))
+	
+	def resetParams(self):
+		fan_in = numpy.prod(self.filter_shape[1:])
+		fan_out = (self.filter_shape[0] * numpy.prod(self.filter_shape[2:]) / numpy.prod(poolsize))
+		W_bound = numpy.sqrt(6. / (fan_in + fan_out))
+		self.W.set_value(numpy.asarray(rng.uniform(low=-W_bound, high=W_bound, size=self.filter_shape), dtype=theano.config.floatX), borrow=True)
+		b_values = numpy.zeros((self.filter_shape[0],), dtype=theano.config.floatX)
+		self.b.set_value(b_values, borrow=True)
 	
 	def saveParams(self, filename):
 		fout = file(filename,'wb')
@@ -210,8 +222,10 @@ class myCNNParams(object):
 		# two fully connected layers + classification layer -- dimensionality 1000, 330, 36
 		self.dropoutrates_fullyconn = [0.4, 0.3]
 		self.hiddenlayers = [1100, 500]
+		self.lastlayerLogistic = True
 		self.numOutClasses = 36
 		# misc options due to memory constraints
+		self.microbatches = False
 		self.batchSize = 400
 		self.deviceTrainSetSize=64800
 		self.deviceValidSetSize=4800
@@ -226,7 +240,35 @@ class myCNNForOrientationParams(myCNNParams):
 		self.deviceTrainSetSize=36000
 		self.deviceValidSetSize=3200
 		self.batchSize = 100
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
 		print("initializing myCNNForOrientation with "+str(self.numOutClasses)+" classes!!!!!!!")
+class myCNNForMoreOrientationsSVMParams(myCNNParams):
+	def __init__(self):
+		myCNNParams.__init__(self)
+		self.widthOfImages = 40
+		self.activation = ReLu
+		# convolutional layers
+		self.filtersizes = [5, 3, 3, 3]
+		self.poolsizes = [2, 2, 1, 1]
+		self.nkerns=[1000, 600, 600, 500]
+		self.dropoutrates_conv = [0.2, 0.2, 0.2, 0.2]
+		self.noiserates_conv = [0.2, 0, 0, 0]
+		# connected layers
+		self.dropoutrates_fullyconn = [0.4, 0.4]
+		self.hiddenlayers = [1440, 2880]
+		self.numOutClasses = (36*8)
+		# classification layer
+		self.lastlayerLogistic = True # according to the name... should be SVM... but use logistic for ease of train
+		# misc options due to memory constraints
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
+		#self.batchSize = 500
+		#self.deviceTrainSetSize=50000
+		#self.deviceValidSetSize=10000
+		self.deviceTrainSetSize=27000
+		self.deviceValidSetSize=3600
+		self.batchSize = 200
+		print("initializing myCNNForMoreOrientationsSVMParams with "+str(self.numOutClasses)+" classes!!!!!!!")
+
 class defaultCNNParams(myCNNForOrientationParams):
 	def __init__(self):
 		myCNNForOrientationParams.__init__(self)
@@ -296,30 +338,34 @@ class OCR_CNN(object):
 		
 		#print("number of inputs to first fully-connected layer will be == "+str(nextnumin))
 		
-		for hlidx in range(len(params.hiddenlayers)):
+		if len(params.hiddenlayers) > 0:
+			for hlidx in range(len(params.hiddenlayers)):
 			
-			# construct fully-connected layer(s)
+				# construct fully-connected layer(s)
 			
-			if useDropout == False:
-				newlayer = HiddenLayer(self.rng, input=nextinput,
-							n_in = nextnumin,
-							n_out = params.hiddenlayers[hlidx],
-							activation = params.activation)
-			else:
-				newlayer = DropoutHiddenLayer(rng=self.rng, input=nextinput,
-							n_in = nextnumin,
-							n_out = params.hiddenlayers[hlidx],
-							activation = params.activation,
-							dropout_rate = params.dropoutrates_fullyconn[hlidx],
-							dropout_noise_rate=0)
+				if useDropout == False:
+					newlayer = HiddenLayer(self.rng, input=nextinput,
+								n_in = nextnumin,
+								n_out = params.hiddenlayers[hlidx],
+								activation = params.activation)
+				else:
+					newlayer = DropoutHiddenLayer(rng=self.rng, input=nextinput,
+								n_in = nextnumin,
+								n_out = params.hiddenlayers[hlidx],
+								activation = params.activation,
+								dropout_rate = params.dropoutrates_fullyconn[hlidx],
+								dropout_noise_rate=0)
 			
-			self.allLayers.append(newlayer)
-			nextinput = newlayer.output
-			nextnumin = params.hiddenlayers[hlidx]
+				self.allLayers.append(newlayer)
+				nextinput = newlayer.output
+				nextnumin = params.hiddenlayers[hlidx]
 		
 		# classify the values of the last fully-connected layer
 		
-		newlayer = LogisticRegression(input=nextinput, n_in=nextnumin, n_out=params.numOutClasses)
+		if params.lastlayerLogistic:
+			newlayer = LogisticRegression(input=nextinput, n_in=nextnumin, n_out=params.numOutClasses)
+		else:
+			newlayer = linear_svm_multiclass.LinearSVMMulticlass(input=nextinput, nfeatures=nextnumin, nclasses=params.numOutClasses, C=1)
 		self.allLayers.append(newlayer)
 		
 		nextinputwidth = params.widthOfImages
@@ -337,6 +383,9 @@ class OCR_CNN(object):
 					print("fully-connected layer"+str(lidx)+" has "+str(numpinpts)+" inputs and "+str(numoutpts)+" outputs")
 		print("------------------------")
 	
+	def TrainHyperoptMicrobatches(self, datasets, datasetsOnDevice, pickleNetworkName, filterFilesSavedBaseName, deviceTrainSetSize, deviceValidSetSize):
+		quit()
+	
 	def Train(self, datasets, datasetsOnDevice, learning_rate, weightmomentum, n_epochs, pickleNetworkName, filterFilesSavedBaseName="", deviceTrainSetSize=36000, deviceValidSetSize=3200):
 		
 		import DatasetsLoaders
@@ -344,8 +393,6 @@ class OCR_CNN(object):
 		if datasetsOnDevice:
 			train_set_x, train_set_y = datasets[0]
 			valid_set_x, valid_set_y = datasets[1]
-			#test_set_x, test_set_y = datasets[2]
-			
 			# compute number of minibatches for training, validation and testing
 			n_train_batches = train_set_x.get_value(borrow=True).shape[0]
 			n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
@@ -356,7 +403,6 @@ class OCR_CNN(object):
 			print("num images in validation set: "+str(nValidationImagesTotal))
 			n_train_batches /= self.batch_size
 			n_valid_batches /= self.batch_size
-			#n_test_batches /= self.batch_size
 		else:
 			print("num images in training set: "+str(deviceTrainSetSize))
 			print("num images in validation set: "+str(deviceValidSetSize))
@@ -379,19 +425,11 @@ class OCR_CNN(object):
 		# allocate symbolic variables for the data
 		index = T.lscalar()  # index to a [mini]batch
 		
-		if datasetsOnDevice:
+		if datasetsOnDevice and not self.params.microbatches:
 			# create a function to compute the mistakes that are made by the model
-			'''test_model = theano.function(
-				[index],
-				self.allLayers[-1].errors(y),
-				givens={
-					self.x: test_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-					y: test_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-				}
-			)'''
 			validate_model = theano.function(
 				[index],
-				self.allLayers[-1].errors(y),
+				self.allLayers[-1].calculateErrors(y),
 				givens={
 					self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
 					y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
@@ -405,26 +443,13 @@ class OCR_CNN(object):
 				params = (params + self.allLayers[lidx].params)
 		
 		# the cost we minimize during training is the NLL of the model
-		cost = self.allLayers[-1].negative_log_likelihood(y)
+		cost = self.allLayers[-1].CostToMinimize(y)
 		
-		if False:
-			# create a list of gradients for all model parameters
-			grads = T.grad(cost, params)
+		# update function (uses stochastic gradient descent with momentum)
+		updates = gradient_updates_momentum(cost, params, learning_rate, momentum=weightmomentum)
 		
-			# train_model is a function that updates the model parameters by
-			# SGD Since this model has many parameters, it would be tedious to
-			# manually create an update rule for each model parameter. We thus
-			# create the updates list by automatically looping over all
-			# (params[i], grads[i]) pairs.
-			updates = [
-				(param_i, param_i - learning_rate * grad_i)
-				for param_i, grad_i in zip(params, grads)
-			]
-		else:
-			updates = gradient_updates_momentum(cost, params, learning_rate, momentum=weightmomentum)
-		
-		
-		if datasetsOnDevice:
+		if datasetsOnDevice and not self.params.microbatches:
+			print("SETTING UP TRAINING FOR DATASETS_ON_DEVICE AND NOT MICROBATCHES")
 			train_model = theano.function(
 				[index],
 				cost,
@@ -434,7 +459,21 @@ class OCR_CNN(object):
 					y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
 				}
 			)
-	
+		
+		#------------------------------------------------------------------------
+		if self.params.microbatches:
+			print("SETTING UP TRAINING FOR MICROBATCHES")
+			
+			train_model = theano.function(
+				[self.x, T.cast(y,'int32')],
+				cost,
+				updates=updates
+			)
+			validate_model = theano.function(
+				[self.x, T.cast(y,'int32')],
+				self.allLayers[-1].calculateErrors(y)
+			)
+		
 		###############
 		# TRAIN MODEL #
 		###############
@@ -459,13 +498,14 @@ class OCR_CNN(object):
 		epoch = 0
 		done_looping = False
 		
-		while (epoch < n_epochs) and (not done_looping):
+		while True: #(epoch < n_epochs) and (not done_looping):
 			
-			#------------------------------------------------------------------------
-			if datasetsOnDevice == False:
+			train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches)
+				
+			if datasetsOnDevice == False and not self.params.microbatches:
+				print("SETTING UP TRAINING FOR DATASETS NOT ON DEVICE")
 				# we need to produce a dataset to train this iteration
 				
-				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
 				if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
 					print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
 					n_train_batches = numTrainPts/self.batch_size
@@ -482,7 +522,7 @@ class OCR_CNN(object):
 				)
 				validate_model = theano.function(
 					[index],
-					self.allLayers[-1].errors(y),
+					self.allLayers[-1].calculateErrors(y),
 					givens={
 						self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
 						y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
@@ -497,12 +537,22 @@ class OCR_CNN(object):
 			
 				if iter % 100 == 0:
 					print 'training @ iter = ', iter
-				cost_ij = train_model(minibatch_index)
-			
+				
+				if self.params.microbatches:
+					idxx = minibatch_index
+					cost_ij = train_model(train_set_x[idxx*self.batch_size : (idxx+1)*self.batch_size], train_set_y[idxx*self.batch_size : (idxx+1)*self.batch_size])
+				else:
+					cost_ij = train_model(minibatch_index)
+				
 				if (iter + 1) % validation_frequency == 0:
 				
 					# compute zero-one loss on validation set
-					validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
+					
+					if self.params.microbatches:
+						validation_losses = [validate_model(train_set_x[idxx*self.batch_size : (idxx+1)*self.batch_size], train_set_y[idxx*self.batch_size : (idxx+1)*self.batch_size]) for idxx in xrange(n_valid_batches)]
+					else:
+						validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
+					
 					this_validation_loss = numpy.mean(validation_losses)
 					print('epoch %i, minibatch %i/%i, validation error %f %%' %
 						  (epoch, minibatch_index + 1, n_train_batches,
@@ -574,8 +624,6 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 	import DatasetsLoaders
 	
 	if useMNIST:
-		learning_rate = 0.20
-		n_epochs = 2000
 		params = myCNNParams()
 		params.widthOfImages = 28
 		params.filtersizes = [5, 5]
@@ -590,7 +638,6 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 		deviceTrainSetSize = 50000
 		deviceValidSetSize = 10000
 	else:
-		n_epochs = 15000
 		print("learning rate == "+str(learning_rate)+", momentum == "+str(weightmomentum))
 		params = defaultCNNParams()
 		batch_size = params.batchSize
@@ -667,7 +714,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 	# create a function to compute the mistakes that are made by the model
 	traintest_model = theano.function(
 		[index],
-		builtCNN.allLayers[-1].errors(y),
+		builtCNN.allLayers[-1].calculateErrors(y),
 		givens={
 			builtCNN.x: train_set_x[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size],
 			y: train_set_y[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size]
@@ -675,7 +722,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 	)
 	validate_model = theano.function(
 		[index],
-		builtCNN.allLayers[-1].errors(y),
+		builtCNN.allLayers[-1].calculateErrors(y),
 		givens={
 			builtCNN.x: valid_set_x[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size],
 			y: valid_set_y[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size]
@@ -945,7 +992,4 @@ if __name__ == '__main__':
 	else:
 		print("unknown option \""+str(sys.argv[1])+"\"")
 
-
-def experiment(state, channel):
-	train_lenet5_with_batches(learning_rate=state.learning_rate, dataset=state.dataset)
 

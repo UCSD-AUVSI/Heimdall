@@ -114,6 +114,7 @@ void SimulatedAnnealing::InitialWarmup(Optimizer_Optimizee * givenModule, Optimi
 		}
 	}
 	cout<<"highest score seen in the warmup: "<<highestScoreSeen<<endl;
+	saved_best_params_from_warmup->Print(cout);
 	testedParams.clear();
 	
 	cout<<"changes in energy:"<<endl;
@@ -143,7 +144,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 {
 	cout<<"~~~~~~~~ SimulatedAnnealing::DoPostWarmupLoops()"<<endl;
 	
-	double StepScalar = 0.50; //to start with, can cover up to 50% of the space in one step, i.e. step size +/- 25%
+	double StepScalar = 0.45; //to start with, can cover up to 45% of the space in one step, i.e. step size +/- 22.5%
 	const double StepReductionAmountPerDrop = 0.75; //the step size at any level is: StepScalar*(StepReductionAmountPerDrop^(num drops))
 												//thus this affects the cooling rate
 	const double OriginalStepScalar = StepScalar; //to find proportional temperature drop
@@ -173,7 +174,7 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 	std::vector<Optimizer_Params*> best_seen_params;
 	std::vector<Optimizer_ResultsStats*> best_seen_results;
 	
-	const int thisdrop_num_top_results_to_consider = 5;
+	const int thisdrop_num_top_results_to_consider = 3;
 	std::vector<double> thisdrop_top_scores;
 	std::vector<Optimizer_Params*> thisdrop_top_params;
 	std::vector<Optimizer_ResultsStats*> thisdrop_top_results;
@@ -223,14 +224,15 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 		
 		// Check output
 		latest_results = output->CalculateResults();
+		previous_score = latest_score;
+		latest_score = latest_results->CalculateFitnessScore();
 		
 		//print to history file
 		all_scores_history_file<<"score: "<<latest_score<<", numLoopsDone: "<<numLoopsDone<<", numDrops: "<<numDrops<<", tempscalar: "<<negtrials_adjuster.getTemperatureScalar()<<", recentNegAcceptRate: "<<negtrials_adjuster.getLatestNegAcceptRate()<<endl;
 		latest_results->Print(all_scores_history_file, false);
+		latest_params->Print(all_scores_history_file);
 		//print to console
 		latest_results->Print(cout, false);
-		previous_score = latest_score;
-		latest_score = latest_results->CalculateFitnessScore();
 		cout << "THIS SCORE: "<<latest_score<<endl;
 		
 		//---------------------------------------------------
@@ -345,8 +347,9 @@ void SimulatedAnnealing::DoPostWarmupLoops(Optimizer_Optimizee * givenModule, Op
 			outf.open(std::string("simulated_annealing_results_")+to_istring(testfilenameidx)+std::string(".txt"));
 			for(int ii=0; ii<best_seen_params.size(); ii++) {
 				outf<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-				outf<<"score: "<<best_seen_scores[ii]<<endl;
-				outf<<"params: ";
+				outf<<"score: "<<best_seen_scores[ii]<<", ";
+				best_seen_results[ii]->Print(outf, false);
+				outf<<endl<<"params: ";
 				best_seen_params[ii]->Print(outf);
 				outf<<endl<<"results: ";
 				best_seen_results[ii]->Print(outf, true);

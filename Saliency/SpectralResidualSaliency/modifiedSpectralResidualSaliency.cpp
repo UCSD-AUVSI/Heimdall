@@ -173,14 +173,15 @@ bool modified_StaticSaliencySpectralResidual::computeSaliencyImpl_multiChannel(c
 	cv::Size givenImageSize(image.size());
 	std::vector<cv::Mat> imgChannels;
 	cv::split(image, imgChannels);
+	cv::Mat magSum(givenImageSize, CV_64F, cv::Scalar(0));
 	
 	std::vector<cv::Mat> resultsSavedHere(3);
 	std::vector<std::thread*> threadslaunched;
 	for(ii=0; ii<imgChannels.size(); ii++) {
+        //cout<<"launching saliency thread "<<ii<<" of 3"<<endl;
 		threadslaunched.push_back(new std::thread(single_channel_spectsal_compute, &(imgChannels[ii]), &(resultsSavedHere[ii])));
 	}
 	
-	cv::Mat magSum(givenImageSize, CV_64F, cv::Scalar(0));
 	for(ii=0; ii<imgChannels.size(); ii++) {
 		threadslaunched[ii]->join();
 		delete threadslaunched[ii]; threadslaunched[ii] = nullptr;
