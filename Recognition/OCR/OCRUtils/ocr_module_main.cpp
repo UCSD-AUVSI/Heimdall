@@ -102,7 +102,7 @@ void AnyOCR_Module_Main::Attempt_OCR_OnOneCSEG(cv::Mat input_CSEG,
             my_ocr_algorithm->last_obtained_results.clear();
 
 
-            my_ocr_algorithm->do_OCR(foundshape_CSEG_post_erosion, nullptr, return_empty_characters);
+            my_ocr_algorithm->do_OCR_on_one_CSEG(foundshape_CSEG_post_erosion, nullptr, return_empty_characters);
 
 
             if(return_raw_tesseract_data == false) {

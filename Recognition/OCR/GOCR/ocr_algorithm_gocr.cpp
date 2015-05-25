@@ -217,7 +217,7 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
     job_init(&job);
 
     // Chars to recognize for this job
-    std::string recog_chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    std::string recog_chars("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
     char * rec_char_cstr = (char*)malloc(strlen(recog_chars.c_str()) + 1);
     strcpy(rec_char_cstr, recog_chars.c_str());
     job.cfg.lc = rec_char_cstr;
@@ -283,7 +283,7 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
         }
         if(foundchar != ' ' || return_empty_characters) {
             candidates.push_back(std::pair<char, int>(foundchar, angle_amount));
-            //last_obtained_results.PushBackNew(certainty_lower_bound+1, angle_amount, foundchar);
+            //last_obtained_results.PushBackNew(0.99, angle_amount, foundchar);
         }
     }
 
@@ -292,10 +292,20 @@ void OCRModuleAlgorithm_GOCR::RotateAndRunOCR(cv::Mat matsrc, double angle_amoun
 }
 
 
-bool OCRModuleAlgorithm_GOCR::do_OCR(cv::Mat letter_binary_mat) {
+bool OCRModuleAlgorithm_GOCR::do_OCR_on_one_CSEG(cv::Mat letter_binary_mat, std::ostream* PRINTHERE, bool return_empty_characters)
+{
+    last_obtained_results.clear();
     candidates.clear();
     for(int curr_angle = 0.0; curr_angle < 360.0; curr_angle += 360.0 / num_angles_to_check){
         RotateAndRunOCR(letter_binary_mat, curr_angle);
     }
+    if(candidates.empty() == false) {
+        std::pair<char,int> topoutput = ProcessCandidates();
+        last_obtained_results.PushBackNew(0.99, std::get<1>(topoutput), std::get<0>(topoutput));
+    }
     return (candidates.empty() == false);
 }
+
+
+
+

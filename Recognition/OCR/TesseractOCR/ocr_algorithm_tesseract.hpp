@@ -26,8 +26,9 @@ protected:
 
 public:
 
-	OCRModuleAlgorithm_Tesseract()
+	OCRModuleAlgorithm_Tesseract() : OCRModuleAlgorithm_Template()
 	{
+        tesseract_was_initialized = false;
 		num_angles_to_check = 72;
 		fraction_of_top_characters_to_keep_before_tossing_the_rest = (70.0 / 360.0);
 	}
@@ -36,8 +37,8 @@ public:
 	//"return_raw_tesseract_data" determines if the list of letters is chopped to the fraction above,
 	// or if all data at all angles is returned.
 	//
-	virtual bool do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE=nullptr, bool return_empty_characters=false);
-
+	virtual bool do_OCR_on_one_CSEG(cv::Mat letter_binary_mat, std::ostream* PRINTHERE=nullptr, bool return_empty_characters=false);
+	
 
 	virtual bool TryToInitializeMe();
 protected:

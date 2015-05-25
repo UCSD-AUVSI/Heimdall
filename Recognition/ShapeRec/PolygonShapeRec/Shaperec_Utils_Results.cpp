@@ -289,7 +289,7 @@ void ShapeRec_ResultsContainer::EliminateDuplicates()
         ));
 
 #if SHAPEREC_SORT_PRIMARILY_BY_MULTIPLIED_CONFIDENCES
-#pragma message("ShapeRec compiled to sort primarily by MULTIPLIED confidences!")
+//#pragma message("ShapeRec compiled to sort primarily by MULTIPLIED confidences!")
 
         (results.rbegin())->metric_method44
             = SHAPEREC_METHOD4_ABSOLUTE_CONFIDENCE_FORMULA_INVERSE(1.0 - shaperec_shapes_iter->second.metric_method44_total_multiplies_of_1_minus_confidence);
@@ -297,7 +297,7 @@ void ShapeRec_ResultsContainer::EliminateDuplicates()
         (results.rbegin())->multi_seg_image_processed_averaged_metric_method44
             = (shaperec_shapes_iter->second.total_metric_method44_sum / static_cast<double>(shaperec_shapes_iter->second.num_instances));
 #else
-#pragma message("ShapeRec compiled to sort primarily by AVERAGED confidences!")
+#pragma message("ShapeRec compiled to sort primarily by AVERAGED confidences! This is probably worse than multiplied confidences...")
 
         (results.rbegin())->metric_method44
             = (shaperec_shapes_iter->second.total_metric_method44_sum / static_cast<double>(shaperec_shapes_iter->second.num_instances));

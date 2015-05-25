@@ -948,6 +948,8 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		print("Error: no images found in that folder! Quitting...")
 		return
 	
+	numcorrect = 0
+	numseen = 0
 	desiredWidth = defaultCNNParams().widthOfImages
 	for imagename in images:
 		# load and convert test image
@@ -966,15 +968,17 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		
 		prediction = predict_CNN_on_img(builtCNN, npim, widthOfImage=desiredWidth, debuggingMode=False)
 		
+		numseen = (numseen + 1)
 		if truthIsFirstCharacter:
 			truthchar = imagename[0]
-			if truthchar == prediction[0]:
+			if truthchar == prediction[0] or prediction[0] == '0' and truthchar == 'O' or prediction[0] == 'O' and truthchar == '0':
 				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+				numcorrect = (numcorrect + 1)
 			else:
-				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\" --- misclassified!")
+				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"     ----- misclassified!")
 		else:
 			print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
-
+	print("total results: correct ratio == "+str(numcorrect)+"/"+str(numseen)+" == "+str((float(numcorrect)/float(numseen))))
 
 
 if __name__ == '__main__':

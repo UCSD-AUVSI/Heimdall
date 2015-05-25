@@ -9,6 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include "SharedUtils/SharedUtils.hpp"
 #include "SharedUtils/SharedUtils_OpenCV.hpp"
+using std::cout; using std::endl;
 
 
 bool OCRModuleAlgorithm_Tesseract::TryToInitializeMe()
@@ -16,18 +17,19 @@ bool OCRModuleAlgorithm_Tesseract::TryToInitializeMe()
 	if(tesseract_was_initialized == false)
 	{
 #if BUILD_WITH_TESSERACT
-
+//#pragma message("BUILDING WITH TESSERACT")
 		const char *language = "eng";
 		TessApi.Init( 0, language, tesseract::OEM_DEFAULT );
 		//TessApi.SetVariable( "tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-		TessApi.SetVariable( "tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		TessApi.SetVariable( "tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");//0123456789");
 		TessApi.SetPageSegMode(tesseract::PSM_SINGLE_CHAR);
 		tesseract_was_initialized = true;
-
+//#else
+//#pragma message("NOT BUILDING WITH TESSERACT????????????????????????????????????????????")
 #endif
 	}
 	if(tesseract_was_initialized == false) {
-		consoleOutput.Level0() << "TesseractOCRModule::do_OCR() error: error initializing tesseract!" << std::endl;
+		consoleOutput.Level0() << "TesseractOCRModule::TryToInitializeMe() error: error initializing tesseract!" << std::endl;
 	}
 	return tesseract_was_initialized;
 }
@@ -68,7 +70,7 @@ bool OCRModuleAlgorithm_Tesseract::RotateAndRunOCR(cv::Mat matsrc, double angle_
 }
 
 
-bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/, bool return_empty_characters/*=false*/)
+bool OCRModuleAlgorithm_Tesseract::do_OCR_on_one_CSEG(cv::Mat letter_binary_mat, std::ostream* PRINTHERE/*=nullptr*/, bool return_empty_characters/*=false*/)
 {
 	last_obtained_results.clear();
 
@@ -86,4 +88,7 @@ bool OCRModuleAlgorithm_Tesseract::do_OCR(cv::Mat letter_binary_mat, std::ostrea
 
 	return (last_obtained_results.empty() == false);
 }
+
+
+
 

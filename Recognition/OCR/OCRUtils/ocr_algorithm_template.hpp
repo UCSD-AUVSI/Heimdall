@@ -22,7 +22,7 @@ public:
 
 	//if the returned vector (in last_obtained_results) is empty, no character was found with the desired confidence
 	//the returned vector may have two letters if there were two close guesses found
-	virtual bool do_OCR(cv::Mat letter_binary_mat, std::ostream* PRINTHERE, bool return_empty_characters) = 0;
+	virtual bool do_OCR_on_one_CSEG(cv::Mat letter_binary_mat, std::ostream* PRINTHERE, bool return_empty_characters) = 0;
 	
 	virtual void do_SiftThroughCandidates(OCR_ResultsContainer & given_results,
 											int max_num_reported_letters,
