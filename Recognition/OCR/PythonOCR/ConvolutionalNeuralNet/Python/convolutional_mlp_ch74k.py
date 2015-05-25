@@ -111,18 +111,20 @@ class LeNetConvPoolLayer(object):
 			image_shape=image_shape
 		)
 		
-		# downsample each feature map individually, using maxpooling
-		pooled_out = downsample.max_pool_2d(
-			input=conv_out,
-			ds=poolsize,
-			ignore_border=True
-		)
-		
-		# add the bias term. Since the bias is a vector (1D array), we first
-		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
-		# thus be broadcasted across mini-batches and feature map
-		# width & height
-		self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		if numpy.prod(poolsize) > 1:
+			# downsample each feature map individually, using maxpooling
+			pooled_out = downsample.max_pool_2d(
+				input=conv_out,
+				ds=poolsize,
+				ignore_border=True
+			)
+			# add the bias term. Since the bias is a vector (1D array), we first
+			# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
+			# thus be broadcasted across mini-batches and feature map
+			# width & height
+			self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		else:
+			self.output = activation(conv_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 		
 		# store parameters of this layer
 		self.params = [self.W, self.b]
@@ -231,7 +233,6 @@ class myCNNParams(object):
 		self.deviceValidSetSize=4800
 class myCNNForOrientationParams(myCNNParams):
 	def __init__(self):
-		#super(myCNNParams,self).__init__()
 		myCNNParams.__init__(self)
 		self.nkerns=[200, 320, 200]
 		self.hiddenlayers = [2400, 1000]
@@ -242,6 +243,27 @@ class myCNNForOrientationParams(myCNNParams):
 		self.batchSize = 100
 		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
 		print("initializing myCNNForOrientation with "+str(self.numOutClasses)+" classes!!!!!!!")
+class myCNNForOrientationParams222(myCNNParams):
+	def __init__(self):
+		myCNNParams.__init__(self)
+		# conv layers
+		self.nkerns=[330, 300, 300, 300]
+		self.filtersizes = [5, 3, 3, 3]
+		self.poolsizes = [2, 2, 1, 1]
+		self.dropoutrates_conv = [0.1, 0.1, 0.1, 0.1]
+		self.noiserates_conv = [0.2, 0, 0, 0]
+		# hidden layers
+		self.dropoutrates_fullyconn = [0.3, 0.3]
+		self.hiddenlayers = [1600, 2000]
+		# classifier
+		self.numOutClasses = (36*4)
+		# training
+		self.deviceTrainSetSize=50000
+		self.deviceValidSetSize=10000
+		self.batchSize = 104
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
+		print("initializing myCNNForOrientation222 with "+str(self.numOutClasses)+" classes!!!!!!!")
+
 class myCNNForMoreOrientationsSVMParams(myCNNParams):
 	def __init__(self):
 		myCNNParams.__init__(self)
@@ -256,7 +278,7 @@ class myCNNForMoreOrientationsSVMParams(myCNNParams):
 		# connected layers
 		self.dropoutrates_fullyconn = [0.4, 0.4]
 		self.hiddenlayers = [1440, 2880]
-		self.numOutClasses = (36*8)
+		self.numOutClasses = (36*4)
 		# classification layer
 		self.lastlayerLogistic = True # according to the name... should be SVM... but use logistic for ease of train
 		# misc options due to memory constraints
@@ -269,9 +291,9 @@ class myCNNForMoreOrientationsSVMParams(myCNNParams):
 		self.batchSize = 200
 		print("initializing myCNNForMoreOrientationsSVMParams with "+str(self.numOutClasses)+" classes!!!!!!!")
 
-class defaultCNNParams(myCNNForOrientationParams):
+class defaultCNNParams(myCNNForOrientationParams222):
 	def __init__(self):
-		myCNNForOrientationParams.__init__(self)
+		myCNNForOrientationParams222.__init__(self)
 
 class OCR_CNN(object):
 	def __init__(self, batch_size, useDropout, params):
@@ -355,7 +377,6 @@ class OCR_CNN(object):
 								activation = params.activation,
 								dropout_rate = params.dropoutrates_fullyconn[hlidx],
 								dropout_noise_rate=0)
-			
 				self.allLayers.append(newlayer)
 				nextinput = newlayer.output
 				nextnumin = params.hiddenlayers[hlidx]
@@ -498,109 +519,107 @@ class OCR_CNN(object):
 		epoch = 0
 		done_looping = False
 		
-		while True: #(epoch < n_epochs) and (not done_looping):
+		try:
+			while True:
 			
-			train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches)
+				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches, self.params.numOutClasses)
 				
-			if datasetsOnDevice == False and not self.params.microbatches:
-				print("SETTING UP TRAINING FOR DATASETS NOT ON DEVICE")
-				# we need to produce a dataset to train this iteration
+				if False:
+					import cv2
+					print("SAVING SAMPLES")
+					samplesfolder = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/samples/"
+					randsamples = numpy.random.randint(0, len(train_set_y), size=800)
+					print("indices chosen: "+str(randsamples))
+					print("--------------------------------------------------- "+str(len(randsamples)))
+					for ii in range(randsamples.shape[0]):
+						print(str(randsamples[ii]))
+						nparr = train_set_x[randsamples[ii]]
+						nparr = numpy.reshape(nparr, (40,40))
+						samplleimgfilename = samplesfolder+"imgnist_"+str(train_set_y[randsamples[ii]])+"__idx_"+str(randsamples[ii])+".png"
+						cv2.imwrite(samplleimgfilename, nparr)
+						print("saved \'"+samplleimgfilename+"\'")
+					quit()
 				
-				if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
-					print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
-					n_train_batches = numTrainPts/self.batch_size
-					n_valid_batches = numValidationPts/self.batch_size
-				
-				train_model = theano.function(
-					[index],
-					cost,
-					updates=updates,
-					givens={
-						self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-						y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-					}
-				)
-				validate_model = theano.function(
-					[index],
-					self.allLayers[-1].calculateErrors(y),
-					givens={
-						self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-						y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-					}
-				)
-			#------------------------------------------------------------------------
+				if datasetsOnDevice == False and not self.params.microbatches:
+					print("SETTING UP TRAINING FOR DATASETS NOT ON DEVICE")
+					# we need to produce a dataset to train this iteration
+					
+					if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
+						print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
+						n_train_batches = numTrainPts/self.batch_size
+						n_valid_batches = numValidationPts/self.batch_size
+					
+					train_model = theano.function(
+						[index],
+						cost,
+						updates=updates,
+						givens={
+							self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+							y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+						}
+					)
+					validate_model = theano.function(
+						[index],
+						self.allLayers[-1].calculateErrors(y),
+						givens={
+							self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+							y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+						}
+					)
+				#------------------------------------------------------------------------
 			
-			epoch = epoch + 1
-			for minibatch_index in xrange(n_train_batches):
-				
-				iter = (epoch - 1) * n_train_batches + minibatch_index
-			
-				if iter % 100 == 0:
-					print 'training @ iter = ', iter
-				
-				if self.params.microbatches:
-					idxx = minibatch_index
-					cost_ij = train_model(train_set_x[idxx*self.batch_size : (idxx+1)*self.batch_size], train_set_y[idxx*self.batch_size : (idxx+1)*self.batch_size])
-				else:
-					cost_ij = train_model(minibatch_index)
-				
-				if (iter + 1) % validation_frequency == 0:
-				
-					# compute zero-one loss on validation set
+				epoch = epoch + 1
+				for minibatch_index in xrange(n_train_batches):
+					
+					iter = (epoch - 1) * n_train_batches + minibatch_index
+					if iter % 100 == 0:
+						print 'training @ iter = ', iter
 					
 					if self.params.microbatches:
-						validation_losses = [validate_model(train_set_x[idxx*self.batch_size : (idxx+1)*self.batch_size], train_set_y[idxx*self.batch_size : (idxx+1)*self.batch_size]) for idxx in xrange(n_valid_batches)]
+						cost_ij = train_model(train_set_x[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size], train_set_y[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size])
 					else:
-						validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
-					
-					this_validation_loss = numpy.mean(validation_losses)
-					print('epoch %i, minibatch %i/%i, validation error %f %%' %
-						  (epoch, minibatch_index + 1, n_train_batches,
-						   this_validation_loss * 100.))
-					
-					# if we got the best validation score until now
-					if this_validation_loss < best_validation_loss:
-						
-						#improve patience if loss improvement is good enough
-						if this_validation_loss < best_validation_loss *  \
-						   improvement_threshold:
-							patience = max(patience, iter * patience_increase)
-						
-						# save best validation scores and iteration number
-						best_validation_loss = this_validation_loss
-						best_iter = iter
-						
-						pfname = pickleNetworkName+"_"+str(iter)+"_score_"+str(this_validation_loss*100.)+".pkl"
-						for nnlayeridx in range(len(self.allLayers)):
-							self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
-						
-						if len(filterFilesSavedBaseName) > 1:
-							for layeridx in range(len(self.convLayers)):
-								self.convLayers[layeridx].saveFilters(filterFilesSavedBaseName+"_"+str(layeridx)+"_")
-						
-						print("====== saved new weights and filters")
-						
-						# test it on the test set
-						'''test_losses = [test_model(i) for i in xrange(n_test_batches)]
-						test_score = numpy.mean(test_losses)
-						print(('   epoch %i, minibatch %i/%i, test error of '
-							   'best model %f %%') %
-							  (epoch, minibatch_index + 1, n_train_batches,
-							   test_score * 100.))'''
-
+						cost_ij = train_model(minibatch_index)
 				
-				if patience <= iter:
-					done_looping = True
-					break
-	
-		end_time = time.clock()
-		print('Optimization complete.')
-		print('Best validation score of %f %% obtained at iteration %i, '
-			  'with test performance %f %%' %
-			  (best_validation_loss * 100., best_iter + 1, 0.))# test_score * 100.))
-		print >> sys.stderr, ('The code for file ' +
-							  os.path.split(__file__)[1] +
-							  ' ran for %.2fm' % ((end_time - start_time) / 60.))
+				#------------------------------------------------------------------------
+				# compute error on validation set
+				
+				if self.params.microbatches:
+					validation_losses = [validate_model(train_set_x[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size], train_set_y[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size]) for minibatch_index in xrange(n_valid_batches)]
+				else:
+					validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
+				
+				this_validation_loss = numpy.mean(validation_losses)
+				print('epoch %i, minibatch %i/%i, validation error %f %%' %
+					  (epoch, minibatch_index + 1, n_train_batches,
+					   this_validation_loss * 100.))
+				
+				if (this_validation_loss < best_validation_loss) or (epoch % 50 == 0):
+					pfname = pickleNetworkName+"_"+str(int(round(self.batch_size*n_train_batches*epoch*0.001)))+"kims_score_"+str(this_validation_loss*100.)+".pkl"
+					for nnlayeridx in range(len(self.allLayers)):
+						self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
+					if len(filterFilesSavedBaseName) > 1:
+						for layeridx in range(len(self.convLayers)):
+							self.convLayers[layeridx].saveFilters(filterFilesSavedBaseName+"_"+str(layeridx)+"_")
+					print("====== saved new weights and filters")
+				
+				# if we got the best validation score until now; save it to disk
+				if this_validation_loss < best_validation_loss:
+				
+					#improve patience if loss improvement is good enough
+					if this_validation_loss < best_validation_loss *  \
+					   improvement_threshold:
+						patience = max(patience, iter * patience_increase)
+				
+					# save best validation scores and iteration number
+					best_validation_loss = this_validation_loss
+					best_iter = iter
+		except (KeyboardInterrupt, SystemExit):
+			end_time = time.clock()
+			print("Optimization complete.")
+			print('Best validation score of %f %% obtained at iteration %i, '
+				  'with test performance %f %%' %
+				  (best_validation_loss * 100., best_iter + 1, 0.))
+			print("Ran for " + str((end_time - start_time) / 60.) + " minutes")
 
 
 
@@ -681,7 +700,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		deviceTrainSetSize = 70000
 		deviceValidSetSize = batchSize
 		
-		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
+		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches, self.params.numOutClasses)
 		if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
 			print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
 			n_train_batches = numTrainPts/self.batch_size
@@ -836,8 +855,7 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesI
 			import cv2
 			cv2.imshow("testimg_processed 222", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
 			cv2.waitKey(0)
-		
-		print("numTopGuessesToReturn ignored when no inbetween angles are checked.....")
+		#print("numTopGuessesToReturn ignored when no inbetween angles are checked.....")
 		return ConvertClassToCharPlusOrientation(CNNprediction[0])
 	
 	else:
@@ -909,7 +927,7 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, an
 
 
 
-def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN=""):
+def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", truthIsFirstCharacter=False):
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
@@ -926,6 +944,9 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 			for filename in filenames:
 				#print("found image \""+str(filename)+"\" for testing")
 				images.append(filename)
+	if len(images) == 0:
+		print("Error: no images found in that folder! Quitting...")
+		return
 	
 	desiredWidth = defaultCNNParams().widthOfImages
 	for imagename in images:
@@ -939,30 +960,21 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		im = im.convert("L")
 		if im.size[0] != desiredWidth or im.size[1] != desiredWidth:
 			im.thumbnail((desiredWidth,desiredWidth), Image.ANTIALIAS)
-	
+		
 		npim = numpy.asarray(im)
-		im.close()
+		#im.close()
 		
-		prediction = predict_CNN_on_img(builtCNN, npim, desiredWidth, debuggingMode=False)
+		prediction = predict_CNN_on_img(builtCNN, npim, widthOfImage=desiredWidth, debuggingMode=False)
 		
-		anglepred = "top-is-up"
-		if prediction >= 36:
-			anglepred = "top-is-left"
-			prediction = (prediction - 36)
-			if prediction >= 36:
-				anglepred = "top-is-down"
-				prediction = (prediction - 36)
-				if prediction >= 36: 
-					anglepred = "top-is-right"
-					prediction = (prediction - 36)
-		
-		if prediction < 10:
-			predchar = chr(prediction+48)
+		if truthIsFirstCharacter:
+			truthchar = imagename[0]
+			if truthchar == prediction[0]:
+				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+			else:
+				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\" --- misclassified!")
 		else:
-			predchar = chr(prediction+55)
-		
-		print("prediction on "+str(imagename)+" was: "+str(prediction)+" i.e. \'"+predchar+"\' with orientation \""+anglepred+"\"")
-	
+			print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+
 
 
 if __name__ == '__main__':
@@ -985,10 +997,10 @@ if __name__ == '__main__':
 			quit()
 		test_saved_lenet5_on_full_dataset(False, trainedWeightsFile=str(sys.argv[2]), batchSize=400)
 	elif str(sys.argv[1]) == "test":
-		if len(sys.argv) < 5:
-			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}  {file-is-actually-folder}")
+		if len(sys.argv) < 6:
+			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}  {file-is-actually-folder}  {truth-is-first-char}")
 			quit()
-		test_saved_lenet5_on_image_file_or_folder(str(sys.argv[3]), int(sys.argv[4])!=0, False, trainedWeightsFile=str(sys.argv[2]))
+		test_saved_lenet5_on_image_file_or_folder(str(sys.argv[3]), int(sys.argv[4])!=0, False, trainedWeightsFile=str(sys.argv[2]), truthIsFirstCharacter=(int(sys.argv[5])!=0))
 	else:
 		print("unknown option \""+str(sys.argv[1])+"\"")
 
