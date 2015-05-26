@@ -36,7 +36,17 @@ see `Backbone/DistMaps.cpp`
 
 note that you will not have to modify this unless you wrote C++ code or want to reorganize the flowchart
 
-Heimdall Vision Flowchart 2014:
+Heimdall Vision Flowchart 2015:
 
-![alt text](https://github.com/UCSD-AUVSI/Heimdall/blob/master/heimdall_vision_flowchart_2014.png "Heimdall Vision Flowchart 2014")
+![alt text](https://github.com/UCSD-AUVSI/Heimdall/blob/master/2015heimdall_wbg_qrcode.png "Heimdall Vision Flowchart 2015")
+
+#### Algorithms that can be written in Python:
+
+* Salient Object Detection
+* QR Code Read/Check
+* Segmentation
+* OCR
+* Results Aggregation
+
+Not supported: Python-Shape-Recognition (though the current C++ implementation is good)
 
