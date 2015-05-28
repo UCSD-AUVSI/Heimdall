@@ -27,6 +27,8 @@ ShapeRecModule_Main::ShapeRecModule_Main(std::string folder_with_reference_shape
 	possibleFolders.push_back("../build/bin/");
 	possibleFolders.push_back("../../bin/");
 	possibleFolders.push_back("../../../bin/");
+	possibleFolders.push_back("../../../../bin/");
+	possibleFolders.push_back("../../../../../bin/");
 	
 	std::string folder_found(folder_with_reference_shapes);
 	int possibleFolderIndex = 0;
