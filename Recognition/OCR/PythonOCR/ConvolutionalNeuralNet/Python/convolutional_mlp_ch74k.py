@@ -243,6 +243,7 @@ class myCNNForOrientationParams(myCNNParams):
 		self.batchSize = 100
 		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
 		print("initializing myCNNForOrientation with "+str(self.numOutClasses)+" classes!!!!!!!")
+
 class myCNNForOrientationParams222(myCNNParams):
 	def __init__(self):
 		myCNNParams.__init__(self)
@@ -256,13 +257,34 @@ class myCNNForOrientationParams222(myCNNParams):
 		self.dropoutrates_fullyconn = [0.3, 0.3]
 		self.hiddenlayers = [1600, 2000]
 		# classifier
+		self.numOutClasses = (36*4) + 1
+		# training
+		self.deviceTrainSetSize=50032
+		self.deviceValidSetSize=10070
+		self.batchSize = 106
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
+		print("initializing myCNNForOrientation222 with "+str(self.numOutClasses)+" classes!!!!!!!")
+
+class myCNNForOrientationParams333May26(myCNNParams):
+	def __init__(self):
+		myCNNParams.__init__(self)
+		# conv layers
+		self.nkerns=[200, 400, 600, 320]
+		self.filtersizes = [5, 3, 3, 3]
+		self.poolsizes = [2, 2, 1, 1]
+		self.dropoutrates_conv = [0.1, 0.1, 0.1, 0.1]
+		self.noiserates_conv = [0.2, 0, 0, 0]
+		# hidden layers
+		self.dropoutrates_fullyconn = [0.3, 0.3]
+		self.hiddenlayers = [1100, 2400]
+		# classifier
 		self.numOutClasses = (36*4)
 		# training
 		self.deviceTrainSetSize=50000
 		self.deviceValidSetSize=10000
-		self.batchSize = 104
+		self.batchSize = 125
 		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
-		print("initializing myCNNForOrientation222 with "+str(self.numOutClasses)+" classes!!!!!!!")
+		print("initializing myCNNForOrientationParams333May26 with "+str(self.numOutClasses)+" classes!!!!!!!")
 
 class myCNNForMoreOrientationsSVMParams(myCNNParams):
 	def __init__(self):
@@ -511,6 +533,7 @@ class OCR_CNN(object):
 									  # on the validation set; in this case we
 									  # check every epoch
 		
+		savedSamplesOnceDone = False
 		best_validation_loss = numpy.inf
 		best_iter = 0
 		test_score = 0.
@@ -524,21 +547,27 @@ class OCR_CNN(object):
 			
 				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches, self.params.numOutClasses)
 				
-				if False:
+				if savedSamplesOnceDone == False:
+					savedSamplesOnceDone = True
 					import cv2
 					print("SAVING SAMPLES")
 					samplesfolder = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/samples/"
 					randsamples = numpy.random.randint(0, len(train_set_y), size=800)
-					print("indices chosen: "+str(randsamples))
+					#print("indices chosen: "+str(randsamples))
+					numsaveddd = 0
 					print("--------------------------------------------------- "+str(len(randsamples)))
+					if len(randsamples) != randsamples.shape[0]:
+						print("What? len(randsamples) != randsamples.shape[0]: "+str(len(randsamples))+" != "+str(randsamples.shape[0]))
 					for ii in range(randsamples.shape[0]):
-						print(str(randsamples[ii]))
+						numsaveddd = (numsaveddd + 1)
+						#print(str(randsamples[ii]))
 						nparr = train_set_x[randsamples[ii]]
 						nparr = numpy.reshape(nparr, (40,40))
 						samplleimgfilename = samplesfolder+"imgnist_"+str(train_set_y[randsamples[ii]])+"__idx_"+str(randsamples[ii])+".png"
 						cv2.imwrite(samplleimgfilename, nparr)
-						print("saved \'"+samplleimgfilename+"\'")
-					quit()
+						#print("saved \'"+samplleimgfilename+"\'")
+					print("done saving "+str(numsaveddd)+" samples")
+					#quit()
 				
 				if datasetsOnDevice == False and not self.params.microbatches:
 					print("SETTING UP TRAINING FOR DATASETS NOT ON DEVICE")
@@ -593,8 +622,8 @@ class OCR_CNN(object):
 					  (epoch, minibatch_index + 1, n_train_batches,
 					   this_validation_loss * 100.))
 				
-				if (this_validation_loss < best_validation_loss) or (epoch % 50 == 0):
-					pfname = pickleNetworkName+"_"+str(int(round(self.batch_size*n_train_batches*epoch*0.001)))+"kims_score_"+str(this_validation_loss*100.)+".pkl"
+				if (this_validation_loss < best_validation_loss) or (epoch % 20 == 0):
+					pfname = pickleNetworkName+"_"+str(int(round(self.batch_size*n_train_batches*epoch*0.001)))+"kims_score_"+str(this_validation_loss*100.)+"_lr"+str(learning_rate)+"_mom"+str(weightmomentum)+"_batch"+str(self.batch_size)+".pkl"
 					for nnlayeridx in range(len(self.allLayers)):
 						self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
 					if len(filterFilesSavedBaseName) > 1:
@@ -773,6 +802,8 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		this is clockwise from vertical
 '''
 def ConvertOrientationClassToDegrees(classOutOf144):
+	if classOutOf144 == 144:
+		return 0
 	anglepred = 0
 	if classOutOf144 >= 36:
 		anglepred = 270
@@ -792,6 +823,8 @@ def ConvertOrientationClassToDegrees(classOutOf144):
 		1 of 144 classes to orientations at 90 degree offsets
 '''
 def ConvertClassToCharPlusOrientation(prediction):
+	if prediction == 144:
+		return ('#','N/A') #if trained with 145 classes
 	anglepred = "top-is-up"
 	if prediction >= 36:
 		anglepred = "top-is-left"
@@ -824,7 +857,7 @@ def cv2rotateImg(image,angledegrees):
 	predict_CNN_on_img()
 		Use a saved CNN to make a prediction given one image
 '''
-def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesInbetween=0, returnDetailedInfo=False, numTopGuessesToReturn=1):
+def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesInbetween=0, includesJunkChar=False, junkConfThreshold=0.25, returnDetailedInfo=False, numTopGuessesToReturn=1):
 	
 	imdata = img.astype(dtype=theano.config.floatX)
 	
@@ -853,7 +886,7 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesI
 			print("the CNN predicted this: \""+str(CNNprediction)+"\"")
 			print("maximum grayscale pixel value in image == "+str(numpy.amax(imdata)))
 			import cv2
-			cv2.imshow("testimg_processed 222", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
+			cv2.imshow("testimg_processed xxx", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
 			cv2.waitKey(0)
 		#print("numTopGuessesToReturn ignored when no inbetween angles are checked.....")
 		return ConvertClassToCharPlusOrientation(CNNprediction[0])
@@ -883,36 +916,84 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesI
 		topidxs = topidxs[numpy.argsort(allpredictions[topidxs])]
 		#now a list of "numTopGuessesToReturn" indices sorted in ascending order of confidence
 		
-		angoffsets = (topidxs / 144)
-		classes = (topidxs - (angoffsets*144))
+		if includesJunkChar:
+			angoffsets = (topidxs / 145)
+			#classes = (topidxs - (angoffsets*145))
+			
+			chars = []
+			orientations = []
+			confidences = []
+			for cidx in range(len(topidxs)):
+				if float(allpredictions[topidxs[cidx]]) >= junkConfThreshold:
+					if (topidxs[cidx]+1) % 145 == 0:
+						chars.append('#')
+						orientations.append(0.0)
+					else:
+						charchar = (topidxs[cidx] % 145)
+						if charchar == 144:
+							#should have been handled by the above if case
+							print("ERROR????????????????????????????????????????????????????????????????? FIXME")
+						characteridx = (charchar%36)
+						if characteridx < 10:
+							chars.append(chr(characteridx+48))
+						else:
+							chars.append(chr(characteridx+55))
+						thisorientation = float(ConvertOrientationClassToDegrees(charchar)) - deltaAngle*float(angoffsets[cidx])
+						if thisorientation < 0.0:
+							orientations.append(thisorientation+360.0)
+						else:
+							orientations.append(thisorientation)
+				else:
+					chars.append('#')
+					orientations.append(0.0)
+				confidences.append(float(allpredictions[topidxs[cidx]]))
+			
+			if debuggingMode:
+				print("topidxs numeric == "+str(topidxs))
+				#print("chars numeric == "+str(classes))
+				print("chars == "+str(chars))
+				print("orientations == "+str(orientations))
+				print("confidences == "+str(confidences))
 		
-		chars = []
-		orientations = []
-		confidences = []
-		for cidx in range(len(classes)):
-			characteridx = (topidxs[cidx]%36)
-			if characteridx < 10:
-				chars.append(chr(characteridx+48))
+			if returnDetailedInfo:
+				return (chars, orientations, confidences)
 			else:
-				chars.append(chr(characteridx+55))
-			thisorientation = float(ConvertOrientationClassToDegrees(topidxs[cidx]%144)) - deltaAngle*float(angoffsets[cidx])
-			if thisorientation < 0.0:
-				orientations.append(thisorientation+360.0)
-			else:
-				orientations.append(thisorientation)
-			confidences.append(float(allpredictions[topidxs[cidx]]))
-		
-		if debuggingMode or True:
-			print("topidxs numeric == "+str(topidxs))
-			print("chars numeric == "+str(classes))
-			print("chars == "+str(chars))
-			print("orientations == "+str(orientations))
-			print("confidences == "+str(confidences))
-		
-		if returnDetailedInfo:
-			return (chars, orientations, confidences)
+				return (chars[-1], orientations[-1])
 		else:
-			return (chars[-1], orientations[-1])
+			angoffsets = (topidxs / 144)
+			#classes = (topidxs - (angoffsets*144))
+		
+			chars = []
+			orientations = []
+			confidences = []
+			for cidx in range(len(topidxs)):
+				if float(allpredictions[topidxs[cidx]]) >= junkConfThreshold:
+					characteridx = (topidxs[cidx]%36)
+					if characteridx < 10:
+						chars.append(chr(characteridx+48))
+					else:
+						chars.append(chr(characteridx+55))
+					thisorientation = float(ConvertOrientationClassToDegrees(topidxs[cidx]%144)) - deltaAngle*float(angoffsets[cidx])
+					if thisorientation < 0.0:
+						orientations.append(thisorientation+360.0)
+					else:
+						orientations.append(thisorientation)
+				else:
+					chars.append('#')
+					orientations.append(0.0)
+				confidences.append(float(allpredictions[topidxs[cidx]]))
+		
+			if debuggingMode:
+				print("topidxs numeric == "+str(topidxs))
+				#print("chars numeric == "+str(classes))
+				print("chars == "+str(chars))
+				print("orientations == "+str(orientations))
+				print("confidences == "+str(confidences))
+		
+			if returnDetailedInfo:
+				return (chars, orientations, confidences)
+			else:
+				return (chars[-1], orientations[-1])
 
 
 def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, anglesInbetween, returnDetailedInfo, numTopGuessesToReturn):
@@ -923,8 +1004,21 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, an
 	for nnlayeridx in range(len(builtCNN.allLayers)):
 		builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
 	
-	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, numTopGuessesToReturn=numTopGuessesToReturn)
+	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn=numTopGuessesToReturn)
 
+
+def GetMeanMedianOfList(thelist):
+	themean = 0.0
+	for fl in thelist:
+		themean = themean + float(fl)
+	themean = themean / float(len(thelist))
+	sortedlist = sorted(thelist)
+	themedian = 0.0
+	if len(thelist) % 2 == 1:
+		themedian = sortedlist[len(sortedlist)/2]
+	else:
+		themedian = (sortedlist[len(sortedlist)/2] + sortedlist[(len(sortedlist)/2)-1]) * 0.5
+	return (themean, themedian)
 
 
 def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", truthIsFirstCharacter=False):
@@ -948,6 +1042,8 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		print("Error: no images found in that folder! Quitting...")
 		return
 	
+	confsOfTopWrong = []
+	confsOfCorrect = []
 	numcorrect = 0
 	numseen = 0
 	desiredWidth = defaultCNNParams().widthOfImages
@@ -966,19 +1062,70 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		npim = numpy.asarray(im)
 		#im.close()
 		
-		prediction = predict_CNN_on_img(builtCNN, npim, widthOfImage=desiredWidth, debuggingMode=False)
+		numTopGuessesToReturn = 100
 		
+		prediction = predict_CNN_on_img(builtCNN, npim, widthOfImage=desiredWidth, debuggingMode=False, anglesInbetween = 5, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn = numTopGuessesToReturn, returnDetailedInfo = (numTopGuessesToReturn > 1))
 		numseen = (numseen + 1)
-		if truthIsFirstCharacter:
-			truthchar = imagename[0]
-			if truthchar == prediction[0] or prediction[0] == '0' and truthchar == 'O' or prediction[0] == 'O' and truthchar == '0':
-				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
-				numcorrect = (numcorrect + 1)
+		
+		if numTopGuessesToReturn == 1:
+			if truthIsFirstCharacter:
+				truthchar = imagename[0]
+				if truthchar == prediction[0] or prediction[0] == '0' and truthchar == 'O' or prediction[0] == 'O' and truthchar == '0':
+					print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+					numcorrect = (numcorrect + 1)
+				else:
+					print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"     ----- misclassified!")
 			else:
-				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"     ----- misclassified!")
+				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
 		else:
-			print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+			thisCharFound = False
+			lastUniqueCharGuess = ''
+			topNchars = []
+			topNconfs = []
+			numNchars = 2
+			immediatelyStopIfNumberOneIsJunk = True
+			for gidx in range(len(prediction[0])):
+				trueidx = (len(prediction[0]) - gidx - 1) #confidences are ascending order, so read in reverse
+				if truthIsFirstCharacter:
+					truthchar = imagename[0]
+					
+					thisCharIsCorrectRightNow = False
+					if truthchar == prediction[0][trueidx] or prediction[0][trueidx] == '0' and truthchar == 'O' or prediction[0][trueidx] == 'O' and truthchar == '0':
+						thisCharIsCorrectRightNow = True
+					if thisCharIsCorrectRightNow == False:
+						confsOfTopWrong.append(prediction[2][trueidx])
+					
+					if prediction[0][trueidx] != lastUniqueCharGuess:
+						lastUniqueCharGuess = prediction[0][trueidx]
+						topNchars.append(lastUniqueCharGuess)
+						topNconfs.append(prediction[2][trueidx])
+						if immediatelyStopIfNumberOneIsJunk and '#' in topNchars:
+							while len(topNchars) < numNchars:
+								topNchars.append('#')
+								topNconfs.append(topNconfs[0])
+					if len(topNchars) <= numNchars:
+						if truthchar == lastUniqueCharGuess or lastUniqueCharGuess == '0' and truthchar == 'O' or lastUniqueCharGuess == 'O' and truthchar == '0':
+							if thisCharFound == False:
+								print("prediction on "+str(imagename)+" was \'"+str(lastUniqueCharGuess)+"\' with orientation \""+str(prediction[1][trueidx])+"\"... top N chars == "+str(topNchars[:numNchars])+", conf "+str(topNconfs[:numNchars]))
+								numcorrect = (numcorrect + 1)
+								thisCharFound = True
+								confsOfCorrect.append(topNconfs[-1])
+					else:
+						if thisCharFound == False:
+							print("top prediction on "+str(imagename)+" was \'"+str(prediction[0][-1])+"\' with orientation \""+str(prediction[1][-1])+"\"... top N chars == "+str(topNchars[:numNchars])+", conf "+str(topNconfs[:numNchars])+"     ----- but it was misclassified!")						
+						trueidx = len(prediction[0]) + 1000
+						break
+				else:
+					print("TRUTH WASNT FIRST CHAR? prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
 	print("total results: correct ratio == "+str(numcorrect)+"/"+str(numseen)+" == "+str((float(numcorrect)/float(numseen))))
+	
+	(confsofcorrectMean, confsofcorrectMedian) = GetMeanMedianOfList(confsOfCorrect)
+	(confsoftopwrongMean, confsoftopwrongMedian) = GetMeanMedianOfList(confsOfTopWrong)
+	
+	print("confsofcorrectMean == "+str(confsofcorrectMean)+", confsofcorrectMedian == "+str(confsofcorrectMedian))
+	print("confsoftopwrongMean == "+str(confsoftopwrongMean)+", confsoftopwrongMedian == "+str(confsoftopwrongMedian))
+	print("confsOfCorrect: "+str(sorted(confsOfCorrect)))
+	print("confsOfTopWrong: "+str(sorted(confsOfTopWrong)))
 
 
 if __name__ == '__main__':
