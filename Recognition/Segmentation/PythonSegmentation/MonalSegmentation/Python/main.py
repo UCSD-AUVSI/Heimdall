@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import pykmeansppcpplib
+import libpypolyshaperec
 import time
 import os
 dirname = 'test 5-23'
@@ -723,6 +724,10 @@ def doSegmentation(cropImg, optionalArgs,tc):
 		shaype=cv2.dilate(shaype,kernnal,iterations=1)
 
 	shapeSeg=shaype
+	shapefound = libpypolyshaperec.doBPyShapeRec([np.copy(shapeSeg)])
+	
+	print shapefound
+	
 	#-------------------------------------------------------------------------
 	
 	#the cluster function messes up this original image, so make a copy
