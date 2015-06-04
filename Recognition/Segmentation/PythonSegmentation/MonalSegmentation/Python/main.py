@@ -157,6 +157,7 @@ def doSegmentation(cropImg, optionalArgs,tc):
 	print start-start
 	#-------------------------------------------------------------------------
 	lim = cropImg
+	originalLimShape = lim.shape
 	#cv2.imshow("1.Original Image", lim)
 	lab=np.copy(cv2.cvtColor(lim,cv2.COLOR_BGR2LAB))
 	labfor2=np.copy(cv2.cvtColor(lim,cv2.COLOR_BGR2LAB))
@@ -554,7 +555,7 @@ def doSegmentation(cropImg, optionalArgs,tc):
 	sideVer=lim.shape[0]
 	factorMag=(3 if (300.0/sideVer>=2.5) else 2) if (300.0/sideVer>=1.5) else 1
 	#factorMag=3
-	hulll2=cv2.resize(hulll,(lim.shape[0]*factorMag,lim.shape[1]*factorMag),0,0)
+	hulll2=cv2.resize(hulll,(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0)
 
 	if(extraErode==False):
 		kernnal=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,17))
@@ -568,7 +569,7 @@ def doSegmentation(cropImg, optionalArgs,tc):
 
 	#labf2=cv2.bilateralFilter(lab,-1,3,70)
 
-	lab2=cv2.resize(labfor2,(lim.shape[0]*factorMag,lim.shape[1]*factorMag),0,0,cv2.INTER_CUBIC)
+	lab2=cv2.resize(labfor2,(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0,cv2.INTER_CUBIC)
 	#lab2=cv2.bilateralFilter(lab2,20,60,20)
 	cropf32=np.float32(lab2)/255
 
@@ -702,8 +703,7 @@ def doSegmentation(cropImg, optionalArgs,tc):
 	print "end contour 2, start kmeans 3"
 	print time.time()-start
 
-	shaype=cv2.resize( np.copy(keep[maskNumber]),(lim.shape[0]*factorMag,lim.shape[1]*factorMag),0,0,cv2.INTER_CUBIC)
-	
+	shaype=cv2.resize( np.copy(keep[maskNumber]),(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0,cv2.INTER_CUBIC)
 	
 	shaype=cv2.bitwise_or(shaype,np.copy(charKeep[charMaskNum]))
 	temPm=np.copy(charKeep[charMaskNum])
@@ -724,9 +724,10 @@ def doSegmentation(cropImg, optionalArgs,tc):
 		shaype=cv2.dilate(shaype,kernnal,iterations=1)
 
 	shapeSeg=shaype
-	shapefound = libpypolyshaperec.doBPyShapeRec([np.copy(shapeSeg)])
+	shaperec=np.copy(shaype)*255
+	shapefound = libpypolyshaperec.doBPyShapeRec([shaperec])
 	
-	print shapefound
+	print("shapefound == \'"+shapefound+"\'")
 	
 	#-------------------------------------------------------------------------
 	

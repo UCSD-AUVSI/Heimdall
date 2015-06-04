@@ -19,7 +19,7 @@
 
 
 ShapeRecModuleAlgorithm_SingleImage_Turning::ShapeRecModuleAlgorithm_SingleImage_Turning()
-	: polynomialapprox_deviance_fraction_of_perimeter(0.01)
+	: polynomialapprox_deviance_fraction_of_perimeter(0.001) //was 0.01 in 2014
 {}
 
 
@@ -182,6 +182,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
                                                     bool show_stuff_while_working/*=false*/)
 {
 	last_obtained_results.clear();
+	show_stuff_while_working = true; // DONT USE THIS IN PRODUCTION MODE
 
 
 	cv::Mat mat_for_display;
@@ -234,8 +235,6 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 		cv::drawContours(mat_for_display, TargContours, whichshape_in_target, cv::Scalar(0,0,255));
 
 		cv::imshow("ALL contours found in target", mat_for_display);
-		cv::waitKey(0);
-		cv::destroyAllWindows();
 	}
 
 
@@ -279,7 +278,19 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 										target_polynomial_contour,
 										filefolder_containing_reference_shapes);
 
-
+	if(show_stuff_while_working) {
+		if(results_container.empty() == false) {
+			for(auto iter = results_container.begin(); iter != results_container.end(); iter++) {
+				consoleOutput.Level0() << "shape name: \'" << iter->reference_shape_name << "\', " << "confidence metric: " << iter->metric_method44 << std::endl;
+			}
+		} else {
+			std::cout << "didnt find anything" << std::endl;
+		}
+		std::cout << "waitingggggggggggggggggg" << std::endl;
+		cv::waitKey(0);
+		cv::destroyAllWindows();
+	}
+	
 	last_obtained_results = results_container.GetTopResults(
 													max_absolute_confidence_threshold,
 													min_absolute_confidence_threshold,
@@ -288,7 +299,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
 													show_stuff_while_working ? (&consoleOutput.Level3()) : nullptr,
 													show_stuff_while_working,
 													show_stuff_while_working);
-
+	
 	//CV_WAIT_KEY_OPTIONAL;
 	return (last_obtained_results.empty() == false);
 }

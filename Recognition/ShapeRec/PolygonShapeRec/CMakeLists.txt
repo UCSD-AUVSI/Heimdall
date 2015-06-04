@@ -30,7 +30,7 @@ file(COPY shaperec_reference_shapes DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY test_shaperec.py DESTINATION ${CMAKE_BINARY_DIR}/Recognition/Segmentation/PythonSegmentation/MonalSegmentation/Python)
 file(COPY test_shaperec.py DESTINATION ${CMAKE_BINARY_DIR}/Recognition/ShapeRec/PolygonShapeRec) 
 
-install(TARGETS ${CMAKE_BINARY_DIR}/Recognition/ShapeRec/PolygonShapeRec/libpypolyshaperec.so DESTINATION ${CMAKE_BINARY_DIR}/Recognition/Segmentation/PythonSegmentation/MonalSegmentation/Python)
+install(TARGETS pypolyshaperec DESTINATION ${CMAKE_BINARY_DIR}/Recognition/Segmentation/PythonSegmentation/MonalSegmentation/Python)
 
 
 

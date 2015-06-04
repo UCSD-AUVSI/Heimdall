@@ -13,13 +13,13 @@ import main
 for tc in range(0,100):
 #for tc in tess:
 #for tc in prob:
-	#k=str(tc)+"_Junk.jpg"
-	k=str(tc)+"_0__crop.jpg"
-	#k=str(tc)+"_0__crop.png"
-	print "\n"+k
+	#kk=str(tc)+"_Junk.jpg"
+	kk=str(tc)+"_0__crop.jpg"
+	#kk=str(tc)+"_0__crop.png"
+	print "\n"+kk
 
 	
-	loaded_image_mat = cv2.imread(k)
+	loaded_image_mat = cv2.imread(kk)
 
 	
 	#====================================================================
@@ -30,7 +30,7 @@ for tc in range(0,100):
 	#	display image and results
 	
 #"""
-	cv2.imshow("original image", loaded_image_mat)
+	cv2.imshow(kk, loaded_image_mat)
 	cv2.imshow("shape seg", shapeSeg*255) #images are floating point from 0.0 to 255.0, convert from 0.0 to 1.0 for imshow
 	cv2.imshow("char seg", charSeg*255)
 	cv2.waitKey(0) #wait for keypress
