@@ -29,8 +29,8 @@ add_library(polygon_shaperec_lib SHARED ${polygon_shaperec_lib_source_files})
 file(COPY shaperec_reference_shapes DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY test_shaperec.py DESTINATION ${CMAKE_BINARY_DIR}/Recognition/Segmentation/PythonSegmentation/MonalSegmentation/Python)
 file(COPY test_shaperec.py DESTINATION ${CMAKE_BINARY_DIR}/Recognition/ShapeRec/PolygonShapeRec) 
-file(COPY ${CMAKE_BINARY_DIR}/Recognition/ShapeRec/PolygonShapeRec/libpypolyshaperec.so DESTINATION ${CMAKE_BINARY_DIR}/Recognition/Segmentation/PythonSegmentation/MonalSegmentation/Python)
 
+install(TARGETS ${CMAKE_BINARY_DIR}/Recognition/ShapeRec/PolygonShapeRec/libpypolyshaperec.so DESTINATION ${CMAKE_BINARY_DIR}/Recognition/Segmentation/PythonSegmentation/MonalSegmentation/Python)
 
 
 
