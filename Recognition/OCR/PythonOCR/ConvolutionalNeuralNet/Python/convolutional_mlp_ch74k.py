@@ -1004,7 +1004,8 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, an
 	for nnlayeridx in range(len(builtCNN.allLayers)):
 		builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
 	
-	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn=numTopGuessesToReturn)
+	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn = numTopGuessesToReturn, returnDetailedInfo = (numTopGuessesToReturn > 1))
+	#return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn=numTopGuessesToReturn)
 
 
 def GetMeanMedianOfList(thelist):

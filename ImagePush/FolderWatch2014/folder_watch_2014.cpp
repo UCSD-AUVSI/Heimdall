@@ -8,7 +8,7 @@
 using std::cout;
 using std::endl;
 
-#include "ImagePush/FolderWatch2014/folder_watch.hpp"
+#include "ImagePush/FolderWatch2014/folder_watch_2014.hpp"
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
@@ -25,7 +25,7 @@ int FolderWatch2014::sendcount = 0, FolderWatch2014::delay = 500;
 bool FolderWatch2014::send = true, FolderWatch2014::pause = false,
      FolderWatch2014::search_subfolders = false, FolderWatch2014::first_send = true;
 
-bool kOnGround = false;
+bool kOnGround = true; //should always be on the ground; the plane will run folder_watch_2015
 
 std::vector<std::pair<std::string, std::string>> * FolderWatch2014::file_list = new std::vector<std::pair<std::string, std::string>>();
 std::map<std::string, std::pair<std::string, std::string>> * file_map = new std::map<std::string, std::pair<std::string, std::string>>();
@@ -234,6 +234,11 @@ void FolderWatch2014 :: execute(imgdata_t *imdata, std::string args){
         imdata->planelongt =    atof(split_line.at(5).c_str());
         imdata->planealt =      atof(split_line.at(7).c_str()); //Using AGL, not MSL
     }
+    cout << "LOADED TARGET CROP WITH (lat,lon) == (" << imdata->targetlat << ", " << imdata->targetlongt << ")" << endl;
 
     cout << "Sending " << messageSizeNeeded(imdata) << " bytes. File ID: " << imdata->id << endl << endl;
 }
+
+
+
+

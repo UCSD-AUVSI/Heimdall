@@ -148,7 +148,7 @@ def numPixTouchPerm(clusterMaskss, vert, hori, numKlusters):
 	return perM1,perM2,perM3
 	#"""
 
-def doSegmentation(cropImg, optionalArgs,tc):
+def doSegmentation(cropImg, optionalArgs, tc=None):
 	start=time.time()
 	imrows,imcols = cropImg.shape[:2]
 	print "Monal-python-segmentation is processing an image of size: " + str(imcols) + "x" + str(imrows)
@@ -781,7 +781,7 @@ def doSegmentation(cropImg, optionalArgs,tc):
 	print "end"
 	print time.time() - start
 	#cv2.waitKey(0);
-	return (shapeSeg, shapeColor, charSeg, charColor)
+	return (shapeSeg*255, shapeColor, charSeg*255, charColor)
 
 
 

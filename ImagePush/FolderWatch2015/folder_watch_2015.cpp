@@ -8,7 +8,7 @@
 using std::cout;
 using std::endl;
 
-#include "ImagePush/FolderWatch2015/folder_watch.hpp"
+#include "ImagePush/FolderWatch2015/folder_watch_2015.hpp"
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
@@ -25,15 +25,12 @@ int FolderWatch2015::sendcount = 0, FolderWatch2015::delay = 500;
 bool FolderWatch2015::send = true, FolderWatch2015::pause = false,
      FolderWatch2015::search_subfolders = false, FolderWatch2015::first_send = true;
 
-bool kOnGround = false;
-
 std::vector<std::string> * FolderWatch2015::file_list = new std::vector<std::string>();
-std::set<std::string> * seen_image_set = new std::set<std::string>();
-std::set<std::string> * seen_info_set  = new std::set<std::string>();
+std::set<std::string> * FolderWatch2015::seen_image_set = new std::set<std::string>();
 
-std::string folder = "./push_files"; //Changed via arguments
+std::string * FolderWatch2015::watchfolder = new std::string("."); //Changed via arguments
 
-int refresh_count = 0;
+int FolderWatch2015::refresh_count = 0;
 const int kRefreshRounds = 5;
 
 void FolderWatch2015 :: usage(){
@@ -83,40 +80,11 @@ int FolderWatch2015 :: FindAllImagesInDir(std::string dirpath, int subdir_recurs
             eliminate_extension_from_filename(filename);
 
             if(filename_extension_is_image_type(get_extension_from_filename(std::string(file.name)))) {
-                if(seen_image_set->find(filename) == seen_image_set->end()){
+                if(seen_image_set->find(filename) == seen_image_set->end()) {
                     num_files_found++;
                     seen_image_set->insert(filename);
-
-                    try{
-                        FolderWatch2015::file_list->push_back(file_pair);
-
-                        unpaired_files--;
-                    }
-                    catch(std::out_of_range &oor){
-                        std::pair<std::string, std::string> new_file_pair(std::string(file.path), "");
-                        (*file_map)[filename] = new_file_pair;
-                        unpaired_files++;
-                    }
-                }
-            }
-            else if(get_extension_from_filename(std::string(file.name)) == ".txt"){
-                if(seen_info_set->find(filename) == seen_info_set->end()){
-                    seen_info_set->insert(filename);
-
-                    try{
-                        std::pair<std::string, std::string> file_pair = file_map->at(filename);
-                        std::get<1>(file_pair) = std::string(file.path);
-
-                        FolderWatch2015::file_list->push_back(file_pair);
-
-                        unpaired_files--;
-                    }
-                    catch(std::out_of_range &oor){
-                        std::pair<std::string, std::string> new_file_pair("", std::string(file.path));
-                        (*file_map)[filename] = new_file_pair;
-                        unpaired_files++;
-                    }
-                }
+                    FolderWatch2015::file_list->push_back(file.path);
+				}
             }
         }
         tinydir_next(&dir);
@@ -142,16 +110,15 @@ void FolderWatch2015 :: execute(imgdata_t *imdata, std::string args){
     // If we have not sent yet, initialize various elements
     // and populate file list from folder
     if(FolderWatch2015::first_send){
-        FolderWatch2015::processArguments(args, folder);
+        FolderWatch2015::processArguments(args, *watchfolder);
 
         FolderWatch2015::pause = true;
         FolderWatch2015::first_send = false;
     }
 
     if((refresh_count++) % kRefreshRounds == 0){
-        cout << "Found " << FolderWatch2015::FindAllImagesInDir(folder, FolderWatch2015::search_subfolders?2:0)
-            << " files in folder " << folder << endl;
-        cout << "Unpaired files: " << unpaired_files << endl << endl;
+        cout << "Found " << FolderWatch2015::FindAllImagesInDir(*watchfolder, FolderWatch2015::search_subfolders?2:0)
+            << " files in folder " << (*watchfolder) << endl;
     }
 
     if(FolderWatch2015::file_list->size() == 0) { //No files, just return
@@ -159,37 +126,18 @@ void FolderWatch2015 :: execute(imgdata_t *imdata, std::string args){
     }
 
     //Get next file
-    std::pair<std::string, std::string> file_pair = FolderWatch2015::file_list->back();
+    std::string image_filename = FolderWatch2015::file_list->back();
     FolderWatch2015::file_list -> pop_back();
 
-    std::string image = std::get<0>(file_pair);
-    std::string info  = std::get<1>(file_pair);
-    std::string infoline;
-
     cout << "Running with following parameters: \n" << endl;
-    cout << "Image: " << image << endl;
+    cout << "Image: " << image_filename << endl;
 
     //Check if image exists
-    if(FILE *file = fopen(image.c_str(), "rb")){
+    if(FILE *file = fopen(image_filename.c_str(), "rb")){
         fclose(file);
     }
     else{
         cout << "FolderWatch2015: Image not found!" << endl;
-        return;
-    }
-
-    if(FILE *file = fopen(info.c_str(), "rb")){
-        fclose(file);
-
-        std::ifstream ifs;
-        ifs.open(info);
-
-        std::getline(ifs, infoline);
-
-        ifs.close();
-    }
-    else{
-        cout << "FolderWatch2015: Info file not found!" << endl;
         return;
     }
 
@@ -198,37 +146,61 @@ void FolderWatch2015 :: execute(imgdata_t *imdata, std::string args){
 
     // Load image into struct
     std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
-    cv::imencode(".jpg", cv::imread(image, CV_LOAD_IMAGE_COLOR), *newarr);
+    cv::imencode(".jpg", cv::imread(image_filename, CV_LOAD_IMAGE_COLOR), *newarr);
     imdata->image_data = newarr;
 
-    std::vector<std::string> split_line = split(infoline, '\t');
+    
+//  THE FOLLOWING LINES SHOULD BE THE SAME AS IN FOLDER_PUSH
+    
+    //get image filename for debugging
+    std::string justTheImageName(replace_char_in_string(image_filename,'\\','/'));
+    justTheImageName = trim_chars_after_delim(justTheImageName, '/', false);
+    imdata->name_of_original_image_file_for_debugging = justTheImageName;
 
-    if (kOnGround) {
-        if(split_line.size() != 9){
-            cout << "Crash imminent, input info file from plane should have 9 attributes." << endl;
-        }
+    //Check if image exists
+    if(FILE *file = fopen(image_filename.c_str(), "rb")){
+            cout << "Using EXIF for info" << endl;
 
-        imdata->planeroll =         atof(split_line.at(0).c_str());
-        imdata->planepitch =        atof(split_line.at(1).c_str());
-        imdata->planeheading =      atof(split_line.at(2).c_str());
-        imdata->planelat =          atof(split_line.at(3).c_str());
-        imdata->planelongt =        atof(split_line.at(4).c_str());
-        imdata->planealt =          atof(split_line.at(5).c_str()); //Using AGL, not MSL
-        imdata->targetlat =         atof(split_line.at(6).c_str());
-        imdata->targetlongt =       atof(split_line.at(7).c_str());
-        imdata->targetorientation = atof(split_line.at(8).c_str());
-    } else {
-        if(split_line.size() < 8){
-            cout << "Crash imminent, input info file has less than 8 attributes. Nathan has not adhered to his end of the contract." << endl;
-        }
+            fseek(file, 0, SEEK_END);
+            unsigned long fsize = ftell(file);
+            rewind(file);
+            
+            unsigned char *buf = new unsigned char[fsize];
+            if(fread(buf,1,fsize,file) != fsize){
+                cout << "Can't read EXIF, ignoring" << endl;
+                delete[] buf;
+            }
+            fclose(file);
 
-        imdata->planeroll =     atof(split_line.at(1).c_str());
-        imdata->planepitch =    atof(split_line.at(2).c_str());
-        imdata->planeheading =  atof(split_line.at(3).c_str());
-        imdata->planelat =      atof(split_line.at(4).c_str());
-        imdata->planelongt =    atof(split_line.at(5).c_str());
-        imdata->planealt =      atof(split_line.at(7).c_str()); //Using AGL, not MSL
+            EXIFInfo file_exif;
+            int code = file_exif.parseFrom(buf, fsize);
+            delete[] buf;
+
+            if(code){
+                cout << "Error parsing EXIF code" << endl;
+            }
+			
+			// this is hacked in because EXIF does not normally have a field for the altitude of the ground
+			// when we record "planealt" we want to record RELATIVE TO THE GROUND
+			double GroundLevelAltitude_in_m = file_exif.GeoLocation.GPSSpeed;
+			
+            imdata->planelat      = file_exif.GeoLocation.Latitude;
+            imdata->planelongt    = file_exif.GeoLocation.Longitude;
+            imdata->planealt      = (file_exif.GeoLocation.Altitude - GroundLevelAltitude_in_m) * 3.28084; //meters -> feet
+            imdata->planeheading  = file_exif.GeoLocation.ImgDirection;
+			
+            if(true) {
+				consoleOutput.Level4()<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<endl;
+				consoleOutput.Level0()<<"image loaded: imdata->plane: (lat,longt) and altitude and heading == ("<<imdata->planelat<<", "<<imdata->planelongt<<") and "<<(imdata->planealt)<<" feet at heading "<<(imdata->planeheading)<<endl;
+			}
     }
+    else{
+        cout << "FolderWatch2015: Image not found!" << endl;
+        return;
+    }
+    
+//  THE PREVIOUS LINES SHOULD BE THE SAME AS IN FOLDER_PUSH
+    
 
     cout << "Sending " << messageSizeNeeded(imdata) << " bytes. File ID: " << imdata->id << endl << endl;
 }

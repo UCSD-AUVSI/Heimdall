@@ -7,4 +7,3 @@ add_library(folderwatch2014 ${folderwatch2014_source_files})
 
 target_link_libraries(folderwatch2014 imagepush ${OpenCV_LIBS})
 
-add_subdirectory(Test)

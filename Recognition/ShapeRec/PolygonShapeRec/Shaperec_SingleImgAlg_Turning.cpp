@@ -182,7 +182,7 @@ bool ShapeRecModuleAlgorithm_SingleImage_Turning::RecognizeShape(cv::Mat target_
                                                     bool show_stuff_while_working/*=false*/)
 {
 	last_obtained_results.clear();
-	show_stuff_while_working = true; // DONT USE THIS IN PRODUCTION MODE
+	//show_stuff_while_working = true; // DONT USE THIS IN PRODUCTION MODE
 
 
 	cv::Mat mat_for_display;

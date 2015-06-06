@@ -2,15 +2,18 @@ import getopt, sys
 import numpy as np
 import cv2
 import main
-import RandomJunkPolygonGenerator
 
 def testimg(sysargv):
 	#====================================================================
 	#	filename of image to load is a command line argument
 	
-	for iii in range(14):
-		cv2.imshow(str(iii), RandomJunkPolygonGenerator.returnImage())
-	cv2.waitKey(0)
+	try:
+		import RandomJunkPolygonGenerator
+		for iii in range(14):
+			cv2.imshow(str(iii), RandomJunkPolygonGenerator.returnImage())
+		cv2.waitKey(0)
+	except:
+		abcdefghijklmnopqrstuvwxyz = 1 #do nothing
 	
 	if len(sysargv) <= 1:
 		print("usage:  {image-file}  {optional:show-images?}")
