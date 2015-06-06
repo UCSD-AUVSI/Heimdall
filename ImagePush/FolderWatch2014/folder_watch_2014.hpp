@@ -1,10 +1,10 @@
-#ifndef FOLDERWATCH_H
-#define FOLDERWATCH_H
+#ifndef FOLDERWATCH2014_H
+#define FOLDERWATCH2014_H
 
 #include "Backbone/IMGData.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
 
-class FolderWatch : AUVSI_Algorithm{
+class FolderWatch2014 : AUVSI_Algorithm{
     public:
         static void initialize();
         static void execute(imgdata_t *imdata, std::string args);

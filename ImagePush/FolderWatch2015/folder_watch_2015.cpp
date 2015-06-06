@@ -8,7 +8,7 @@
 using std::cout;
 using std::endl;
 
-#include "ImagePush/FolderWatch/folder_watch.hpp"
+#include "ImagePush/FolderWatch2015/folder_watch.hpp"
 #include "Backbone/MessageHandling.hpp"
 #include "Backbone/Backbone.hpp"
 #include "Backbone/AUVSI_Algorithm.hpp"
@@ -20,25 +20,23 @@ using std::endl;
 #include "SharedUtils/OS_FolderBrowser_tinydir.h"
 #include "SharedUtils/exif.h"
 
-int FolderWatch::sendcount = 0, FolderWatch::delay = 500;
+int FolderWatch2015::sendcount = 0, FolderWatch2015::delay = 500;
 
-bool FolderWatch::send = true, FolderWatch::pause = false,
-     FolderWatch::search_subfolders = false, FolderWatch::first_send = true;
+bool FolderWatch2015::send = true, FolderWatch2015::pause = false,
+     FolderWatch2015::search_subfolders = false, FolderWatch2015::first_send = true;
 
 bool kOnGround = false;
 
-std::vector<std::pair<std::string, std::string>> * FolderWatch::file_list = new std::vector<std::pair<std::string, std::string>>();
-std::map<std::string, std::pair<std::string, std::string>> * file_map = new std::map<std::string, std::pair<std::string, std::string>>();
+std::vector<std::string> * FolderWatch2015::file_list = new std::vector<std::string>();
 std::set<std::string> * seen_image_set = new std::set<std::string>();
 std::set<std::string> * seen_info_set  = new std::set<std::string>();
 
 std::string folder = "./push_files"; //Changed via arguments
 
-int unpaired_files = 0;
 int refresh_count = 0;
 const int kRefreshRounds = 5;
 
-void FolderWatch :: usage(){
+void FolderWatch2015 :: usage(){
     cout << "Usage: --images FOLDER_WATCH [OPTIONS]..."  << endl;
     cout << "Watches a directory for image files and their matching information files, and pushes one at a regular interval" << endl;
 
@@ -47,30 +45,30 @@ void FolderWatch :: usage(){
     cout << "   --subfolders   When used with --folder, will search subfolders of --folder too." << endl;
 }
 
-void FolderWatch :: processArguments(std::string args, std::string& folder){
+void FolderWatch2015 :: processArguments(std::string args, std::string& folder){
     std::vector<std::string> arglist = split(args, ' ');
 
     for(int i = 0; i < arglist.size(); i++){
         std::string arg = arglist[i]; 
         if(arg == "--folder"){
             if(++i >= arglist.size()){
-                cout << "FolderWatch argument list incorrectly formatted" << endl;
+                cout << "FolderWatch2015 argument list incorrectly formatted" << endl;
                 return;
             }
             folder = arglist[i];
         }
         else if (arg == "--subfolders"){
-            FolderWatch :: search_subfolders = true;
+            FolderWatch2015 :: search_subfolders = true;
         }
         else{
-            FolderWatch::usage();
-            FolderWatch::send = false;
+            FolderWatch2015::usage();
+            FolderWatch2015::send = false;
             return;
         }
     }
 }
 
-int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_depth_limit) {
+int FolderWatch2015 :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_depth_limit) {
     int num_files_found=0;
     tinydir_dir dir;
     tinydir_open(&dir, dirpath.c_str());
@@ -90,10 +88,7 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
                     seen_image_set->insert(filename);
 
                     try{
-                        std::pair<std::string, std::string> file_pair = file_map->at(filename);
-                        std::get<0>(file_pair) = std::string(file.path);
-
-                        FolderWatch::file_list->push_back(file_pair);
+                        FolderWatch2015::file_list->push_back(file_pair);
 
                         unpaired_files--;
                     }
@@ -112,7 +107,7 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
                         std::pair<std::string, std::string> file_pair = file_map->at(filename);
                         std::get<1>(file_pair) = std::string(file.path);
 
-                        FolderWatch::file_list->push_back(file_pair);
+                        FolderWatch2015::file_list->push_back(file_pair);
 
                         unpaired_files--;
                     }
@@ -130,42 +125,42 @@ int FolderWatch :: FindAllImagesInDir(std::string dirpath, int subdir_recursion_
     return num_files_found;
 }
 
-void FolderWatch :: execute(imgdata_t *imdata, std::string args){
+void FolderWatch2015 :: execute(imgdata_t *imdata, std::string args){
     //Return immediately if not sending
-    if(!FolderWatch::send){
-        std::chrono::milliseconds dura(FolderWatch::delay);
+    if(!FolderWatch2015::send){
+        std::chrono::milliseconds dura(FolderWatch2015::delay);
         std::this_thread::sleep_for(dura);
         return;
     }
 
     //Pause before continuing, to prevent pushing too fast
-    if(FolderWatch::pause){
-        std::chrono::milliseconds dura(FolderWatch::delay);
+    if(FolderWatch2015::pause){
+        std::chrono::milliseconds dura(FolderWatch2015::delay);
         std::this_thread::sleep_for(dura);
     }
 
     // If we have not sent yet, initialize various elements
     // and populate file list from folder
-    if(FolderWatch::first_send){
-        FolderWatch::processArguments(args, folder);
+    if(FolderWatch2015::first_send){
+        FolderWatch2015::processArguments(args, folder);
 
-        FolderWatch::pause = true;
-        FolderWatch::first_send = false;
+        FolderWatch2015::pause = true;
+        FolderWatch2015::first_send = false;
     }
 
     if((refresh_count++) % kRefreshRounds == 0){
-        cout << "Found " << FolderWatch::FindAllImagesInDir(folder, FolderWatch::search_subfolders?2:0)
+        cout << "Found " << FolderWatch2015::FindAllImagesInDir(folder, FolderWatch2015::search_subfolders?2:0)
             << " files in folder " << folder << endl;
         cout << "Unpaired files: " << unpaired_files << endl << endl;
     }
 
-    if(FolderWatch::file_list->size() == 0) { //No files, just return
+    if(FolderWatch2015::file_list->size() == 0) { //No files, just return
         return;
     }
 
     //Get next file
-    std::pair<std::string, std::string> file_pair = FolderWatch::file_list->back();
-    FolderWatch::file_list -> pop_back();
+    std::pair<std::string, std::string> file_pair = FolderWatch2015::file_list->back();
+    FolderWatch2015::file_list -> pop_back();
 
     std::string image = std::get<0>(file_pair);
     std::string info  = std::get<1>(file_pair);
@@ -179,7 +174,7 @@ void FolderWatch :: execute(imgdata_t *imdata, std::string args){
         fclose(file);
     }
     else{
-        cout << "FolderWatch: Image not found!" << endl;
+        cout << "FolderWatch2015: Image not found!" << endl;
         return;
     }
 
@@ -194,12 +189,12 @@ void FolderWatch :: execute(imgdata_t *imdata, std::string args){
         ifs.close();
     }
     else{
-        cout << "FolderWatch: Info file not found!" << endl;
+        cout << "FolderWatch2015: Info file not found!" << endl;
         return;
     }
 
     // Increment sendcount, each image has an individual id
-    imdata->id = FolderWatch::sendcount ++;
+    imdata->id = FolderWatch2015::sendcount ++;
 
     // Load image into struct
     std::vector<unsigned char> *newarr = new std::vector<unsigned char>();
