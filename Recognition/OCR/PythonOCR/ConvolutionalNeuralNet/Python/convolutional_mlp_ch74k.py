@@ -45,6 +45,7 @@ import theano.tensor as T
 from theano.tensor.signal import downsample
 from theano.tensor.nnet import conv
 
+import linear_svm_multiclass
 from logistic_sgd import LogisticRegression
 from mlp import HiddenLayer, DropoutHiddenLayer, _dropout_from_layer, _add_noise_to_input, ReLu
 
@@ -78,6 +79,9 @@ class LeNetConvPoolLayer(object):
 		outpimsize = (image_shape[3] - filter_shape[3] + 1)
 		#print("constructing LeNetConvPoolLayer... image_shape == "+str(image_shape)+", filter_shape == "+str(filter_shape)+", num outputs == "+str(filter_shape[0]*outpimsize*outpimsize/(poolsize[0]*poolsize[1])))
 		
+		# save a copy of input filter shape
+		self.filter_shape = filter_shape
+		
 		# there are "num input feature maps * filter height * filter width"
 		# inputs to each hidden unit
 		fan_in = numpy.prod(filter_shape[1:])
@@ -107,18 +111,20 @@ class LeNetConvPoolLayer(object):
 			image_shape=image_shape
 		)
 		
-		# downsample each feature map individually, using maxpooling
-		pooled_out = downsample.max_pool_2d(
-			input=conv_out,
-			ds=poolsize,
-			ignore_border=True
-		)
-		
-		# add the bias term. Since the bias is a vector (1D array), we first
-		# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
-		# thus be broadcasted across mini-batches and feature map
-		# width & height
-		self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		if numpy.prod(poolsize) > 1:
+			# downsample each feature map individually, using maxpooling
+			pooled_out = downsample.max_pool_2d(
+				input=conv_out,
+				ds=poolsize,
+				ignore_border=True
+			)
+			# add the bias term. Since the bias is a vector (1D array), we first
+			# reshape it to a tensor of shape (1, n_filters, 1, 1). Each bias will
+			# thus be broadcasted across mini-batches and feature map
+			# width & height
+			self.output = activation(pooled_out + self.b.dimshuffle('x', 0, 'x', 'x'))
+		else:
+			self.output = activation(conv_out + self.b.dimshuffle('x', 0, 'x', 'x'))
 		
 		# store parameters of this layer
 		self.params = [self.W, self.b]
@@ -134,6 +140,14 @@ class LeNetConvPoolLayer(object):
 			improcessed = (improcessed-filtermin)*(255.0/(filtermax-filtermin))
 			#print("    post-processed filter (min,max) == ("+str(numpy.amin(improcessed))+", "+str(numpy.amax(improcessed))+")")
 			cv2.imwrite(filenamebase+str(i)+".png", cv2.resize(improcessed, (60,60), interpolation=cv2.INTER_NEAREST))
+	
+	def resetParams(self):
+		fan_in = numpy.prod(self.filter_shape[1:])
+		fan_out = (self.filter_shape[0] * numpy.prod(self.filter_shape[2:]) / numpy.prod(poolsize))
+		W_bound = numpy.sqrt(6. / (fan_in + fan_out))
+		self.W.set_value(numpy.asarray(rng.uniform(low=-W_bound, high=W_bound, size=self.filter_shape), dtype=theano.config.floatX), borrow=True)
+		b_values = numpy.zeros((self.filter_shape[0],), dtype=theano.config.floatX)
+		self.b.set_value(b_values, borrow=True)
 	
 	def saveParams(self, filename):
 		fout = file(filename,'wb')
@@ -210,14 +224,15 @@ class myCNNParams(object):
 		# two fully connected layers + classification layer -- dimensionality 1000, 330, 36
 		self.dropoutrates_fullyconn = [0.4, 0.3]
 		self.hiddenlayers = [1100, 500]
+		self.lastlayerLogistic = True
 		self.numOutClasses = 36
 		# misc options due to memory constraints
+		self.microbatches = False
 		self.batchSize = 400
 		self.deviceTrainSetSize=64800
 		self.deviceValidSetSize=4800
 class myCNNForOrientationParams(myCNNParams):
 	def __init__(self):
-		#super(myCNNParams,self).__init__()
 		myCNNParams.__init__(self)
 		self.nkerns=[200, 320, 200]
 		self.hiddenlayers = [2400, 1000]
@@ -226,10 +241,81 @@ class myCNNForOrientationParams(myCNNParams):
 		self.deviceTrainSetSize=36000
 		self.deviceValidSetSize=3200
 		self.batchSize = 100
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
 		print("initializing myCNNForOrientation with "+str(self.numOutClasses)+" classes!!!!!!!")
-class defaultCNNParams(myCNNForOrientationParams):
+
+class myCNNForOrientationParams222(myCNNParams):
 	def __init__(self):
-		myCNNForOrientationParams.__init__(self)
+		myCNNParams.__init__(self)
+		# conv layers
+		self.nkerns=[330, 300, 300, 300]
+		self.filtersizes = [5, 3, 3, 3]
+		self.poolsizes = [2, 2, 1, 1]
+		self.dropoutrates_conv = [0.1, 0.1, 0.1, 0.1]
+		self.noiserates_conv = [0.2, 0, 0, 0]
+		# hidden layers
+		self.dropoutrates_fullyconn = [0.3, 0.3]
+		self.hiddenlayers = [1600, 2000]
+		# classifier
+		self.numOutClasses = (36*4) + 1
+		# training
+		self.deviceTrainSetSize=50032
+		self.deviceValidSetSize=10070
+		self.batchSize = 106
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
+		print("initializing myCNNForOrientation222 with "+str(self.numOutClasses)+" classes!!!!!!!")
+
+class myCNNForOrientationParams333May26(myCNNParams):
+	def __init__(self):
+		myCNNParams.__init__(self)
+		# conv layers
+		self.nkerns=[200, 400, 600, 320]
+		self.filtersizes = [5, 3, 3, 3]
+		self.poolsizes = [2, 2, 1, 1]
+		self.dropoutrates_conv = [0.1, 0.1, 0.1, 0.1]
+		self.noiserates_conv = [0.2, 0, 0, 0]
+		# hidden layers
+		self.dropoutrates_fullyconn = [0.3, 0.3]
+		self.hiddenlayers = [1100, 2400]
+		# classifier
+		self.numOutClasses = (36*4)
+		# training
+		self.deviceTrainSetSize=50000
+		self.deviceValidSetSize=10000
+		self.batchSize = 125
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
+		print("initializing myCNNForOrientationParams333May26 with "+str(self.numOutClasses)+" classes!!!!!!!")
+
+class myCNNForMoreOrientationsSVMParams(myCNNParams):
+	def __init__(self):
+		myCNNParams.__init__(self)
+		self.widthOfImages = 40
+		self.activation = ReLu
+		# convolutional layers
+		self.filtersizes = [5, 3, 3, 3]
+		self.poolsizes = [2, 2, 1, 1]
+		self.nkerns=[1000, 600, 600, 500]
+		self.dropoutrates_conv = [0.2, 0.2, 0.2, 0.2]
+		self.noiserates_conv = [0.2, 0, 0, 0]
+		# connected layers
+		self.dropoutrates_fullyconn = [0.4, 0.4]
+		self.hiddenlayers = [1440, 2880]
+		self.numOutClasses = (36*4)
+		# classification layer
+		self.lastlayerLogistic = True # according to the name... should be SVM... but use logistic for ease of train
+		# misc options due to memory constraints
+		self.microbatches = True # use microbatches: only one minibatch i.e. "batchSize" images are on the GPU at any time
+		#self.batchSize = 500
+		#self.deviceTrainSetSize=50000
+		#self.deviceValidSetSize=10000
+		self.deviceTrainSetSize=27000
+		self.deviceValidSetSize=3600
+		self.batchSize = 200
+		print("initializing myCNNForMoreOrientationsSVMParams with "+str(self.numOutClasses)+" classes!!!!!!!")
+
+class defaultCNNParams(myCNNForOrientationParams222):
+	def __init__(self):
+		myCNNForOrientationParams222.__init__(self)
 
 class OCR_CNN(object):
 	def __init__(self, batch_size, useDropout, params):
@@ -296,30 +382,33 @@ class OCR_CNN(object):
 		
 		#print("number of inputs to first fully-connected layer will be == "+str(nextnumin))
 		
-		for hlidx in range(len(params.hiddenlayers)):
+		if len(params.hiddenlayers) > 0:
+			for hlidx in range(len(params.hiddenlayers)):
 			
-			# construct fully-connected layer(s)
+				# construct fully-connected layer(s)
 			
-			if useDropout == False:
-				newlayer = HiddenLayer(self.rng, input=nextinput,
-							n_in = nextnumin,
-							n_out = params.hiddenlayers[hlidx],
-							activation = params.activation)
-			else:
-				newlayer = DropoutHiddenLayer(rng=self.rng, input=nextinput,
-							n_in = nextnumin,
-							n_out = params.hiddenlayers[hlidx],
-							activation = params.activation,
-							dropout_rate = params.dropoutrates_fullyconn[hlidx],
-							dropout_noise_rate=0)
-			
-			self.allLayers.append(newlayer)
-			nextinput = newlayer.output
-			nextnumin = params.hiddenlayers[hlidx]
+				if useDropout == False:
+					newlayer = HiddenLayer(self.rng, input=nextinput,
+								n_in = nextnumin,
+								n_out = params.hiddenlayers[hlidx],
+								activation = params.activation)
+				else:
+					newlayer = DropoutHiddenLayer(rng=self.rng, input=nextinput,
+								n_in = nextnumin,
+								n_out = params.hiddenlayers[hlidx],
+								activation = params.activation,
+								dropout_rate = params.dropoutrates_fullyconn[hlidx],
+								dropout_noise_rate=0)
+				self.allLayers.append(newlayer)
+				nextinput = newlayer.output
+				nextnumin = params.hiddenlayers[hlidx]
 		
 		# classify the values of the last fully-connected layer
 		
-		newlayer = LogisticRegression(input=nextinput, n_in=nextnumin, n_out=params.numOutClasses)
+		if params.lastlayerLogistic:
+			newlayer = LogisticRegression(input=nextinput, n_in=nextnumin, n_out=params.numOutClasses)
+		else:
+			newlayer = linear_svm_multiclass.LinearSVMMulticlass(input=nextinput, nfeatures=nextnumin, nclasses=params.numOutClasses, C=1)
 		self.allLayers.append(newlayer)
 		
 		nextinputwidth = params.widthOfImages
@@ -337,6 +426,9 @@ class OCR_CNN(object):
 					print("fully-connected layer"+str(lidx)+" has "+str(numpinpts)+" inputs and "+str(numoutpts)+" outputs")
 		print("------------------------")
 	
+	def TrainHyperoptMicrobatches(self, datasets, datasetsOnDevice, pickleNetworkName, filterFilesSavedBaseName, deviceTrainSetSize, deviceValidSetSize):
+		quit()
+	
 	def Train(self, datasets, datasetsOnDevice, learning_rate, weightmomentum, n_epochs, pickleNetworkName, filterFilesSavedBaseName="", deviceTrainSetSize=36000, deviceValidSetSize=3200):
 		
 		import DatasetsLoaders
@@ -344,8 +436,6 @@ class OCR_CNN(object):
 		if datasetsOnDevice:
 			train_set_x, train_set_y = datasets[0]
 			valid_set_x, valid_set_y = datasets[1]
-			#test_set_x, test_set_y = datasets[2]
-			
 			# compute number of minibatches for training, validation and testing
 			n_train_batches = train_set_x.get_value(borrow=True).shape[0]
 			n_valid_batches = valid_set_x.get_value(borrow=True).shape[0]
@@ -356,7 +446,6 @@ class OCR_CNN(object):
 			print("num images in validation set: "+str(nValidationImagesTotal))
 			n_train_batches /= self.batch_size
 			n_valid_batches /= self.batch_size
-			#n_test_batches /= self.batch_size
 		else:
 			print("num images in training set: "+str(deviceTrainSetSize))
 			print("num images in validation set: "+str(deviceValidSetSize))
@@ -379,19 +468,11 @@ class OCR_CNN(object):
 		# allocate symbolic variables for the data
 		index = T.lscalar()  # index to a [mini]batch
 		
-		if datasetsOnDevice:
+		if datasetsOnDevice and not self.params.microbatches:
 			# create a function to compute the mistakes that are made by the model
-			'''test_model = theano.function(
-				[index],
-				self.allLayers[-1].errors(y),
-				givens={
-					self.x: test_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-					y: test_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-				}
-			)'''
 			validate_model = theano.function(
 				[index],
-				self.allLayers[-1].errors(y),
+				self.allLayers[-1].calculateErrors(y),
 				givens={
 					self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
 					y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
@@ -405,26 +486,13 @@ class OCR_CNN(object):
 				params = (params + self.allLayers[lidx].params)
 		
 		# the cost we minimize during training is the NLL of the model
-		cost = self.allLayers[-1].negative_log_likelihood(y)
+		cost = self.allLayers[-1].CostToMinimize(y)
 		
-		if False:
-			# create a list of gradients for all model parameters
-			grads = T.grad(cost, params)
+		# update function (uses stochastic gradient descent with momentum)
+		updates = gradient_updates_momentum(cost, params, learning_rate, momentum=weightmomentum)
 		
-			# train_model is a function that updates the model parameters by
-			# SGD Since this model has many parameters, it would be tedious to
-			# manually create an update rule for each model parameter. We thus
-			# create the updates list by automatically looping over all
-			# (params[i], grads[i]) pairs.
-			updates = [
-				(param_i, param_i - learning_rate * grad_i)
-				for param_i, grad_i in zip(params, grads)
-			]
-		else:
-			updates = gradient_updates_momentum(cost, params, learning_rate, momentum=weightmomentum)
-		
-		
-		if datasetsOnDevice:
+		if datasetsOnDevice and not self.params.microbatches:
+			print("SETTING UP TRAINING FOR DATASETS_ON_DEVICE AND NOT MICROBATCHES")
 			train_model = theano.function(
 				[index],
 				cost,
@@ -434,7 +502,21 @@ class OCR_CNN(object):
 					y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
 				}
 			)
-	
+		
+		#------------------------------------------------------------------------
+		if self.params.microbatches:
+			print("SETTING UP TRAINING FOR MICROBATCHES")
+			
+			train_model = theano.function(
+				[self.x, T.cast(y,'int32')],
+				cost,
+				updates=updates
+			)
+			validate_model = theano.function(
+				[self.x, T.cast(y,'int32')],
+				self.allLayers[-1].calculateErrors(y)
+			)
+		
 		###############
 		# TRAIN MODEL #
 		###############
@@ -451,6 +533,7 @@ class OCR_CNN(object):
 									  # on the validation set; in this case we
 									  # check every epoch
 		
+		savedSamplesOnceDone = False
 		best_validation_loss = numpy.inf
 		best_iter = 0
 		test_score = 0.
@@ -459,98 +542,113 @@ class OCR_CNN(object):
 		epoch = 0
 		done_looping = False
 		
-		while (epoch < n_epochs) and (not done_looping):
+		try:
+			while True:
 			
-			#------------------------------------------------------------------------
-			if datasetsOnDevice == False:
-				# we need to produce a dataset to train this iteration
+				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches, self.params.numOutClasses)
 				
-				train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
-				if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
-					print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
-					n_train_batches = numTrainPts/self.batch_size
-					n_valid_batches = numValidationPts/self.batch_size
+				if savedSamplesOnceDone == False:
+					savedSamplesOnceDone = True
+					import cv2
+					print("SAVING SAMPLES")
+					samplesfolder = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/samples/"
+					randsamples = numpy.random.randint(0, len(train_set_y), size=800)
+					#print("indices chosen: "+str(randsamples))
+					numsaveddd = 0
+					print("--------------------------------------------------- "+str(len(randsamples)))
+					if len(randsamples) != randsamples.shape[0]:
+						print("What? len(randsamples) != randsamples.shape[0]: "+str(len(randsamples))+" != "+str(randsamples.shape[0]))
+					for ii in range(randsamples.shape[0]):
+						numsaveddd = (numsaveddd + 1)
+						#print(str(randsamples[ii]))
+						nparr = train_set_x[randsamples[ii]]
+						nparr = numpy.reshape(nparr, (40,40))
+						samplleimgfilename = samplesfolder+"imgnist_"+str(train_set_y[randsamples[ii]])+"__idx_"+str(randsamples[ii])+".png"
+						cv2.imwrite(samplleimgfilename, nparr)
+						#print("saved \'"+samplleimgfilename+"\'")
+					print("done saving "+str(numsaveddd)+" samples")
+					#quit()
 				
-				train_model = theano.function(
-					[index],
-					cost,
-					updates=updates,
-					givens={
-						self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-						y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-					}
-				)
-				validate_model = theano.function(
-					[index],
-					self.allLayers[-1].errors(y),
-					givens={
-						self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
-						y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
-					}
-				)
-			#------------------------------------------------------------------------
-			
-			epoch = epoch + 1
-			for minibatch_index in xrange(n_train_batches):
-				
-				iter = (epoch - 1) * n_train_batches + minibatch_index
-			
-				if iter % 100 == 0:
-					print 'training @ iter = ', iter
-				cost_ij = train_model(minibatch_index)
-			
-				if (iter + 1) % validation_frequency == 0:
-				
-					# compute zero-one loss on validation set
-					validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
-					this_validation_loss = numpy.mean(validation_losses)
-					print('epoch %i, minibatch %i/%i, validation error %f %%' %
-						  (epoch, minibatch_index + 1, n_train_batches,
-						   this_validation_loss * 100.))
+				if datasetsOnDevice == False and not self.params.microbatches:
+					print("SETTING UP TRAINING FOR DATASETS NOT ON DEVICE")
+					# we need to produce a dataset to train this iteration
 					
-					# if we got the best validation score until now
-					if this_validation_loss < best_validation_loss:
-						
-						#improve patience if loss improvement is good enough
-						if this_validation_loss < best_validation_loss *  \
-						   improvement_threshold:
-							patience = max(patience, iter * patience_increase)
-						
-						# save best validation scores and iteration number
-						best_validation_loss = this_validation_loss
-						best_iter = iter
-						
-						pfname = pickleNetworkName+"_"+str(iter)+"_score_"+str(this_validation_loss*100.)+".pkl"
-						for nnlayeridx in range(len(self.allLayers)):
-							self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
-						
-						if len(filterFilesSavedBaseName) > 1:
-							for layeridx in range(len(self.convLayers)):
-								self.convLayers[layeridx].saveFilters(filterFilesSavedBaseName+"_"+str(layeridx)+"_")
-						
-						print("====== saved new weights and filters")
-						
-						# test it on the test set
-						'''test_losses = [test_model(i) for i in xrange(n_test_batches)]
-						test_score = numpy.mean(test_losses)
-						print(('   epoch %i, minibatch %i/%i, test error of '
-							   'best model %f %%') %
-							  (epoch, minibatch_index + 1, n_train_batches,
-							   test_score * 100.))'''
-
+					if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
+						print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
+						n_train_batches = numTrainPts/self.batch_size
+						n_valid_batches = numValidationPts/self.batch_size
+					
+					train_model = theano.function(
+						[index],
+						cost,
+						updates=updates,
+						givens={
+							self.x: train_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+							y: train_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+						}
+					)
+					validate_model = theano.function(
+						[index],
+						self.allLayers[-1].calculateErrors(y),
+						givens={
+							self.x: valid_set_x[index * self.batch_size: (index + 1) * self.batch_size],
+							y: valid_set_y[index * self.batch_size: (index + 1) * self.batch_size]
+						}
+					)
+				#------------------------------------------------------------------------
+			
+				epoch = epoch + 1
+				for minibatch_index in xrange(n_train_batches):
+					
+					iter = (epoch - 1) * n_train_batches + minibatch_index
+					if iter % 100 == 0:
+						print 'training @ iter = ', iter
+					
+					if self.params.microbatches:
+						cost_ij = train_model(train_set_x[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size], train_set_y[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size])
+					else:
+						cost_ij = train_model(minibatch_index)
 				
-				if patience <= iter:
-					done_looping = True
-					break
-	
-		end_time = time.clock()
-		print('Optimization complete.')
-		print('Best validation score of %f %% obtained at iteration %i, '
-			  'with test performance %f %%' %
-			  (best_validation_loss * 100., best_iter + 1, 0.))# test_score * 100.))
-		print >> sys.stderr, ('The code for file ' +
-							  os.path.split(__file__)[1] +
-							  ' ran for %.2fm' % ((end_time - start_time) / 60.))
+				#------------------------------------------------------------------------
+				# compute error on validation set
+				
+				if self.params.microbatches:
+					validation_losses = [validate_model(train_set_x[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size], train_set_y[minibatch_index*self.batch_size : (minibatch_index+1)*self.batch_size]) for minibatch_index in xrange(n_valid_batches)]
+				else:
+					validation_losses = [validate_model(i) for i in xrange(n_valid_batches)]
+				
+				this_validation_loss = numpy.mean(validation_losses)
+				print('epoch %i, minibatch %i/%i, validation error %f %%' %
+					  (epoch, minibatch_index + 1, n_train_batches,
+					   this_validation_loss * 100.))
+				
+				if (this_validation_loss < best_validation_loss) or (epoch % 20 == 0):
+					pfname = pickleNetworkName+"_"+str(int(round(self.batch_size*n_train_batches*epoch*0.001)))+"kims_score_"+str(this_validation_loss*100.)+"_lr"+str(learning_rate)+"_mom"+str(weightmomentum)+"_batch"+str(self.batch_size)+".pkl"
+					for nnlayeridx in range(len(self.allLayers)):
+						self.allLayers[nnlayeridx].saveParams(pfname+".l"+str(nnlayeridx))
+					if len(filterFilesSavedBaseName) > 1:
+						for layeridx in range(len(self.convLayers)):
+							self.convLayers[layeridx].saveFilters(filterFilesSavedBaseName+"_"+str(layeridx)+"_")
+					print("====== saved new weights and filters")
+				
+				# if we got the best validation score until now; save it to disk
+				if this_validation_loss < best_validation_loss:
+				
+					#improve patience if loss improvement is good enough
+					if this_validation_loss < best_validation_loss *  \
+					   improvement_threshold:
+						patience = max(patience, iter * patience_increase)
+				
+					# save best validation scores and iteration number
+					best_validation_loss = this_validation_loss
+					best_iter = iter
+		except (KeyboardInterrupt, SystemExit):
+			end_time = time.clock()
+			print("Optimization complete.")
+			print('Best validation score of %f %% obtained at iteration %i, '
+				  'with test performance %f %%' %
+				  (best_validation_loss * 100., best_iter + 1, 0.))
+			print("Ran for " + str((end_time - start_time) / 60.) + " minutes")
 
 
 
@@ -574,8 +672,6 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 	import DatasetsLoaders
 	
 	if useMNIST:
-		learning_rate = 0.20
-		n_epochs = 2000
 		params = myCNNParams()
 		params.widthOfImages = 28
 		params.filtersizes = [5, 5]
@@ -590,7 +686,6 @@ def train_lenet5_with_batches(useMNIST=False, learning_rate=0.04, weightmomentum
 		deviceTrainSetSize = 50000
 		deviceValidSetSize = 10000
 	else:
-		n_epochs = 15000
 		print("learning rate == "+str(learning_rate)+", momentum == "+str(weightmomentum))
 		params = defaultCNNParams()
 		batch_size = params.batchSize
@@ -634,7 +729,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		deviceTrainSetSize = 70000
 		deviceValidSetSize = batchSize
 		
-		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize)
+		train_set_x, train_set_y, valid_set_x, valid_set_y, datasets, numTrainPts, numValidationPts = DatasetsLoaders.send_host_datasets_to_device(datasets, deviceTrainSetSize, deviceValidSetSize, self.params.microbatches, self.params.numOutClasses)
 		if numTrainPts < deviceTrainSetSize or numValidationPts < deviceValidSetSize:
 			print("warning: there were fewer training points in the dataset than could be requested... num points available: "+str(numTrainPts))
 			n_train_batches = numTrainPts/self.batch_size
@@ -667,7 +762,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 	# create a function to compute the mistakes that are made by the model
 	traintest_model = theano.function(
 		[index],
-		builtCNN.allLayers[-1].errors(y),
+		builtCNN.allLayers[-1].calculateErrors(y),
 		givens={
 			builtCNN.x: train_set_x[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size],
 			y: train_set_y[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size]
@@ -675,7 +770,7 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 	)
 	validate_model = theano.function(
 		[index],
-		builtCNN.allLayers[-1].errors(y),
+		builtCNN.allLayers[-1].calculateErrors(y),
 		givens={
 			builtCNN.x: valid_set_x[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size],
 			y: valid_set_y[index * builtCNN.batch_size: (index + 1) * builtCNN.batch_size]
@@ -707,6 +802,8 @@ def test_saved_lenet5_on_full_dataset(wasGivenPrebuiltCNN, trainedWeightsFile=""
 		this is clockwise from vertical
 '''
 def ConvertOrientationClassToDegrees(classOutOf144):
+	if classOutOf144 == 144:
+		return 0
 	anglepred = 0
 	if classOutOf144 >= 36:
 		anglepred = 270
@@ -726,6 +823,8 @@ def ConvertOrientationClassToDegrees(classOutOf144):
 		1 of 144 classes to orientations at 90 degree offsets
 '''
 def ConvertClassToCharPlusOrientation(prediction):
+	if prediction == 144:
+		return ('#','N/A') #if trained with 145 classes
 	anglepred = "top-is-up"
 	if prediction >= 36:
 		anglepred = "top-is-left"
@@ -758,7 +857,7 @@ def cv2rotateImg(image,angledegrees):
 	predict_CNN_on_img()
 		Use a saved CNN to make a prediction given one image
 '''
-def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesInbetween=0, returnDetailedInfo=False, numTopGuessesToReturn=1):
+def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesInbetween=0, includesJunkChar=False, junkConfThreshold=0.25, returnDetailedInfo=False, numTopGuessesToReturn=1):
 	
 	imdata = img.astype(dtype=theano.config.floatX)
 	
@@ -787,10 +886,9 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesI
 			print("the CNN predicted this: \""+str(CNNprediction)+"\"")
 			print("maximum grayscale pixel value in image == "+str(numpy.amax(imdata)))
 			import cv2
-			cv2.imshow("testimg_processed 222", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
+			cv2.imshow("testimg_processed xxx", numpy.reshape(imdata,(widthOfImage,widthOfImage))/255.)
 			cv2.waitKey(0)
-		
-		print("numTopGuessesToReturn ignored when no inbetween angles are checked.....")
+		#print("numTopGuessesToReturn ignored when no inbetween angles are checked.....")
 		return ConvertClassToCharPlusOrientation(CNNprediction[0])
 	
 	else:
@@ -818,36 +916,84 @@ def predict_CNN_on_img(givenCNN, img, widthOfImage, debuggingMode=False, anglesI
 		topidxs = topidxs[numpy.argsort(allpredictions[topidxs])]
 		#now a list of "numTopGuessesToReturn" indices sorted in ascending order of confidence
 		
-		angoffsets = (topidxs / 144)
-		classes = (topidxs - (angoffsets*144))
+		if includesJunkChar:
+			angoffsets = (topidxs / 145)
+			#classes = (topidxs - (angoffsets*145))
+			
+			chars = []
+			orientations = []
+			confidences = []
+			for cidx in range(len(topidxs)):
+				if float(allpredictions[topidxs[cidx]]) >= junkConfThreshold:
+					if (topidxs[cidx]+1) % 145 == 0:
+						chars.append('#')
+						orientations.append(0.0)
+					else:
+						charchar = (topidxs[cidx] % 145)
+						if charchar == 144:
+							#should have been handled by the above if case
+							print("ERROR????????????????????????????????????????????????????????????????? FIXME")
+						characteridx = (charchar%36)
+						if characteridx < 10:
+							chars.append(chr(characteridx+48))
+						else:
+							chars.append(chr(characteridx+55))
+						thisorientation = float(ConvertOrientationClassToDegrees(charchar)) - deltaAngle*float(angoffsets[cidx])
+						if thisorientation < 0.0:
+							orientations.append(thisorientation+360.0)
+						else:
+							orientations.append(thisorientation)
+				else:
+					chars.append('#')
+					orientations.append(0.0)
+				confidences.append(float(allpredictions[topidxs[cidx]]))
+			
+			if debuggingMode:
+				print("topidxs numeric == "+str(topidxs))
+				#print("chars numeric == "+str(classes))
+				print("chars == "+str(chars))
+				print("orientations == "+str(orientations))
+				print("confidences == "+str(confidences))
 		
-		chars = []
-		orientations = []
-		confidences = []
-		for cidx in range(len(classes)):
-			characteridx = (topidxs[cidx]%36)
-			if characteridx < 10:
-				chars.append(chr(characteridx+48))
+			if returnDetailedInfo:
+				return (chars, orientations, confidences)
 			else:
-				chars.append(chr(characteridx+55))
-			thisorientation = float(ConvertOrientationClassToDegrees(topidxs[cidx]%144)) - deltaAngle*float(angoffsets[cidx])
-			if thisorientation < 0.0:
-				orientations.append(thisorientation+360.0)
-			else:
-				orientations.append(thisorientation)
-			confidences.append(float(allpredictions[topidxs[cidx]]))
-		
-		if debuggingMode or True:
-			print("topidxs numeric == "+str(topidxs))
-			print("chars numeric == "+str(classes))
-			print("chars == "+str(chars))
-			print("orientations == "+str(orientations))
-			print("confidences == "+str(confidences))
-		
-		if returnDetailedInfo:
-			return (chars, orientations, confidences)
+				return (chars[-1], orientations[-1])
 		else:
-			return (chars[-1], orientations[-1])
+			angoffsets = (topidxs / 144)
+			#classes = (topidxs - (angoffsets*144))
+		
+			chars = []
+			orientations = []
+			confidences = []
+			for cidx in range(len(topidxs)):
+				if float(allpredictions[topidxs[cidx]]) >= junkConfThreshold:
+					characteridx = (topidxs[cidx]%36)
+					if characteridx < 10:
+						chars.append(chr(characteridx+48))
+					else:
+						chars.append(chr(characteridx+55))
+					thisorientation = float(ConvertOrientationClassToDegrees(topidxs[cidx]%144)) - deltaAngle*float(angoffsets[cidx])
+					if thisorientation < 0.0:
+						orientations.append(thisorientation+360.0)
+					else:
+						orientations.append(thisorientation)
+				else:
+					chars.append('#')
+					orientations.append(0.0)
+				confidences.append(float(allpredictions[topidxs[cidx]]))
+		
+			if debuggingMode:
+				print("topidxs numeric == "+str(topidxs))
+				#print("chars numeric == "+str(classes))
+				print("chars == "+str(chars))
+				print("orientations == "+str(orientations))
+				print("confidences == "+str(confidences))
+		
+			if returnDetailedInfo:
+				return (chars, orientations, confidences)
+			else:
+				return (chars[-1], orientations[-1])
 
 
 def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, anglesInbetween, returnDetailedInfo, numTopGuessesToReturn):
@@ -858,11 +1004,24 @@ def test_saved_net_on_image_in_memory(img, trainedWeightsFile, widthOfImages, an
 	for nnlayeridx in range(len(builtCNN.allLayers)):
 		builtCNN.allLayers[nnlayeridx].loadParams(trainedWeightsFile+".l"+str(nnlayeridx))
 	
-	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, numTopGuessesToReturn=numTopGuessesToReturn)
+	return predict_CNN_on_img(builtCNN, img, widthOfImages, anglesInbetween=anglesInbetween, returnDetailedInfo=returnDetailedInfo, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn=numTopGuessesToReturn)
 
 
+def GetMeanMedianOfList(thelist):
+	themean = 0.0
+	for fl in thelist:
+		themean = themean + float(fl)
+	themean = themean / float(len(thelist))
+	sortedlist = sorted(thelist)
+	themedian = 0.0
+	if len(thelist) % 2 == 1:
+		themedian = sortedlist[len(sortedlist)/2]
+	else:
+		themedian = (sortedlist[len(sortedlist)/2] + sortedlist[(len(sortedlist)/2)-1]) * 0.5
+	return (themean, themedian)
 
-def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN=""):
+
+def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolder, wasGivenPrebuiltCNN, trainedWeightsFile="", builtCNN="", truthIsFirstCharacter=False):
 	
 	if wasGivenPrebuiltCNN == False:
 		# construct CNN
@@ -879,7 +1038,14 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 			for filename in filenames:
 				#print("found image \""+str(filename)+"\" for testing")
 				images.append(filename)
+	if len(images) == 0:
+		print("Error: no images found in that folder! Quitting...")
+		return
 	
+	confsOfTopWrong = []
+	confsOfCorrect = []
+	numcorrect = 0
+	numseen = 0
 	desiredWidth = defaultCNNParams().widthOfImages
 	for imagename in images:
 		# load and convert test image
@@ -892,30 +1058,74 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		im = im.convert("L")
 		if im.size[0] != desiredWidth or im.size[1] != desiredWidth:
 			im.thumbnail((desiredWidth,desiredWidth), Image.ANTIALIAS)
-	
+		
 		npim = numpy.asarray(im)
-		im.close()
+		#im.close()
 		
-		prediction = predict_CNN_on_img(builtCNN, npim, desiredWidth, debuggingMode=False)
+		numTopGuessesToReturn = 100
 		
-		anglepred = "top-is-up"
-		if prediction >= 36:
-			anglepred = "top-is-left"
-			prediction = (prediction - 36)
-			if prediction >= 36:
-				anglepred = "top-is-down"
-				prediction = (prediction - 36)
-				if prediction >= 36: 
-					anglepred = "top-is-right"
-					prediction = (prediction - 36)
+		prediction = predict_CNN_on_img(builtCNN, npim, widthOfImage=desiredWidth, debuggingMode=False, anglesInbetween = 5, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn = numTopGuessesToReturn, returnDetailedInfo = (numTopGuessesToReturn > 1))
+		numseen = (numseen + 1)
 		
-		if prediction < 10:
-			predchar = chr(prediction+48)
+		if numTopGuessesToReturn == 1:
+			if truthIsFirstCharacter:
+				truthchar = imagename[0]
+				if truthchar == prediction[0] or prediction[0] == '0' and truthchar == 'O' or prediction[0] == 'O' and truthchar == '0':
+					print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+					numcorrect = (numcorrect + 1)
+				else:
+					print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"     ----- misclassified!")
+			else:
+				print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
 		else:
-			predchar = chr(prediction+55)
-		
-		print("prediction on "+str(imagename)+" was: "+str(prediction)+" i.e. \'"+predchar+"\' with orientation \""+anglepred+"\"")
+			thisCharFound = False
+			lastUniqueCharGuess = ''
+			topNchars = []
+			topNconfs = []
+			numNchars = 2
+			immediatelyStopIfNumberOneIsJunk = True
+			for gidx in range(len(prediction[0])):
+				trueidx = (len(prediction[0]) - gidx - 1) #confidences are ascending order, so read in reverse
+				if truthIsFirstCharacter:
+					truthchar = imagename[0]
+					
+					thisCharIsCorrectRightNow = False
+					if truthchar == prediction[0][trueidx] or prediction[0][trueidx] == '0' and truthchar == 'O' or prediction[0][trueidx] == 'O' and truthchar == '0':
+						thisCharIsCorrectRightNow = True
+					if thisCharIsCorrectRightNow == False:
+						confsOfTopWrong.append(prediction[2][trueidx])
+					
+					if prediction[0][trueidx] != lastUniqueCharGuess:
+						lastUniqueCharGuess = prediction[0][trueidx]
+						topNchars.append(lastUniqueCharGuess)
+						topNconfs.append(prediction[2][trueidx])
+						if immediatelyStopIfNumberOneIsJunk and '#' in topNchars:
+							while len(topNchars) < numNchars:
+								topNchars.append('#')
+								topNconfs.append(topNconfs[0])
+					if len(topNchars) <= numNchars:
+						if truthchar == lastUniqueCharGuess or lastUniqueCharGuess == '0' and truthchar == 'O' or lastUniqueCharGuess == 'O' and truthchar == '0':
+							if thisCharFound == False:
+								print("prediction on "+str(imagename)+" was \'"+str(lastUniqueCharGuess)+"\' with orientation \""+str(prediction[1][trueidx])+"\"... top N chars == "+str(topNchars[:numNchars])+", conf "+str(topNconfs[:numNchars]))
+								numcorrect = (numcorrect + 1)
+								thisCharFound = True
+								confsOfCorrect.append(topNconfs[-1])
+					else:
+						if thisCharFound == False:
+							print("top prediction on "+str(imagename)+" was \'"+str(prediction[0][-1])+"\' with orientation \""+str(prediction[1][-1])+"\"... top N chars == "+str(topNchars[:numNchars])+", conf "+str(topNconfs[:numNchars])+"     ----- but it was misclassified!")						
+						trueidx = len(prediction[0]) + 1000
+						break
+				else:
+					print("TRUTH WASNT FIRST CHAR? prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
+	print("total results: correct ratio == "+str(numcorrect)+"/"+str(numseen)+" == "+str((float(numcorrect)/float(numseen))))
 	
+	(confsofcorrectMean, confsofcorrectMedian) = GetMeanMedianOfList(confsOfCorrect)
+	(confsoftopwrongMean, confsoftopwrongMedian) = GetMeanMedianOfList(confsOfTopWrong)
+	
+	print("confsofcorrectMean == "+str(confsofcorrectMean)+", confsofcorrectMedian == "+str(confsofcorrectMedian))
+	print("confsoftopwrongMean == "+str(confsoftopwrongMean)+", confsoftopwrongMedian == "+str(confsoftopwrongMedian))
+	print("confsOfCorrect: "+str(sorted(confsOfCorrect)))
+	print("confsOfTopWrong: "+str(sorted(confsOfTopWrong)))
 
 
 if __name__ == '__main__':
@@ -938,14 +1148,11 @@ if __name__ == '__main__':
 			quit()
 		test_saved_lenet5_on_full_dataset(False, trainedWeightsFile=str(sys.argv[2]), batchSize=400)
 	elif str(sys.argv[1]) == "test":
-		if len(sys.argv) < 5:
-			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}  {file-is-actually-folder}")
+		if len(sys.argv) < 6:
+			print("args:  {train|retrain|test|testfull}  {test-savedweights}  {test-imagefile}  {file-is-actually-folder}  {truth-is-first-char}")
 			quit()
-		test_saved_lenet5_on_image_file_or_folder(str(sys.argv[3]), int(sys.argv[4])!=0, False, trainedWeightsFile=str(sys.argv[2]))
+		test_saved_lenet5_on_image_file_or_folder(str(sys.argv[3]), int(sys.argv[4])!=0, False, trainedWeightsFile=str(sys.argv[2]), truthIsFirstCharacter=(int(sys.argv[5])!=0))
 	else:
 		print("unknown option \""+str(sys.argv[1])+"\"")
 
-
-def experiment(state, channel):
-	train_lenet5_with_batches(learning_rate=state.learning_rate, dataset=state.dataset)
 

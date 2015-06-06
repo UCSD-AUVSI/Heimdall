@@ -14,10 +14,10 @@ public:
 
 //-------------
 //settings:
-    double max_absolute_confidence_threshold;
-    double min_absolute_confidence_threshold;
+    double max_absolute_confidence_threshold; //if abs conf is higher than max, will always be considered
+    double min_absolute_confidence_threshold; //if abs conf is higher than min AND relative conf is higher than max, will be considered
     double max_relative_confidence_threshold;
-    double min_relative_confidence_threshold;
+    double min_relative_confidence_threshold; //if shape is being considered, and relative conf is less than this, then report the top 2 results
 //-------------
     std::string filefolder_containing_reference_shapes;
 
@@ -31,22 +31,18 @@ public:
 
 
 	ShapeRecModuleAlgorithm_SingleImage_Template() :
-	/*
-		max_absolute_confidence_threshold(0.60),    //these settings are best used with averaged-confidence shaperec
-		min_absolute_confidence_threshold(0.54),
-		max_relative_confidence_threshold(0.50),
-		min_relative_confidence_threshold(0.25)
-    */
-		max_absolute_confidence_threshold(0.50),    //these settings are best used with averaged-confidence shaperec
+
+		max_absolute_confidence_threshold(0.30),    //best when approxPolyDP is used with 0.001 == polynomialapprox_deviance_fraction_of_perimeter, which is noisier (i.e. lower typical thresholds)
+		min_absolute_confidence_threshold(0.16),
+		max_relative_confidence_threshold(0.2),
+		min_relative_confidence_threshold(0.15)
+
+/*
+		max_absolute_confidence_threshold(0.50),    //used in 2014; best when approxPolyDP is used with 0.01 == polynomialapprox_deviance_fraction_of_perimeter
 		min_absolute_confidence_threshold(0.45),
 		max_relative_confidence_threshold(0.50),
 		min_relative_confidence_threshold(0.25)
-    /*
-		max_absolute_confidence_threshold(0.75),    //these can be used with (1-conf) multiplied-confidence shaperec
-		min_absolute_confidence_threshold(0.75),
-		max_relative_confidence_threshold(0.35),
-		min_relative_confidence_threshold(0.35)
-    */
+*/
 	{}
 	virtual ~ShapeRecModuleAlgorithm_SingleImage_Template() {}
 };

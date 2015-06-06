@@ -17,28 +17,29 @@ using std::cout; using std::endl;
 
 ShapeRecModule_Main::ShapeRecModule_Main(std::string folder_with_reference_shapes)
 {
-    single_shape_namer_algorithm = new ShapeRecModuleAlgorithm_SingleImage_Turning();
-    single_shape_namer_algorithm->filefolder_containing_reference_shapes = folder_with_reference_shapes;
-    
-    bool couldbefound = true;
-    std::string folder_found(folder_with_reference_shapes);
-	if(check_if_directory_exists(folder_found) == false) {
-		folder_found = ("bin/"+folder_with_reference_shapes);
-		if(check_if_directory_exists(folder_found) == false) {
-			folder_found = ("../bin/"+folder_with_reference_shapes);
-			if(check_if_directory_exists(folder_found) == false) {
-				folder_found = ("build/bin/"+folder_with_reference_shapes);
-				if(check_if_directory_exists(folder_found) == false) {
-					folder_found = ("../build/bin/"+folder_with_reference_shapes);
-					if(check_if_directory_exists(folder_found) == false) {
-						couldbefound = false;
-					}
-				}
-			}
-		}
+	single_shape_namer_algorithm = new ShapeRecModuleAlgorithm_SingleImage_Turning();
+	single_shape_namer_algorithm->filefolder_containing_reference_shapes = folder_with_reference_shapes;
+	
+	std::vector<std::string> possibleFolders;
+	possibleFolders.push_back("bin/");
+	possibleFolders.push_back("../bin/");
+	possibleFolders.push_back("build/bin/");
+	possibleFolders.push_back("../build/bin/");
+	possibleFolders.push_back("../../bin/");
+	possibleFolders.push_back("../../../bin/");
+	possibleFolders.push_back("../../../../bin/");
+	possibleFolders.push_back("../../../../../bin/");
+	
+	std::string folder_found(folder_with_reference_shapes);
+	int possibleFolderIndex = 0;
+	while(check_if_directory_exists(folder_found) == false && possibleFolderIndex < ((int)possibleFolders.size())) {
+		folder_found = (possibleFolders[possibleFolderIndex]+folder_with_reference_shapes);
+		possibleFolderIndex++;
 	}
 	
-	if(couldbefound) {
+	if(check_if_directory_exists(folder_found)) {
+		consoleOutput.Level0() << "found shaperec folder \'" << folder_found << "\'" << endl;
+		
 		single_shape_namer_algorithm->filefolder_containing_reference_shapes = folder_found;
 		if(CountNumImagesInFolder(folder_found) > 0) {
 			TryPrintAllFileNamesInFolder(folder_found, consoleOutput.Level2());
@@ -48,12 +49,12 @@ ShapeRecModule_Main::ShapeRecModule_Main(std::string folder_with_reference_shape
 				consoleOutput.Level0() << "       tried to look in the folder \"" << folder_found << "\"" << endl;
 			}
 		}
-    } else {
+	} else {
 		for(int j=0; j<30; j++) {
 			consoleOutput.Level0() << "ERROR: SHAPE REC: WAS NOT GIVEN A VALID FOLDER TO FIND REFERENCE SHAPES!!!!" << endl;
 			consoleOutput.Level0() << "       tried to look in the folder \"" << folder_found << "\"" << endl;
 		}
-    }
+	}
 }
 
 
@@ -84,7 +85,9 @@ void ShapeRecModule_Main::DoModule(std::vector<cv::Mat>* input_SSEG_images,
         }
 
 //-----------------------------------------------------------------------------------
+	if(correct_shape_name != nullptr) {
             UpdateResultsAttemptsData_shaperec(&consoleOutput.Level3(), optional_results_info, last_obtained_results, correct_shape_name);
+	}
 //-----------------------------------------------------------------------------------
 
 
@@ -117,9 +120,17 @@ void ShapeRecModule_Main::DoModule(std::vector<cv::Mat>* input_SSEG_images,
         //now, example contents: square
 
 //-----------------------------------------------------------------------------------
-        CheckValidityOfResults_shaperec(&consoleOutput.Level3(), optional_results_info, last_obtained_results, correct_shape_name);
+	if(correct_shape_name != nullptr) {
+        	CheckValidityOfResults_shaperec(&consoleOutput.Level3(), optional_results_info, last_obtained_results, correct_shape_name);
+	}
 //-----------------------------------------------------------------------------------
     }
     else
         consoleOutput.Level0() << "WARNING: ShapeRecModule_Main::DoModule() didn't do anything because of null pointers!" << std::endl;
 }
+
+
+
+
+
+

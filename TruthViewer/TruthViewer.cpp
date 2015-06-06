@@ -23,8 +23,8 @@ int main(int argc, char** argv)
 	int cropPaddingPixels = 0;
 	
 	if(argc >= 4) {
-		filename_of_truth = std::string(argv[1]);
-		folder_dir_of_images = std::string(argv[2]);
+		folder_dir_of_images = std::string(argv[1]);
+		filename_of_truth = folder_dir_of_images + std::string("/") + std::string(argv[2]);
 		
 		if(folder_dir_of_images[folder_dir_of_images.size()-1] != '/') {
 			folder_dir_of_images = (folder_dir_of_images + std::string("/"));
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 			saveCrops = (atoi(argv[3]) == 1);
 		}
 		else {
-			std::cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]  OPTIONAL:[DISPLAY IMAGES?]" << std::endl;
+			cout << "usage:  {PATH TO FOLDER WITH IMAGES}  {TRUTH-FILENAME}  {SAVE CROPS? BOOL 1/0}  OPTIONAL:{CROP PADDING PIXELS}  OPTIONAL:{DISPLAY IMAGES?}" << std::endl;
 			return 1;
 		}
 		if(argc >= 5) {
@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 		}
 	}
 	else {
-		cout << "usage:  [TRUTH FILE]  [IMAGES DIR]  [SAVE CROPS? BOOL 1/0]  OPTIONAL:[CROP PADDING PIXELS]  OPTIONAL:[DISPLAY IMAGES?]" << std::endl;
+		cout << "usage:  {PATH TO FOLDER WITH IMAGES}  {TRUTH-FILENAME}  {SAVE CROPS? BOOL 1/0}  OPTIONAL:{CROP PADDING PIXELS}  OPTIONAL:{DISPLAY IMAGES?}" << std::endl;
 		return 0;
 	}	
 	if(check_if_file_exists(filename_of_truth)==false) {

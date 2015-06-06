@@ -6,8 +6,11 @@
 #include "Shaperec_BackboneInterface.hpp"
 #include "Shaperec_ModuleMain.hpp"
 
+
 //declared in Shaperec_BackboneInterface.hpp
 /*extern*/ ShapeRecModule_Main* global_PolygonShapeRec_instance = nullptr;
+
+
 
 void PolygonShapeRec::execute(imgdata_t *imdata, std::string args) {
 	std::cout << "Polygon Shape Rec, ID: " << imdata->id  << ", CropID: " << imdata->cropid << std::endl;

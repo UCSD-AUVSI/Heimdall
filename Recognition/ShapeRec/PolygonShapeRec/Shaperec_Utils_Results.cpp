@@ -171,7 +171,9 @@ ShapeRec_ResultsContainer::GetTopResults(	double max_absolute_confidence_thresho
 	std::vector<ShapeRec_Result> returned_shape_guesses;
 	if(results.empty())
         return returned_shape_guesses;
-
+	
+	print_all_results = true;
+	PRINTHERE = &std::cout;
 
 	if(print_all_results && PRINTHERE != nullptr)
 	{
@@ -195,7 +197,10 @@ ShapeRec_ResultsContainer::GetTopResults(	double max_absolute_confidence_thresho
 	if(runnerup != results.end())
 		relative_confidence = sqrt((runnerup->metric_method44 - results.begin()->metric_method44) / runnerup->metric_method44);
 	else
-		relative_confidence = ((max_relative_confidence_threshold + min_relative_confidence_threshold) * 0.5);
+		//there was only one (reasonable) shape
+		relative_confidence = max_relative_confidence_threshold + 0.001;
+		//relative_confidence = ((max_relative_confidence_threshold + min_relative_confidence_threshold) * 0.5);
+	
 	absolute_confidence = SHAPEREC_METHOD4_ABSOLUTE_CONFIDENCE_FORMULA(results.begin()->metric_method44);
 
 
@@ -289,7 +294,7 @@ void ShapeRec_ResultsContainer::EliminateDuplicates()
         ));
 
 #if SHAPEREC_SORT_PRIMARILY_BY_MULTIPLIED_CONFIDENCES
-#pragma message("ShapeRec compiled to sort primarily by MULTIPLIED confidences!")
+//#pragma message("ShapeRec compiled to sort primarily by MULTIPLIED confidences!")
 
         (results.rbegin())->metric_method44
             = SHAPEREC_METHOD4_ABSOLUTE_CONFIDENCE_FORMULA_INVERSE(1.0 - shaperec_shapes_iter->second.metric_method44_total_multiplies_of_1_minus_confidence);
@@ -297,7 +302,7 @@ void ShapeRec_ResultsContainer::EliminateDuplicates()
         (results.rbegin())->multi_seg_image_processed_averaged_metric_method44
             = (shaperec_shapes_iter->second.total_metric_method44_sum / static_cast<double>(shaperec_shapes_iter->second.num_instances));
 #else
-#pragma message("ShapeRec compiled to sort primarily by AVERAGED confidences!")
+#pragma message("ShapeRec compiled to sort primarily by AVERAGED confidences! This is probably worse than multiplied confidences...")
 
         (results.rbegin())->metric_method44
             = (shaperec_shapes_iter->second.total_metric_method44_sum / static_cast<double>(shaperec_shapes_iter->second.num_instances));

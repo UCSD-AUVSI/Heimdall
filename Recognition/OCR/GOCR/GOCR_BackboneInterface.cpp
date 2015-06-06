@@ -26,7 +26,7 @@ void GOCRBackboneInterface :: execute(imgdata_t *imdata, std::string args) {
         for(cseg_iter = imdata->cseg_image_data->begin();
             cseg_iter != imdata->cseg_image_data->end();
             cseg_iter++) {
-            global_GOCR_module_instance->do_OCR(cv::imdecode(**cseg_iter, CV_LOAD_IMAGE_ANYDEPTH));
+            global_GOCR_module_instance->do_OCR_on_one_CSEG(cv::imdecode(**cseg_iter, CV_LOAD_IMAGE_ANYDEPTH));
         }
         
         imdata->character = "";

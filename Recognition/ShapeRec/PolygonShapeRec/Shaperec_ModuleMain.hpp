@@ -9,7 +9,6 @@ class ShapeRecModuleAlgorithm_SingleImage_Template;
 class test_data_results_shaperec;
 
 
-
 class ShapeRecModule_Main
 {
 public:

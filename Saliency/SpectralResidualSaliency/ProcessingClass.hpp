@@ -25,17 +25,27 @@ params: (102.283, 1.88841, 27.2135, 456.142, 43.4693, 0.22672, 0.149246, 0.67937
 num crops: 123
 num successes: targets: 41
 num successes: falseps: 29
+
+//score: 0.720114, TruePositives: 62, CloseErrors: 6, FalsePositives: 45, FalseNegatives: 15
+//num crops: 113
+//params: (137.585, 3.09141, 16.6311, 513.349, 48.1391, 0.331574, 0.58696, 0.420527)
+missed target in image "IMG_9207_geotag_shopped.JPG"
+missed target in image "circle_F_IMG_0605.jpg"
+missed target in image "diamond_IMG_0578.jpg"
+missed target in image "square_2012_IMG_3133.jpg"
+missed target in image "square_2012_IMG_3154.jpg"
+missed target in image "triangle_1725425557_geotag.jpg"
 */
 	SpectralSaliencyArgs() :
 		normalizeSaliencyMaps(true),
-		expectedTargetLength(94.335),
-		expectedLargerTargetRatio(2.1608),
-		minTargetLength(45.7863),
-		maxTargetLength(398.458),
-		largerGaussBlurDiamPixels(71.6563),
-		centerSurroundThreshold(0.22061),
-		centerSurroundThreshold_hystlow_FRACTION(0.104754),
-		percentOfCropToBeTargetAfterPadding(0.794506),
+		expectedTargetLength(137.585),
+		expectedLargerTargetRatio(3.09141),
+		minTargetLength(16.6311),
+		maxTargetLength(513.349),
+		largerGaussBlurDiamPixels(48.1391),
+		centerSurroundThreshold(0.331574),
+		centerSurroundThreshold_hystlow_FRACTION(0.58696),
+		percentOfCropToBeTargetAfterPadding(0.420527),
 		/*expectedTargetLength(80.0),
 		minTargetLength(12.0),
 		maxTargetLength(200.0),

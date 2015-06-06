@@ -162,6 +162,9 @@ static void binarize_static_saliency_image(cv::Mat & rawSaliencyMap,
 }
 
 
+//#define CONSTRAIN_TO_OPTIMAL_DFT_SIZES 1
+
+
 void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
 												std::vector<cv::Mat> * returnedCrops,
 												std::vector<std::pair<double,double>> * returned_geolocations,
@@ -185,6 +188,8 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
 		} else {
 			resImRatioCOLS[loopsii] = resImRatioROWS[loopsii] = (9.0 / (args.expectedTargetLength * args.expectedLargerTargetRatio));
 		}
+		
+#if CONSTRAIN_TO_OPTIMAL_DFT_SIZES
 		//cout << "SpectralSaliency -- resImRatio == "<<resImRatio<<endl;
 		double maxcols = ((double)fullsizeImage->cols) * resImRatioCOLS[loopsii];
 		double maxrows = ((double)fullsizeImage->rows) * resImRatioROWS[loopsii];
@@ -196,14 +201,18 @@ void SpectralResidualSaliencyClass::ProcessSaliency(cv::Mat * fullsizeImage,
 		cv::Size resizedSize(trresizedcols, trresizedrows);
 		resImRatioCOLS[loopsii] = (((double)trresizedcols)/((double)fullsizeImage->cols));
 		resImRatioROWS[loopsii] = (((double)trresizedrows)/((double)fullsizeImage->rows));
-		
+#endif
 		
 		/*
 			Converting to CIELab is slow, so resize FIRST
 		*/
 		cv::Mat fullsizeImage_CIELAB;
-		//cv::resize(*fullsizeImage, fullsizeImage_CIELAB, cv::Size(0,0), resImRatioCOLS[loopsii], resImRatioROWS[loopsii], cv::INTER_AREA);
+		
+#if CONSTRAIN_TO_OPTIMAL_DFT_SIZES
 		cv::resize(*fullsizeImage, fullsizeImage_CIELAB, resizedSize, 0.0, 0.0, cv::INTER_AREA);
+#else
+		cv::resize(*fullsizeImage, fullsizeImage_CIELAB, cv::Size(0,0), resImRatioCOLS[loopsii], resImRatioROWS[loopsii], cv::INTER_AREA);
+#endif
 		fullsizeImage_CIELAB.convertTo(fullsizeImage_CIELAB, CV_32FC3);
 		fullsizeImage_CIELAB /= 255.0f;
 		
