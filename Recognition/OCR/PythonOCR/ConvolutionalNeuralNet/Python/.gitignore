@@ -1,4 +1,3 @@
 DatasetsLoaders.py
 *.pyc
-weights/*
 samples/*

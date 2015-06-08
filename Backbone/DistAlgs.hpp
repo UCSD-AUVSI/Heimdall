@@ -4,7 +4,8 @@
 #include "ImagePush/stub_push.hpp"
 #include "ImagePush/FilePush/file_push.hpp"
 #include "ImagePush/FolderPush/folder_push.hpp"
-#include "ImagePush/FolderWatch/folder_watch.hpp"
+#include "ImagePush/FolderWatch2014/folder_watch_2014.hpp"
+#include "ImagePush/FolderWatch2015/folder_watch_2015.hpp"
 
 #include "Orthorect/stub_orthorect.hpp"
 

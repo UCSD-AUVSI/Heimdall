@@ -21,7 +21,7 @@ def doOCR(givenCSEG, optionalArgs):
 	#anglesInbetween = 3 #predict with 22.5 degree precision (90/(3+1))
 	anglesInbetween = 1 #predict with 45 degree precision (90/(1+1))
 	
-	weightsfilebase = "weights/cnn40x40theano_paramsWb_131399_score_14.125.pkl"
+	weightsfilebase = "weights/cnn40x40theano_paramsWb_6704kims_score_12.1350546177_lr0.05_mom0.5_batch106.pkl"
 	returnDetailedInfo = True
 	numTopGuessesToReturn = 2
 	

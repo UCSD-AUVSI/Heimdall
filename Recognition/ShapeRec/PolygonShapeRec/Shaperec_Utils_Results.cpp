@@ -171,7 +171,9 @@ ShapeRec_ResultsContainer::GetTopResults(	double max_absolute_confidence_thresho
 	std::vector<ShapeRec_Result> returned_shape_guesses;
 	if(results.empty())
         return returned_shape_guesses;
-
+	
+	print_all_results = true;
+	PRINTHERE = &std::cout;
 
 	if(print_all_results && PRINTHERE != nullptr)
 	{
@@ -195,7 +197,10 @@ ShapeRec_ResultsContainer::GetTopResults(	double max_absolute_confidence_thresho
 	if(runnerup != results.end())
 		relative_confidence = sqrt((runnerup->metric_method44 - results.begin()->metric_method44) / runnerup->metric_method44);
 	else
-		relative_confidence = ((max_relative_confidence_threshold + min_relative_confidence_threshold) * 0.5);
+		//there was only one (reasonable) shape
+		relative_confidence = max_relative_confidence_threshold + 0.001;
+		//relative_confidence = ((max_relative_confidence_threshold + min_relative_confidence_threshold) * 0.5);
+	
 	absolute_confidence = SHAPEREC_METHOD4_ABSOLUTE_CONFIDENCE_FORMULA(results.begin()->metric_method44);
 
 

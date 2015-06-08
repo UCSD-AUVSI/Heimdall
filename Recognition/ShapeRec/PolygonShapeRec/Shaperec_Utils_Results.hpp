@@ -22,7 +22,7 @@ public:
 	double match_amount_method3;
 #endif
 
-	double metric_method44;
+	double metric_method44; //this is the final metric actually used for GetTopResults(); the others are not
 	double multi_seg_image_processed_averaged_metric_method44; //used later, after compiling multiple results from multiple segmentations
 
 //------
@@ -58,6 +58,8 @@ public:
 
     void clear() {results.clear();}
     bool empty() {return results.empty();}
+    std::vector<ShapeRec_Result>::iterator begin() {return results.begin();}
+    std::vector<ShapeRec_Result>::iterator end() {return results.end();}
     size_t size() {return results.size();}
     ShapeRec_Result& operator[] (int x) {return results[x];}
 
