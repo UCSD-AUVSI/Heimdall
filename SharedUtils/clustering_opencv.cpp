@@ -10,9 +10,10 @@ using std::cout; using std::endl;
 
 
 /// get all pixels in an image as 'ClusterablePoint's
-std::vector<ClusterablePoint*>* GetSetOfPixelColors_3Df(cv::Mat* image)
+std::vector<ClusterablePoint*>* GetSetOfPixelColors_3Df(cv::Mat* image, double if_5D_then_scale/*=-1.0*/)
 {
 	std::vector<ClusterablePoint*>* retset = new std::vector<ClusterablePoint*>(image->rows*image->cols, nullptr);
+    ClusterablePoint* newclusterpt = nullptr;
 	
 	if(image->type() == CV_32FC3)
 	{
@@ -21,7 +22,15 @@ std::vector<ClusterablePoint*>* GetSetOfPixelColors_3Df(cv::Mat* image)
 		{
 			for(int j=0; j<image->cols; j++)
 			{
-				(*retset)[n] = new ClusterablePoint3D_OpenCV(i, j, image->at<myColor_3f>(i,j));
+                newclusterpt = nullptr;
+                
+                if(if_5D_then_scale > 0.0) {
+                    newclusterpt = new ClusterablePoint_5D_OpenCV(i, j, image->at<myColor_3f>(i,j), if_5D_then_scale);
+                } else {
+                    newclusterpt = new ClusterablePoint_3D_OpenCV(i, j, image->at<myColor_3f>(i,j));
+                }
+                
+                (*retset)[n] = newclusterpt;
 				n++;
 			}
 		}
@@ -35,7 +44,7 @@ std::vector<ClusterablePoint*>* GetSetOfPixelColors_3Df(cv::Mat* image)
 
 
 /// get ClusterablePoints for input to the kmeans++, with masking
-std::vector<ClusterablePoint*>* GetSetOfPixelColors_WithMask_3Df(cv::Mat* image, cv::Mat* mask_CV_8U_type)
+std::vector<ClusterablePoint*>* GetSetOfPixelColors_WithMask_3Df(cv::Mat* image, cv::Mat* mask_CV_8U_type, double if_5D_then_scale/*=-1.0*/)
 {
 	assert(image != nullptr && mask_CV_8U_type != nullptr);
 	assert(image->empty()==false && mask_CV_8U_type->empty()==false);
@@ -43,6 +52,7 @@ std::vector<ClusterablePoint*>* GetSetOfPixelColors_WithMask_3Df(cv::Mat* image,
 	assert(mask_CV_8U_type->type() == CV_8U);
 	
 	std::vector<ClusterablePoint*>* retset = new std::vector<ClusterablePoint*>();
+    ClusterablePoint* newclusterpt = nullptr;
 	
 	if(image->type() == CV_32FC3)
 	{
@@ -52,7 +62,15 @@ std::vector<ClusterablePoint*>* GetSetOfPixelColors_WithMask_3Df(cv::Mat* image,
 			{
 				if(mask_CV_8U_type->at<uint8_t>(i,j) > 0)
 				{
-					retset->push_back(new ClusterablePoint3D_OpenCV(i, j, image->at<myColor_3f>(i,j)));
+                    newclusterpt = nullptr;
+                    
+                    if(if_5D_then_scale > 0.0) {
+                        newclusterpt = new ClusterablePoint_5D_OpenCV(i, j, image->at<myColor_3f>(i,j), if_5D_then_scale);
+                    } else {
+                        newclusterpt = new ClusterablePoint_3D_OpenCV(i, j, image->at<myColor_3f>(i,j));
+                    }
+                    
+                    retset->push_back(newclusterpt);
 				}
 			}
 		}
@@ -72,17 +90,17 @@ cv::Mat GetClusteredImage_3Df(const std::vector<std::vector<ClusterablePoint*>> 
 {
 	assert(clusters.size() == cluster_colors.size());
 	
-	ClusterablePoint3D_OpenCV* thiscluster_pixelcolor = nullptr;
-	ClusterablePoint3D_OpenCV* thispixel = nullptr;
+	ClusterablePoint_OpenCV* thiscluster_pixelcolor = nullptr;
+	ClusterablePoint_OpenCV* thispixel = nullptr;
 	cv::Mat returnedMat = cv::Mat::zeros(original_img_rows, original_img_cols, CV_32FC3); //three-channel floating point image
 	
 	for(int i=0; i<clusters.size(); i++)
 	{
-		thiscluster_pixelcolor = dynamic_cast<ClusterablePoint3D_OpenCV*>(cluster_colors[i]);
+		thiscluster_pixelcolor = dynamic_cast<ClusterablePoint_OpenCV*>(cluster_colors[i]);
 		
 		for(int j=0; j<clusters[i].size(); j++)
 		{
-			thispixel = dynamic_cast<ClusterablePoint3D_OpenCV*>(clusters[i][j]);
+			thispixel = dynamic_cast<ClusterablePoint_OpenCV*>(clusters[i][j]);
 			returnedMat.at<myColor_3f>(thispixel->GetRow(), thispixel->GetCol()) = thiscluster_pixelcolor->GetPixel();
 		}
 	}
@@ -98,7 +116,7 @@ std::vector<cv::Mat> GetClusterMasks_3Df(const std::vector<std::vector<Clusterab
 	assert(clusters.size() == cluster_colors.size());
 	assert(original_img_rows > 0 && original_img_cols > 0);
 	
-	ClusterablePoint3D_OpenCV* thispixel = nullptr;
+	ClusterablePoint_OpenCV* thispixel = nullptr;
 	std::vector<cv::Mat> returnedMasks(clusters.size());
 	
 	for(int i=0; i<clusters.size(); i++)
@@ -107,7 +125,7 @@ std::vector<cv::Mat> GetClusterMasks_3Df(const std::vector<std::vector<Clusterab
 		
 		for(int j=0; j<clusters[i].size(); j++)
 		{
-			thispixel = dynamic_cast<ClusterablePoint3D_OpenCV*>(clusters[i][j]);
+			thispixel = dynamic_cast<ClusterablePoint_OpenCV*>(clusters[i][j]);
 			
 			assert(thispixel->GetRow() >= 0 && thispixel->GetRow() < original_img_rows);
 			assert(thispixel->GetCol() >= 0 && thispixel->GetCol() < original_img_cols);
@@ -124,13 +142,13 @@ std::vector<ClusterablePoint*> GetClusterMeanColors_3Df(const std::vector<std::v
 {
 	std::vector<ClusterablePoint*> retcolors;
 	
-	ClusterablePoint3D_OpenCV* thispixel = nullptr;
+	ClusterablePoint_OpenCV* thispixel = nullptr;
 		
 	for(int i=0; i<clusters.size(); i++)
 	{
 		if(clusters[i].empty())
 		{
-			retcolors.push_back(new ClusterablePoint3D_OpenCV(0, 0, myColor_3f(0.0f, 0.0f, 0.0f)));
+			retcolors.push_back(new ClusterablePoint_3D_OpenCV(0, 0, myColor_3f(0.0f, 0.0f, 0.0f)));
 		}
 		else
 		{
