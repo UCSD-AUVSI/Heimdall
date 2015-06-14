@@ -49,14 +49,14 @@ def saveImages():
         cv2.imwrite(SAVE_DIRECTORY+IMAGE_NAME+str(i)+".jpg", img)
 
 def ReturnOneDrawnPoly():
-    padXpixels = random.uniform(2.8,WIDTH/2.9)
-    padYpixels = random.uniform(2.8,HEIGHT/2.9)
+    padXpixels = random.uniform(2.8,WIDTH/2.5)
+    padYpixels = random.uniform(2.8,HEIGHT/2.5)
     trueXpad = round(int(0.78*padXpixels + 0.22*padYpixels))
     trueYpad = round(int(0.78*padYpixels + 0.22*padXpixels))
-    if( random.random() < -1.0 ):
-        return createImage(getPoints(padXpixels, padYpixels))
-    else:
-        return createFillImage(getPoints(padXpixels, padYpixels))
+    #if( random.random() < -1.0 ):
+    #    return createImage(getPoints(padXpixels, padYpixels))
+    #else:
+    return createFillImage(getPoints(padXpixels, padYpixels))
 
 def returnImage():
     return ReturnOneDrawnPoly()

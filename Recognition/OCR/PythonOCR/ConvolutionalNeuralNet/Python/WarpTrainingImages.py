@@ -2,7 +2,17 @@ import math
 import numpy
 import cv2
 
-def warpImg(image, forOrientationPureDetector = False):
+def CvtCharToClass(chargiven):
+	charclass = ord(chargiven)
+	if charclass > 64:
+		charclass -= 55
+	elif charclass > 47:
+		charclass -= 48
+	else:
+		charclass = -1
+	return charclass
+
+def warpImg(image, imageClass, forOrientationPureDetector = False):
 	# args:
 	# image
 	# forOrientationPureDetector -- if true, will rotate anywhere from 0 to 360 degrees, and return how much it was rotated (rounded to increments of 5 degrees)
@@ -17,6 +27,27 @@ def warpImg(image, forOrientationPureDetector = False):
 	shape = tuple(image.shape)
 	if len(shape) > 2:
 		shape = (shape[0],shape[1])
+	
+	imageClass = (imageClass % 145)
+	if imageClass < 144: #
+		imageClass = (imageClass % 36)
+		
+		if numpy.random.randint(0,2) == 0:
+			horizflippers = [CvtCharToClass(i) for i in ['0','8','A','H','I','M','O','T','U','V','W','X','Y']]
+			if imageClass in horizflippers:
+				image = numpy.fliplr(image)
+		
+		if numpy.random.randint(0,2) == 0:
+			vertiflippers = [CvtCharToClass(i) for i in ['0','3','8','B','C','D','E','H','I','K']]
+			if imageClass in vertiflippers:
+				image = numpy.flipud(image)
+		
+		if numpy.random.randint(0,2) == 0:
+			bothflippers = [CvtCharToClass(i) for i in ['0','8','H','I','N','O','S','X','Z']]
+			if imageClass in bothflippers:
+				image = numpy.flipud(numpy.fliplr(image))
+	
+	######totalwarp = numpy.array([[1., 0., 0.], [0., 1., 0.]])
 	
 	angleScalar = 0.9
 	angleoffset = 0.0
@@ -44,6 +75,7 @@ def warpImg(image, forOrientationPureDetector = False):
 	rescale = numpy.array([[rescaleAmt, 0., 0.], [0., rescaleAmt, 0.], [0., 0., 1.]])
 	
 	totalwarp = numpy.dot(transmatLastt, numpy.dot(shear, numpy.dot(rescale, numpy.dot(rotation,transmatFirst))))[:2,:]
+	
 	
 	if forOrientationPureDetector:
 		return (cv2.warpAffine(image, totalwarp, dsize=shape, flags=cv2.INTER_LINEAR), round(angleoffset / 5.0)) #every 5 degrees is a new class
