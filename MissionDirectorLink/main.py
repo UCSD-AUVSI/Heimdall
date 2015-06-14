@@ -2,13 +2,15 @@ import sys
 from Networking import server_multiport
 from Networking import ports
 from Clients.MissionDirector import listener_MissionDirector
-
+from kmllistener import globalvar_connection_kml_create as KMLCreate
 
 #-----------------------------------------------------------
 # main(): setup and start server
 #
 def main(argv):
 	
+	KMLCreate.connection.threadedconnect()
+
 	# Setup several parallel listeners
 	ports_and_callbacks = []
 	ports_and_callbacks.append((ports.listenport_MissionDirector, listener_MissionDirector.callback))

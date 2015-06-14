@@ -4,17 +4,19 @@ import os
 from Networking.send_message_to_client import send_message_to_client
 from Networking import ports
 import time
+from kmllistener import globalvar_connection_kml_create as KMLCreate
 
 #-----------------------------------------------------------
 #
 def callback(data):
+	print "recieved message from ground station: \""+ str(data) + "\""
+
 	json_data = json.loads(data)
-	cmd = json_data["cmd"]
+	command = json_data["command"]
+	args = json_data["args"]
 
-	print "\nreceived "+cmd +" message from MissionDirector"
-	print json_data
 
-	if cmd == "get_top_filename":
+	if command == "get_top_filename":
 		# get top filename
 		output = {}
 		output["cmd"] = "send_image_path"
@@ -23,3 +25,9 @@ def callback(data):
 
 		send_message_to_client(json.dumps(output),9981)
 		print "forwarded message from Heimdall to MissionDirector"
+	
+	if command == "update_plane_gps":
+		# update the results kml file
+		KMLCreate.addGPSCoord(args)
+		print "gps added"
+
