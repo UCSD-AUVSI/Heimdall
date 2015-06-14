@@ -4,7 +4,7 @@ import pykmeansppcpplib
 import libpypolyshaperec
 import time
 import os
-dirname = 'test 5-23'
+dirname = 'test 6-13'
 #one in pywork
 #kmeans function
 """
@@ -153,8 +153,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	imrows,imcols = cropImg.shape[:2]
 	print "Monal-python-segmentation is processing an image of size: " + str(imcols) + "x" + str(imrows)
 	print "note: currently this only returns color-clustered images, not the shape or char masks"
-	print "kmeans 1, start"	
-	print start-start
+	#print "kmeans 1, start"	
+	#print start-start
 	#-------------------------------------------------------------------------
 	lim = cropImg
 	originalLimShape = lim.shape
@@ -180,7 +180,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	print res2.shape
 	"""
 	cropfirstRun32=np.float32(labf)/255
-	firstRunShapeTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropfirstRun32,allones,3,24,24,False)
+	firstRunShapeTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropfirstRun32,allones,3,24,24,False,-1)
 	#color=firstRunShapeTupleResults[1]
 	clusterMaskss =firstRunShapeTupleResults[2]
 	res2=firstRunShapeTupleResults[0]
@@ -273,14 +273,16 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	print pAm2
 	print pAm3
 	#"""
-	print "kmeans 1 end, start contour 1"
-	print time.time()-start
-	
+	#print "kmeans 1 end, start contour 1"
+	#print time.time()-start
+	buuL=[bul1,bul2,bul3]
 	clusterMasks=(m1,m2,m3)
 	"""
 	for i in range(0,3):
 		cv2.imshow("1st mask "+str(i),clusterMasks[i]*255)
 	#"""
+
+	
 	
 	
 	#blank masks for drawing contours
@@ -301,7 +303,6 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#contareas is area of biggest cont, contcirc is circularity of cont with biggest area,
 	#j is a counter
 	numCont=np.zeros(3,np.uint8)
-	buuL=(bul1,bul2,bul3)
 	contbool=np.array([False,False,False])
 	contareas=np.array([0.0,0.0,0.0])
 	contcirc=np.array([0.0,0.0,0.0])
@@ -361,8 +362,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 							cv2.drawContours(keep[j],cnts,i,1, -1 )
 							numCont[j]=numCont[j]+1
 							contbool[j]=True
-							print "contbool: " +str(j)
-							print contbool[j]
+							#print "contbool: " +str(j)
+							#print contbool[j]
 							contareas[j]= ar if (ar>contareas[j]) else contareas[j]
 							contcirc[j]= circularity
 
@@ -388,9 +389,33 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 
 		j=j+1
 
-
+	#print ("test!!!!!")
+	gotShape = False
+	oo = 0;
+	indexOfShapeTrue = 0
+	#shaperec test
+	for i in range(0,3):
+		srtest = libpypolyshaperec.doBPyShapeRec([clusterMasks[i]*255])
+		print (srtest+ ":  " + str(i))
+		if(srtest):
+			oo = oo+1
+			global indexofShapeTrue 
+			indexOfShapeTrue= i
+			print ("index: " + str(indexOfShapeTrue))
+	if(oo==1):
+		print "wtf"
+		global gotShape
+		gotShape=True
+		for i in range(0,3):
+			if(i!=indexOfShapeTrue):
+				contbool[i]=False
+				buuL[i]=False
+			else:
+				contbool[i]=True
+				buuL[i]=True
 	
-	
+	for i in range(0,3):
+		print contbool[i]
 	# A bunch of test to eliminate and narrow the number of contour masks to one
 	if(int(contbool[0])+int(contbool[1])+int(contbool[2])!=1):
 		"""
@@ -420,23 +445,23 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 			contbool[2]=False
 			numCont[2]=0
 
-		if(int(contbool[0])+int(contbool[1])+int(contbool[2])==2 and bul1+bul2+bul3==1):
+		if(int(contbool[0])+int(contbool[1])+int(contbool[2])==2 and buuL[0]+buuL[1]+buuL[2]==1):
 
-			if(bul1):
+			if(buuL[0]):
 				contareas[1]=0
 				contareas[2]=0
 				contbool[1]=False
 				contbool[2]=False
 				numCont[1]=0
 				numCont[2]=0
-			if(bul2):
+			if(buuL[1]):
 				contareas[0]=0
 				contareas[2]=0
 				contbool[0]=False
 				contbool[2]=False
 				numCont[0]=0
 				numCont[2]=0
-			if(bul3):
+			if(buuL[2]):
 				contareas[0]=0
 				contareas[1]=0
 				contbool[0]=False
@@ -460,7 +485,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 
 		# might not be such a good idea
 		#"""
-		if(int(contbool[0])+int(contbool[1])+int(contbool[2])==2 and bul1+bul2+bul3==2):
+		if(int(contbool[0])+int(contbool[1])+int(contbool[2])==2 and buuL[0]+buuL[1]+buuL[2]==2):
 
 			for i in range(0,2):
 				if((contareas[0]>contareas[i+1])):
@@ -497,8 +522,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 				maskNumber =i
 				keep[maskNumber]=clusterMasks[i]*255
 				contbool[i]=True
-	print "coutour 1 end, start kmeans 2"
-	print time.time()-start
+	#print "coutour 1 end, start kmeans 2"
+	#print time.time()-start
 	
 	
 	
@@ -534,18 +559,18 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	extraErode=False
 	#"""
 	if(numCont[maskNumber]>1):
-		print "over 2 contours"
+		#print "over 2 contours"
 		keal=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(12,12))
 		findcont2ndkmean=cv2.dilate(findcont2ndkmean.copy(),keal,iterations=1)
 		extraErode=True
 	#"""
 	KEq2=True;
 	#convexhull
-	if(numCont[maskNumber]>1 or contcirc[maskNumber]<.16 ):
+	if((numCont[maskNumber]>1 or contcirc[maskNumber]<.16) and (not gotShape or numCont[maskNumber]!=1)):
 		hulll=np.zeros((lim.shape[0],lim.shape[1],1),np.uint8)
 		(kontours,_)=cv2.findContours(findcont2ndkmean.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
 		KEq2=False;
-		print "KEq2=False"
+		#print "KEq2=False"
 		unicon=np.vstack(kontours)
 		convex=cv2.convexHull(unicon,False)
 		cv2.drawContours(hulll,[convex],0,1,-1)
@@ -587,9 +612,9 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 
 	if(KEq2):
 		jjj=2		
-		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24,PrintUsefulKMeansInfoToConsole)
+		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24,PrintUsefulKMeansInfoToConsole,-1)
 	else:
-		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,3,14,24,False)
+		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,3,14,24,False,-1)
 		jjj=3
 	shapeSeg = shapeSegTupleResults[0]
 	
@@ -624,15 +649,15 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	charContbool=np.array([False,False,False,False])
 	charContareas=np.array([0.0,0.0,0.0,0.0])
 	charContcirc=np.array([0.0,0.0,0.0,0.0])
-	print "end kmeans 2, start contour 2"
-	print time.time()-start
+	#print "end kmeans 2, start contour 2"
+	#print time.time()-start
 	#tot_area=writingImg.shape[0]*writingImg.shape[1]
 	j=0
 	tot_area=writingImg.shape[0]*writingImg.shape[1]
 	for clusters in charMasks:
 		(cnts,_)=cv2.findContours(clusters.copy(),cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
-		print "Cont "+ str(j+1)
-		print len(cnts)
+		#print "Cont "+ str(j+1)
+		#print len(cnts)
 		artot=0
 		for i in range (len(cnts)):
 
@@ -647,8 +672,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 
 				if(.0038*tot_area<=ar and ar<=.5*tot_area):
 					if(circularity>.075):
-						print "Circularity: " + str(circularity)
-						print "Area: " +str(ar/tot_area)
+						#print "Circularity: " + str(circularity)
+						#print "Area: " +str(ar/tot_area)
 
 						#Contour test (Num pixel of filled cont. within perm)/(cont area)
 						#permTouch=0.0
@@ -700,8 +725,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#keep=tuple(keep)
 	#cv2.imshow("c++ cluster",writingImg)
 	#cv2.imshow("winner",charMasks[charMaskNum]*255)
-	print "end contour 2, start kmeans 3"
-	print time.time()-start
+	#print "end contour 2, start kmeans 3"
+	#print time.time()-start
 
 	shaype=cv2.resize( np.copy(keep[maskNumber]),(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0,cv2.INTER_CUBIC)
 	
@@ -727,7 +752,10 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	shaperec=np.copy(shaype)*255
 	shapefound = libpypolyshaperec.doBPyShapeRec([shaperec])
 	
-	print("shapefound == \'"+shapefound+"\'")
+	#print("shapefound == \'"+shapefound+"\'")
+	
+	
+	
 	
 	#-------------------------------------------------------------------------
 	
@@ -736,17 +764,17 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	
 	#charSeg=np.uint8(charSeg)
 	testsizeofcseg=cv2.countNonZero(charSeg)
-	print testsizeofcseg
+	#print testsizeofcseg
 	if(testsizeofcseg<40):
 		charSeg=charMasks[charMaskNum]
 	
 	
 	cropp32=np.float32(lab2)/255
 	#"""
-	print cropp32.shape
+	#print cropp32.shape
 	print temPm.shape
 	
-	thirdRunKmeansSegTuple = pykmeansppcpplib.ClusterKmeansPPwithMask(cropp32,charSeg,2,24,24,PrintUsefulKMeansInfoToConsole)
+	thirdRunKmeansSegTuple = pykmeansppcpplib.ClusterKmeansPPwithMask(cropp32,charSeg,2,24,24,PrintUsefulKMeansInfoToConsole,-1)
 
 	#"""	
 	img3rdthirty=thirdRunKmeansSegTuple[0]
@@ -775,13 +803,13 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	shapeColor = [color[maskNumber][0]*255,color[maskNumber][1]*255,color[maskNumber][2]*255]
 	
 	charColor = [charColors[charMaskNum][0]*255,charColors[charMaskNum][1]*255,charColors[charMaskNum][2]*255]
-	print charColor
+	#print charColor
 	
 	#-------------------------------------------------------------------------
-	print "end"
-	print time.time() - start
+	#print "end"
+	#print time.time() - start
 	#cv2.waitKey(0);
-	return (shapeSeg*255, shapeColor, charSeg*255, charColor)
+	return (shapeSeg*255, shapeColor, charSeg*255, charColor, shapefound)
 
 
 

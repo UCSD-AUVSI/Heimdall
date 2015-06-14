@@ -26,6 +26,8 @@ static RNG_rand_r myrng; //no longer used due to parallelization (each thread ne
 					to stop and pick the result that had the lowest potential...
 					should probably do about 15 to 20
 					higher numbers will produce more consistent (and slightly better) results
+	
+	use5DclusteringScale: if > 0, will do 5D superpixel clustering; if <= 0, will do 
 */
 
 bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskForClustering,
