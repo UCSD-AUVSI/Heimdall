@@ -28,9 +28,10 @@ class CreateKML(object):
 			time.sleep(.5)		
 
 	def addGPSCoord(self,gps_coord):
-		self.gps_queue.pop()
+		if len(list(gps_queue)) >= 10:
+			self.gps_queue.pop()
 		self.gps_queue.appendleft(gps_coord)	
-
+		
 	def create(self):
 		self.create_lock.acquire()
 		#create

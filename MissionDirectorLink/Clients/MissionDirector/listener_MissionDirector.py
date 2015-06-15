@@ -26,7 +26,7 @@ def callback(data):
 		send_message_to_client(json.dumps(output),9981)
 		print "forwarded message from Heimdall to MissionDirector"
 	
-	if command == "update_plane_gps":
+	if command == "telemdata":
 		# update the results kml file
 		KMLCreate.addGPSCoord(args)
 		print "gps added"
