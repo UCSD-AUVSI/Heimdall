@@ -26,10 +26,13 @@ static RNG_rand_r myrng; //no longer used due to parallelization (each thread ne
 					to stop and pick the result that had the lowest potential...
 					should probably do about 15 to 20
 					higher numbers will produce more consistent (and slightly better) results
+	
+	use5DclusteringScale: if > 0, will do 5D superpixel clustering; if <= 0, will do 
 */
 
 bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskForClustering,
-				int k_num_cores, int num_lloyd_iterations, int num_kmeanspp_iterations, bool print_debug_console_output)
+				int k_num_cores, int num_lloyd_iterations, int num_kmeanspp_iterations, bool print_debug_console_output,
+				double use5DclusteringScale)
 {
 #if PROFILING_KMEANS
 	cout << "KMEANS_CPP_WITH_MASK ----------- start" << endl;
@@ -54,14 +57,16 @@ bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskFo
 	// clustering / processing
 	
 	// get clusterable pixels
-	std::vector<ClusterablePoint*>* clusterablePixels(GetSetOfPixelColors_WithMask_3Df(&srcCropImage, &srcMaskImage));
+	std::vector<ClusterablePoint*>* clusterablePixels(GetSetOfPixelColors_WithMask_3Df(&srcCropImage, &srcMaskImage, use5DclusteringScale));
+	
+	double returned_potential;
 	
 #if PROFILING_KMEANS
 	auto tstartclustering = std::chrono::steady_clock::now();
 #endif
 	
 	// do kmeans++
-	std::vector<std::vector<ClusterablePoint*>> resultsClusters(KMEANSPLUSPLUS(clusterablePixels, &myrng, k_num_cores, num_lloyd_iterations, num_kmeanspp_iterations, print_debug_console_output));
+	std::vector<std::vector<ClusterablePoint*>> resultsClusters(KMEANSPLUSPLUS(clusterablePixels, &myrng, k_num_cores, num_lloyd_iterations, num_kmeanspp_iterations, print_debug_console_output, &returned_potential));
 	
 #if PROFILING_KMEANS
 	auto tendclustering = std::chrono::steady_clock::now();
@@ -87,7 +92,7 @@ bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskFo
 	for(int ii=0; ii<numClustersFound; ii++) {
 		//get color of each cluster
 		std::vector<double> thisClustersColors(3);
-		ClusterablePoint3D_OpenCV* thiscluster_pixelcolor = dynamic_cast<ClusterablePoint3D_OpenCV*>(clusterColors[ii]);
+		ClusterablePoint_OpenCV* thiscluster_pixelcolor = dynamic_cast<ClusterablePoint_OpenCV*>(clusterColors[ii]);
 		thisClustersColors[0] = thiscluster_pixelcolor->GetPixel()[0];
 		thisClustersColors[1] = thiscluster_pixelcolor->GetPixel()[1];
 		thisClustersColors[2] = thiscluster_pixelcolor->GetPixel()[2];
@@ -108,7 +113,7 @@ bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskFo
 	cout << "CPP_KMEANS_WITHMASK -- clustering time: " << std::chrono::duration<double, std::milli>(tendclustering-tstartclustering).count() << " milliseconds" << endl;
 #endif
 	
-	return bp::make_tuple(drawnClustersPython, returnedClusterColors, returnedClusterMasks);
+	return bp::make_tuple(drawnClustersPython, returnedClusterColors, returnedClusterMasks, returned_potential);
 }
 
 

@@ -122,10 +122,10 @@ Gene
 
 /*
  * Largest polygon to be handled.
- * NOTE: (TODO:) This module will crash if given a polygon with more than 5100 vertices; it allocates a fixed-size array for 5100 vertices.
+ * NOTE: (TODO:) This module will crash if given a polygon with more than MAX_PTS vertices; it allocates a fixed-size array for MAX_PTS vertices.
  * I've never run into a polygon that big though, especially after using OpenCV to simplify polygons before passing it into this algorithm!
  */
-#define MAX_PTS 5100
+#define MAX_PTS 7000
 
 
 
@@ -434,6 +434,11 @@ void add_event(TURN_REP* f, TURN_REP* g, int fi, int gi)
 
     j = ++n_events;
     i = n_events/2;
+    
+    if(j > MAX_PTS) {
+        printf("==================================================================================================================\nWARNING: HEAP OVERFLOW IN SHAPEREC TURNING ALGORITHM\n==================================================================================================================\n");
+    }
+    
     while (i > 0 && eventheap[i].t > t)
     {
         eventheap[j] = eventheap[i];

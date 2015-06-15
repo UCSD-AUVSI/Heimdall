@@ -5,14 +5,13 @@ import main
 
 
 
-
-
-
+#f=open('shapeList.txt','w')
+#k=open('shapenumList.txt','w')
+#diff=open('shapeUnrec.txt', 'w')
 #def testimg(sysargv):
 
-for tc in range(0,100):
-#for tc in tess:
-#for tc in prob:
+for tc in range(0,124):
+
 	#kk=str(tc)+"_Junk.jpg"
 	kk=str(tc)+"_0__crop.jpg"
 	#kk=str(tc)+"_0__crop.png"
@@ -21,18 +20,31 @@ for tc in range(0,100):
 	
 	loaded_image_mat = cv2.imread(kk)
 
+
+
 	
 	#====================================================================
 	#	segmentation
-	(shapeSeg, shapeColor, charSeg, charColor) = main.doSegmentation(loaded_image_mat, 0,tc)
+	(shapeSeg, shapeColor, charSeg, charColor,s) = main.doSegmentation(loaded_image_mat, 0,tc)
 	
 	#====================================================================
 	#	display image and results
-	
-#"""
+	#p=("\"" + s +"\", ")
+	#f.write(p)
+	#j=(str(tc)+". " + s +"\n")
+	#k.write(j)
+	"""
+	actualShapes = ["Square", "QuarterCircle", "Rectangle", "Triangle", "Star", "Square", "Triangle", "Rectangle", "Square", "Plus", "Trapezoid", "Semicircle", "Triangle", "Trapezoid", "Semicircle", "Trapezoid", "Triangle", "Square", "Trapezoid", "Star", "Plus", "Star", "Circle", "Circle", "Star", "Square", "Semicircle", "QuarterCircle", "Rectangle", "Square", "Triangle", "Triangle", "Rectangle", "Star", "Trapezoid", "Rectangle", "Square", "Star", "Star", "Triangle", "Plus", "Square", "Diamond", "Rectangle", "Triangle", "Circle", "Diamond", "Plus", "Triangle", "Rectangle", "Semicircle", "Diamond", "Square", "Plus", "Rectangle", "Circle", "Trapezoid", "Semicircle", "Diamond", "Plus", "Trapezoid", "Triangle", "Circle", "Semicircle", "Star", "Triangle", "Square", "Square", "Circle", "Trapezoid", "Rectangle", "Plus", "Semicircle", "Triangle", "Diamond", "Square", "QuarterCircle", "Square", "Circle", "Circle", "Circle", "Square", "Rectangle", "Trapezoid", "Diamond", "Square", "Triangle", "Triangle", "Triangle", "Triangle", "Triangle", "Trapezoid", "Trapezoid", "Trapezoid", "Star", "Star", "Star", "Star", "Star", "Triangle", "Square", "Square", "Square", "Square", "Rectangle", "Rectangle", "Rectangle", "Rectangle", "Rectangle", "QuarterCircle", "QuarterCircle", "Semicircle", "Trapezoid", "Semicircle", "Diamond", "Plus", "Circle", "Circle", "Circle", "Plus", "Plus", "Plus", "Plus", "Plus"]
+	if(actualShapes[tc]!=s):
+		if(not s):
+			diff.write("shape " + str(tc) + ": returned Nothing, actually is " +actualShapes[tc] +"\n")
+		else:
+			diff.write("shape " + str(tc) + ": got "+s+" , actually is " +actualShapes[tc] +"\n")
+	"""
+"""
 	cv2.imshow(kk, loaded_image_mat)
-	cv2.imshow("shape seg", shapeSeg*255) #images are floating point from 0.0 to 255.0, convert from 0.0 to 1.0 for imshow
-	cv2.imshow("char seg", charSeg*255)
+	cv2.imshow("shape seg", shapeSeg) #images are floating point from 0.0 to 255.0, convert from 0.0 to 1.0 for imshow
+	cv2.imshow("char seg", charSeg)
 	cv2.waitKey(0) #wait for keypress
 
 #"""

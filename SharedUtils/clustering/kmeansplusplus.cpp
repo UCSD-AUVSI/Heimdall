@@ -119,6 +119,9 @@ static std::vector<ClusterablePoint*> KMEANSPLUSPLUS_get_cluster_cores(std::vect
 				}
 				if(min_euclid_distances[last_core_idx] == 0.0) {
 					cout << "ERROR IN KMEANS++: K (NUM CLUSTERS) >= NUM POINTS" << endl;
+					while((int)initial_cluster_cores.size() < k__num_cluster_cores) {
+                        initial_cluster_cores.push_back((*keypoints)[0]);
+					}
 					return initial_cluster_cores;
 				}
 			}
@@ -165,7 +168,8 @@ std::vector<std::vector<ClusterablePoint*>> KMEANSPLUSPLUS(std::vector<Clusterab
 													int k__num_cluster_cores,
 													int num_lloyd_iterations,
 													int num_kmeanspp_iterations,
-													bool print_debug_console_output /*= false*/)
+													bool print_debug_console_output /*= false*/,
+													double * returnedPotential /* = nullptr */)
 {
 	///call "KMEANSPLUSPLUS_run_once" "num_kmeanspp_iterations" times
 	///return the cluster-set with the lowest potential
@@ -205,6 +209,9 @@ std::vector<std::vector<ClusterablePoint*>> KMEANSPLUSPLUS(std::vector<Clusterab
 	
 	if(print_debug_console_output) {
 		std::cout << "kmeans++ finished... lowest found potential: " << min_total_dist_potential << std::endl;
+	}
+	if(returnedPotential != nullptr) {
+        (*returnedPotential) = min_total_dist_potential;
 	}
 	
 	assert((int)best_clusters.size() == k__num_cluster_cores);

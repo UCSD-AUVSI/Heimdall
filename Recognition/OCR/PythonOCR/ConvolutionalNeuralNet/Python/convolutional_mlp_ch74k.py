@@ -552,7 +552,7 @@ class OCR_CNN(object):
 					import cv2
 					print("SAVING SAMPLES")
 					samplesfolder = "/media/ucsdauvsi/442ABBE92ABBD660/OCR_Neural_Network_Backups/samples/"
-					randsamples = numpy.random.randint(0, len(train_set_y), size=800)
+					randsamples = numpy.random.randint(0, len(train_set_y), size=1500)
 					#print("indices chosen: "+str(randsamples))
 					numsaveddd = 0
 					print("--------------------------------------------------- "+str(len(randsamples)))
@@ -1043,10 +1043,13 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		print("Error: no images found in that folder! Quitting...")
 		return
 	
+	topNumNchars = 2
 	confsOfTopWrong = []
 	confsOfCorrect = []
-	numcorrect = 0
-	numseen = 0
+	numcorrectChars = 0
+	numseenChars = 0
+	numcorrectJunk = 0
+	numseenJunk = 0
 	desiredWidth = defaultCNNParams().widthOfImages
 	for imagename in images:
 		# load and convert test image
@@ -1066,14 +1069,22 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 		numTopGuessesToReturn = 100
 		
 		prediction = predict_CNN_on_img(builtCNN, npim, widthOfImage=desiredWidth, debuggingMode=False, anglesInbetween = 5, includesJunkChar=(builtCNN.params.numOutClasses==145), numTopGuessesToReturn = numTopGuessesToReturn, returnDetailedInfo = (numTopGuessesToReturn > 1))
-		numseen = (numseen + 1)
+		
+		if truthIsFirstCharacter:
+			if imagename[0] == '#':
+				numseenJunk += 1
+			else:
+				numseenChars += 1
 		
 		if numTopGuessesToReturn == 1:
 			if truthIsFirstCharacter:
 				truthchar = imagename[0]
 				if truthchar == prediction[0] or prediction[0] == '0' and truthchar == 'O' or prediction[0] == 'O' and truthchar == '0':
 					print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
-					numcorrect = (numcorrect + 1)
+					if truthchar == '#':
+						numcorrectJunk += 1
+					else:
+						numcorrectChars += 1
 				else:
 					print("prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"     ----- misclassified!")
 			else:
@@ -1083,7 +1094,6 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 			lastUniqueCharGuess = ''
 			topNchars = []
 			topNconfs = []
-			numNchars = 2
 			immediatelyStopIfNumberOneIsJunk = True
 			for gidx in range(len(prediction[0])):
 				trueidx = (len(prediction[0]) - gidx - 1) #confidences are ascending order, so read in reverse
@@ -1101,24 +1111,38 @@ def test_saved_lenet5_on_image_file_or_folder(testImageFile, fileIsActuallyFolde
 						topNchars.append(lastUniqueCharGuess)
 						topNconfs.append(prediction[2][trueidx])
 						if immediatelyStopIfNumberOneIsJunk and '#' in topNchars:
-							while len(topNchars) < numNchars:
+							while len(topNchars) < topNumNchars:
 								topNchars.append('#')
 								topNconfs.append(topNconfs[0])
-					if len(topNchars) <= numNchars:
+					if len(topNchars) <= topNumNchars:
 						if truthchar == lastUniqueCharGuess or lastUniqueCharGuess == '0' and truthchar == 'O' or lastUniqueCharGuess == 'O' and truthchar == '0':
 							if thisCharFound == False:
-								print("prediction on "+str(imagename)+" was \'"+str(lastUniqueCharGuess)+"\' with orientation \""+str(prediction[1][trueidx])+"\"... top N chars == "+str(topNchars[:numNchars])+", conf "+str(topNconfs[:numNchars]))
-								numcorrect = (numcorrect + 1)
+								print("prediction on "+str(imagename)+" was \'"+str(lastUniqueCharGuess)+"\' with orientation \""+str(prediction[1][trueidx])+"\"... top N chars == "+str(topNchars[:topNumNchars])+", conf "+str(topNconfs[:topNumNchars]))
+								if truthchar == '#':
+									numcorrectJunk += 1
+								else:
+									numcorrectChars += 1
 								thisCharFound = True
 								confsOfCorrect.append(topNconfs[-1])
 					else:
 						if thisCharFound == False:
-							print("top prediction on "+str(imagename)+" was \'"+str(prediction[0][-1])+"\' with orientation \""+str(prediction[1][-1])+"\"... top N chars == "+str(topNchars[:numNchars])+", conf "+str(topNconfs[:numNchars])+"     ----- but it was misclassified!")						
+							print("top prediction on "+str(imagename)+" was \'"+str(prediction[0][-1])+"\' with orientation \""+str(prediction[1][-1])+"\"... top N chars == "+str(topNchars[:topNumNchars])+", conf "+str(topNconfs[:topNumNchars])+"     ----- but it was misclassified!")						
 						trueidx = len(prediction[0]) + 1000
 						break
 				else:
 					print("TRUTH WASNT FIRST CHAR? prediction on "+str(imagename)+" was \'"+str(prediction[0])+"\' with orientation \""+str(prediction[1])+"\"")
-	print("total results: correct ratio == "+str(numcorrect)+"/"+str(numseen)+" == "+str((float(numcorrect)/float(numseen))))
+	
+	print(" ")
+	if numseenChars > 0:
+		print("chars top-"+str(topNumNchars)+" results: correct ratio == "+str(numcorrectChars)+"/"+str(numseenChars)+" == "+str((float(numcorrectChars)/float(numseenChars))))
+	else:
+		print("no seen characters!")
+	if numseenJunk > 0:
+		print("junk  top-"+str(topNumNchars)+" results: correct ratio == "+str(numcorrectJunk)+"/"+str(numseenJunk)+" == "+str((float(numcorrectJunk)/float(numseenJunk))))
+	if numseenJunk > 0 or numseenChars > 0:
+		print("total top-"+str(topNumNchars)+" results: correct ratio == "+str(numcorrectJunk+numcorrectChars)+"/"+str(numseenJunk+numseenChars)+" == "+str((float(numcorrectJunk+numcorrectChars)/float(numseenJunk+numseenChars))))
+	print(" ")
+	print(" ")
 	
 	(confsofcorrectMean, confsofcorrectMedian) = GetMeanMedianOfList(confsOfCorrect)
 	(confsoftopwrongMean, confsoftopwrongMedian) = GetMeanMedianOfList(confsOfTopWrong)
