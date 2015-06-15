@@ -6,10 +6,10 @@ import sys
 import os
 import platform
 
-PATH = "Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/"
 def getColor(color, testCode):
 	print "starting Get Color"
 	try:
+		PATH = "Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/"
 		color_db=pickle.load(open(PATH+"color_db.p","rb"))
 	except :
 		print "Exception "+ str(sys.exc_info()[0])
