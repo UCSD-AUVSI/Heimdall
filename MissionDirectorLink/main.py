@@ -8,16 +8,19 @@ from kmllistener import globalvar_connection_kml_create as KMLCreate
 # main(): setup and start server
 #
 def main(argv):
+	if len(argv) < 1:
+		print "usage: {ip-address-for-listen}"
+		quit()
 	
-	KMLCreate.connection.threadedconnect()
+	#KMLCreate.connection.threadedconnect()
 
 	# Setup several parallel listeners
 	ports_and_callbacks = []
-	ports_and_callbacks.append((ports.listenport_MissionDirector, listener_MissionDirector.callback))
-	
+	ports_and_callbacks.append((ports.listenport_MissionDirector, listener_MissionDirector.callback, server_multiport.SSLSecurityDetails(False)))
+	ports.IPaddr_MissionDirector = argv[0]	
 	# Start server and wait here for keyboard interrupt
 	s = server_multiport.server()
-	s.start(ports_and_callbacks, True)
+	s.start(ports_and_callbacks,argv[0], True, True)
 
 
 #-----------------------------------------------------------

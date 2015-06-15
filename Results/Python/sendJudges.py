@@ -1,5 +1,6 @@
 from math import radians, cos, sin, asin, sqrt
 import numpy as np 
+import sys
 import cv2
 from PIL import Image
 import time
@@ -11,13 +12,21 @@ from helper import *
 from target import *
 import pydbscancpplib
 from collections import Counter
-
+PATH = ""
 def sendJudges():
+    PATH = os.path.dirname(os.path.realpath(__file__))+"/"
+    #if len(sys.argv) > 1:
+    #    PATH = sys.argv[1]
+    print PATH
+    print PATH +"../judges.txt"
     #format {"target":combinedTarget,"conf":confidenceLevel}
-    ranked_targets = get_ranked_results()
-    #get top 6
+    ranked_targets = get_ranked_results(PATH)
+    if ranked_targets == False:
+	print "not enough targets or other error"
+	return
+	#get top 6
     #save as judges.txt
-    with open("../judges.txt","w") as f:
+    with open(PATH+ "../judges.txt","w") as f:
         f.write('{:>12}  {:>12}  {:>12} {:>12} {:>12} {:>12}\n'.format("ShapeName", "ShapeColor", "Character", "CharColor","Lat","Long"))
         for x in range(0,6):
             if(len(ranked_targets)>x):
@@ -113,16 +122,17 @@ def highestItem(common):
 
 
 
-def get_ranked_results():
+def get_ranked_results(PATH):
     """
     Gets clusters of targets, ranks them and merges the targets into one
     returns the list
     """
     try:
-        targets = pickle.load(open("../targets.p","rb"))
+	print PATH
+        print PATH+"../targets.p"
+	targets = pickle.load(open(PATH+"../targets.p","rb"))
     except:
         targets=[]
-
     print "Targets"
     for target in targets:
         print target
@@ -152,4 +162,6 @@ def get_ranked_results():
         for item in rankedTargets:
             print str(item) + " conf="+ str(item.overall_conf)
             count = count +1
-    return rankedTargets
+    	return rankedTargets
+    return False
+sendJudges()
