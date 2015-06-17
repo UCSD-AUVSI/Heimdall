@@ -109,9 +109,10 @@ static void pythonSegFunc(std::string segmentationModuleFolderName,
 		
 		// extract results from Python to C++
 		bp::tuple resultsTuple(resultobj);
-		if(((int)bp::len(resultsTuple)) == 4) {
+		if(((int)bp::len(resultsTuple)) == 5) {
 			bp::object ssegObj = boost::python::extract<boost::python::object>(resultsTuple[0])();
 			returned_SSEG = cvt.toMat(ssegObj.ptr());
+			
 			
 			bp::object csegObj = boost::python::extract<boost::python::object>(resultsTuple[2])();
 			returned_CSEG = cvt.toMat(csegObj.ptr());
@@ -120,7 +121,7 @@ static void pythonSegFunc(std::string segmentationModuleFolderName,
 			bp::tuple CColorTuple(resultsTuple[3]);
 			if(((int)bp::len(SColorTuple)) != 3 || ((int)bp::len(CColorTuple)) != 3) {
 				cout<<"PythonSegmentation ERROR: COLORS AREN'T 3-TUPLES"<<endl;
-				cout << "PythonSegmentation ERROR: expects return value to be a 4-tuple:" << std::endl
+				cout << "PythonSegmentation ERROR: expects return value to be a 5-tuple:" << std::endl
 					<< "    first the SSEG; second a 3-tuple for the shape color; third the CSEG; fourth a 3-tuple for the char color" << endl;
 				return;
 			}

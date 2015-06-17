@@ -49,6 +49,9 @@ bp::object ClusterKmeansPPwithMask(PyObject *filteredCropImage, PyObject *maskFo
 	if(srcCropImage.channels() != 3) {
 		cout<<"ClusterKmeansPPwithMask() -- error: srcCropImage was not a 3-channel image"<<endl<<std::flush; return bp::object();
 	}
+	if(cv::countNonZero(srcMaskImage) < k_num_cores) {
+		cout<<"Error: num masked pixels < num k cores"<<endl; return bp::object();
+	}
 	if(srcCropImage.type() != CV_32FC3) {
 		srcCropImage.convertTo(srcCropImage, CV_32FC3);
 	}
