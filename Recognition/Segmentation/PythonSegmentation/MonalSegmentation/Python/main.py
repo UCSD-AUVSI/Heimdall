@@ -5,6 +5,7 @@ import libpypolyshaperec
 import time
 import os
 dirname = 'test 6-13'
+dirname = 'junk char'
 #one in pywork
 #kmeans function
 """
@@ -522,11 +523,13 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 				maskNumber =i
 				keep[maskNumber]=clusterMasks[i]*255
 				contbool[i]=True
+		
 	#print "coutour 1 end, start kmeans 2"
 	#print time.time()-start
 	
 	
-	
+	if(maskNumber==7):
+		return (np.zeros((10,10,1),np.uint8), (0,0,0), np.zeros((10,10,1),np.uint8), (0,0,0), "")
 	
 	
 	
@@ -571,6 +574,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 		(kontours,_)=cv2.findContours(findcont2ndkmean.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
 		KEq2=False;
 		#print "KEq2=False"
+		if(len(kontours)==0):
+			return (np.zeros((10,10,1), np.uint8), (0,0,0),np.zeros((10,10,1),np.uint8), (0,0,0), "")
 		unicon=np.vstack(kontours)
 		convex=cv2.convexHull(unicon,False)
 		cv2.drawContours(hulll,[convex],0,1,-1)
@@ -608,8 +613,11 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
  	clusterMaskss =firstRunShapeTupleResults[2]
  	res2=firstRunShapeTupleResults[0]
 	"""
+	noCores=cv2.countNonZero(shapeSegMask)
 	
-
+	if(noCores<100):
+		return	(np.zeros((10,10,1),np.uint8),(0,0,0), np.zeros((10,10,1),np.uint8), (0,0,0), "")
+		 
 	if(KEq2):
 		jjj=2		
 		shapeSegTupleResults = pykmeansppcpplib.ClusterKmeansPPwithMask(cropf32,shapeSegMask,2,14,24,PrintUsefulKMeansInfoToConsole,-1)
@@ -780,7 +788,12 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	img3rdthirty=thirdRunKmeansSegTuple[0]
 	img3rd=np.uint8(img3rdthirty*255)
 	img3rd=cv2.cvtColor(img3rd,cv2.COLOR_LAB2BGR)
+	thirdmasks=thirdRunKmeansSegTuple[2]
 	#cv2.imshow("3rd ",img3rd)
+	#for i in range(0,2):
+		#cv2.imshow(str(i)+". 3rd",thirdmasks[i]*255)
+	
+	
 	#thirdpassMasks=thirdRunKmeansSegTuple[2]
 	#"""
 	#res2=cv2.cvtColor(res2,cv2.COLOR_LAB2BGR)
@@ -810,6 +823,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#print time.time() - start
 	#cv2.waitKey(0);
 	return (shapeSeg*255, shapeColor, charSeg*255, charColor, shapefound)
+
+
 
 
 

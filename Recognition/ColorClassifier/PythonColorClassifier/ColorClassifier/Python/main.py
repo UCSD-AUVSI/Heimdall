@@ -6,11 +6,11 @@ import sys
 import os
 import platform
 
-
 def getColor(color, testCode):
 	print "starting Get Color"
 	try:
-		color_db=pickle.load(open("/home/marcof/Documents/AUVSI/Heimdall/build/Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/color_db.p","rb"))
+		PATH = "Recognition/ColorClassifier/PythonColorClassifier/ColorClassifier/Python/"
+		color_db=pickle.load(open(PATH+"color_db.p","rb"))
 	except :
 		print "Exception "+ str(sys.exc_info()[0])
 		raise BaseException
@@ -64,7 +64,6 @@ def bgr_to_lab(bgr):
 	#set image pixels to bgr input
 	blank_image[:]= bgr
 	#turn into LAB
-	print "before first cv2 command"
 	try:
 		cielab = cv2.cvtColor(blank_image,cv2.COLOR_BGR2LAB)
 	except :

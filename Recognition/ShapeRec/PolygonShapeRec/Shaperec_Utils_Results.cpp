@@ -172,7 +172,7 @@ ShapeRec_ResultsContainer::GetTopResults(	double max_absolute_confidence_thresho
 	if(results.empty())
         return returned_shape_guesses;
 	
-	print_all_results = true;
+	print_all_results = false;
 	PRINTHERE = &std::cout;
 
 	if(print_all_results && PRINTHERE != nullptr)

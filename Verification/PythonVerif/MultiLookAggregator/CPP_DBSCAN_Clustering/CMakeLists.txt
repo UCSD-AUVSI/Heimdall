@@ -10,7 +10,7 @@ SET(CMAKE_SHARED_MODULE_PREFIX )
 
 add_library(pydbscancpplib MODULE ${pydbscancpplib_source_files})
 
-target_link_libraries(pydbscancpplib sharedutilspython clustering_generic ${OpenCV_LIBS})
+target_link_libraries(pydbscancpplib sharedutilspython sharedutilspython_cvmatconv clustering_generic ${OpenCV_LIBS})
 
 include_directories(${CMAKE_SOURCE_DIR} ${PYTHON_INCLUDE_PATH})
 

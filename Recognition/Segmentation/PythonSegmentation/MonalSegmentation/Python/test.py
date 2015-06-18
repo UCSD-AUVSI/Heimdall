@@ -8,12 +8,14 @@ import main
 #f=open('shapeList.txt','w')
 #k=open('shapenumList.txt','w')
 #diff=open('shapeUnrec.txt', 'w')
+diff=open('saliencyPart2junkShaperec.txt','w')
 #def testimg(sysargv):
+global counn
+counn=0
+for tc in range(99,203):
 
-for tc in range(0,124):
-
-	#kk=str(tc)+"_Junk.jpg"
-	kk=str(tc)+"_0__crop.jpg"
+	kk=str(tc)+"junk.png"
+	#kk=str(tc)+"_0__crop.jpg"
 	#kk=str(tc)+"_0__crop.png"
 	print "\n"+kk
 
@@ -32,7 +34,13 @@ for tc in range(0,124):
 	#p=("\"" + s +"\", ")
 	#f.write(p)
 	#j=(str(tc)+". " + s +"\n")
-	#k.write(j)
+	#k.write(j)'
+	if(s):
+		p=(str(tc)+". " + s +"\n")
+		diff.write(p)
+		counn=counn+1
+	
+	
 	"""
 	actualShapes = ["Square", "QuarterCircle", "Rectangle", "Triangle", "Star", "Square", "Triangle", "Rectangle", "Square", "Plus", "Trapezoid", "Semicircle", "Triangle", "Trapezoid", "Semicircle", "Trapezoid", "Triangle", "Square", "Trapezoid", "Star", "Plus", "Star", "Circle", "Circle", "Star", "Square", "Semicircle", "QuarterCircle", "Rectangle", "Square", "Triangle", "Triangle", "Rectangle", "Star", "Trapezoid", "Rectangle", "Square", "Star", "Star", "Triangle", "Plus", "Square", "Diamond", "Rectangle", "Triangle", "Circle", "Diamond", "Plus", "Triangle", "Rectangle", "Semicircle", "Diamond", "Square", "Plus", "Rectangle", "Circle", "Trapezoid", "Semicircle", "Diamond", "Plus", "Trapezoid", "Triangle", "Circle", "Semicircle", "Star", "Triangle", "Square", "Square", "Circle", "Trapezoid", "Rectangle", "Plus", "Semicircle", "Triangle", "Diamond", "Square", "QuarterCircle", "Square", "Circle", "Circle", "Circle", "Square", "Rectangle", "Trapezoid", "Diamond", "Square", "Triangle", "Triangle", "Triangle", "Triangle", "Triangle", "Trapezoid", "Trapezoid", "Trapezoid", "Star", "Star", "Star", "Star", "Star", "Triangle", "Square", "Square", "Square", "Square", "Rectangle", "Rectangle", "Rectangle", "Rectangle", "Rectangle", "QuarterCircle", "QuarterCircle", "Semicircle", "Trapezoid", "Semicircle", "Diamond", "Plus", "Circle", "Circle", "Circle", "Plus", "Plus", "Plus", "Plus", "Plus"]
 	if(actualShapes[tc]!=s):
@@ -96,3 +104,4 @@ def testimg(sysargv):
 if __name__ == "__main__":
 	testimg(sys.argv)
 #"""
+diff.write("count: " + str(counn))
