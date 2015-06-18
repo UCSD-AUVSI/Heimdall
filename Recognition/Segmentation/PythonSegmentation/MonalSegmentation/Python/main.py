@@ -30,51 +30,73 @@ def kmeans(img,numklust):
 	return res2
 #"""
 #get color of clusters in shape
-def getShapeColors(res2, numKlusters):
-	#get the color of each cluster
-	color =np.array(([res2[10,10,0],res2[10,10,1],res2[10,10,2]],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]))
-	fC=[False,False,False,False,False]
-
-	for i in range(0,res2.shape[0]):
-
-		for j in range(0,res2.shape[1]):
-
-			if(fC[0]==False and (res2[i,j,]!=color[0]).any()):
-				color[1]=res2[i,j,]
-				fC[0]=True
-
-			if(fC[0]==True and fC[1]==False and (res2[i,j,]!=color[0]).any() and (res2[i,j,]!=color[1]).any()):
-				color[2]=res2[i,j,]
-				fC[1]=True
-				return color
+def getColor(ShapeMask,CharMask, original, isShape,shapecolor):
+	#get the colorfS of each cluster
+	listR = []
+	listG = []
+	listB = []
+	#listp = []
+	
+	if(isShape):
+		for i in range(0,original.shape[0]):
+	
+			for j in range(0,original.shape[1]):
+	
+				if(ShapeMask[i,j,]==1 and CharMask[i,j,]==0):
+					listR.append(original[i,j,2])
+					listG.append(original[i,j,1])
+					listB.append(original[i,j,0])
+	else:
+		
+		kern=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8))
+		charEM=cv2.erode(CharMask,kern,iterations=1)
+	
+		for i in range(0,original.shape[0]):
+	
+			for j in range(0,original.shape[1]):
+	
+				dist = abs(shapecolor[2]-original[i,j,0])+abs(shapecolor[1]-original[i,j,1])+abs(shapecolor[0]-original[i,j,2])
 				
-				"""
-			if(fC[0]==True and fC[1]==True and fC[2]==False and (res2[i,j,]!=color[0]).any()
-			   and (res2[i,j,]!=color[1]).any() and (res2[i,j,]!=color[2]).any() ):
-				color[3]=res2[i,j,]
-				fC[2]=True
 				
-			if(numKlusters==3 and fC[2]==True): break
-
-
-			if(fC[0]==True and fC[1]==True and fC[2]==True and fC[3]==False and (res2[i,j,]!=color[0]).any()
-			   and (res2[i,j,]!=color[1]).any() and (res2[i,j,]!=color[2]).any()  and (res2[i,j,]!=color[3]).any()):
-				color[4]=res2[i,j,]
-				fC[3]=True
-			if(numKlusters==4 and fC[3]==True): break
-
-			if(fC[0]==True and fC[1]==True and fC[2]==True and fC[3]==True and  fC[4]==False and (res2[i,j,]!=color[0]).any()
-			   and (res2[i,j,]!=color[1]).any() and (res2[i,j,]!=color[2]).any()  and (res2[i,j,]!=color[3]).any() and (res2[i,j,]!=color[4]).any()):
-				color[5]=res2[i,j,]
-				fC[4]=True
-			if(numKlusters==5 and fC[4]==True): break
-
-		if(numKlusters==3 and fC[2]==True): break
-		if(numKlusters==4 and fC[3]==True): break
-		if(numKlusters==5 and fC[4]==True): break
+				if(charEM[i,j,]==1 and dist>00):
+					#listp.append([original[i,j,2],original[i,j,1],original[i,j,0]])
+					listR.append(original[i,j,2])
+					listG.append(original[i,j,1])
+					listB.append(original[i,j,0])
+		
+	listB.sort()
+	listG.sort()
+	listR.sort()
+	"""print len(listp)
+	print listp
+	if(not isShape):
+		greatest = 0
+		gdist = 100000000000000000000000
+		for x in range(0,len(listp)):
+			dist = 0
+			for y in range(0,len(listp)):
+				check = listp[x]
+				other = listp[y]
+				dist+=abs(check[2]-other[2])
+				dist+=abs(check[1]-other[1])
+				dist+=abs(check[0]-other[0])
+			if dist < gdist:
+				greatest = x
+				gdist = dist
+		print gdist
+		return(listp[greatest][0],listp[greatest][1],listp[greatest][2])
 	"""
-
+	#print listR
+	#print listG
+	#print listB
+	#print
+	color= (listR[len(listR)/2],listG[len(listG)/2],listB[len(listB)/2])
 	return color
+
+
+
+
+
 """
 #make Masks
 def makeMasks(res2,numKlusters, color):
@@ -158,6 +180,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#print start-start
 	#-------------------------------------------------------------------------
 	lim = cropImg
+	origIMG=np.copy(lim)
 	originalLimShape = lim.shape
 	#cv2.imshow("1.Original Image", lim)
 	lab=np.copy(cv2.cvtColor(lim,cv2.COLOR_BGR2LAB))
@@ -185,8 +208,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#color=firstRunShapeTupleResults[1]
 	clusterMaskss =firstRunShapeTupleResults[2]
 	res2=firstRunShapeTupleResults[0]
-	temmp=cv2.cvtColor(lim,cv2.COLOR_LAB2BGR)
-	color =getShapeColors(temmp,3)
+
 	#clusterMa,cowunts=makeMasks(res2, 3, color)
 	#cv2.imshow("1st clustered color",temmp)
 
@@ -391,6 +413,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 		j=j+1
 
 	#print ("test!!!!!")
+	global indexofShapeTrue 
+	global gotShape
 	gotShape = False
 	oo = 0;
 	indexOfShapeTrue = 0
@@ -400,12 +424,10 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 		print (srtest+ ":  " + str(i))
 		if(srtest):
 			oo = oo+1
-			global indexofShapeTrue 
 			indexOfShapeTrue= i
 			print ("index: " + str(indexOfShapeTrue))
 	if(oo==1):
 		print "wtf"
-		global gotShape
 		gotShape=True
 		for i in range(0,3):
 			if(i!=indexOfShapeTrue):
@@ -586,7 +608,8 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	factorMag=(3 if (300.0/sideVer>=2.5) else 2) if (300.0/sideVer>=1.5) else 1
 	#factorMag=3
 	hulll2=cv2.resize(hulll,(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0)
-
+	resizedOrig=cv2.resize(origIMG,(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0)
+	resizedOrigL=cv2.resize(lab,(originalLimShape[1]*factorMag,originalLimShape[0]*factorMag),0,0)
 	if(extraErode==False):
 		kernnal=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(17,17))
 		hulll2=cv2.erode(hulll2,kernnal,iterations=1)
@@ -637,7 +660,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#"""
 	writingImg=np.uint8(shapeSeg*255)
 	#writingImg=cv2.cvtColor(writingImg,cv2.COLOR_LAB2BGR)
-	charColors=shapeSegTupleResults[1]
+
 	charMasks=shapeSegTupleResults[2]
 	charCowunts=[0,0,0,0]
 
@@ -780,7 +803,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	cropp32=np.float32(lab2)/255
 	#"""
 	#print cropp32.shape
-	print temPm.shape
+	
 	
 	thirdRunKmeansSegTuple = pykmeansppcpplib.ClusterKmeansPPwithMask(cropp32,charSeg,2,24,24,PrintUsefulKMeansInfoToConsole,-1)
 
@@ -813,9 +836,10 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#cv2.imshow("char*255",charSeg*255);
 	#cv2.imshow("char",charSeg);
 	#"""
-	shapeColor = [color[maskNumber][0]*255,color[maskNumber][1]*255,color[maskNumber][2]*255]
+	sc=(0,0,0)
+	shapeColor = getColor(np.copy(shapeSeg), np.copy(charSeg), resizedOrig, True, sc)
 	
-	charColor = [charColors[charMaskNum][0]*255,charColors[charMaskNum][1]*255,charColors[charMaskNum][2]*255]
+	charColor = getColor(np.copy(shapeSeg), np.copy(charSeg), resizedOrig, False, shapeColor)
 	#print charColor
 	
 	#-------------------------------------------------------------------------
@@ -823,7 +847,6 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#print time.time() - start
 	#cv2.waitKey(0);
 	return (shapeSeg*255, shapeColor, charSeg*255, charColor, shapefound)
-
 
 
 
