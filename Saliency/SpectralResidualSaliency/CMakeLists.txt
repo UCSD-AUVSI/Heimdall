@@ -1,6 +1,6 @@
 set(spectralsaliency_source_files
-    spectral_residual_saliency_module.cpp
-    spectral_residual_saliency_module.hpp
+	spectral_residual_saliency_module.cpp
+	spectral_residual_saliency_module.hpp
 	modifiedSpectralResidualSaliency.cpp
 	modifiedSpectralResidualSaliency.hpp
 	ProcessingClass.hpp
