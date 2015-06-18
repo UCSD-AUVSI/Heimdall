@@ -58,7 +58,7 @@ def getColor(ShapeMask,CharMask, original, isShape,shapecolor):
 				dist = abs(shapecolor[2]-original[i,j,0])+abs(shapecolor[1]-original[i,j,1])+abs(shapecolor[0]-original[i,j,2])
 				
 				
-				if(charEM[i,j,]==1 and dist>00):
+				if(charEM[i,j,]==1 and dist>74):
 					#listp.append([original[i,j,2],original[i,j,1],original[i,j,0]])
 					listR.append(original[i,j,2])
 					listG.append(original[i,j,1])
