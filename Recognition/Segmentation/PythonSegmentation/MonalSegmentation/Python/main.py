@@ -54,11 +54,8 @@ def getColor(ShapeMask,CharMask, original, isShape,shapecolor):
 		for i in range(0,original.shape[0]):
 	
 			for j in range(0,original.shape[1]):
-	
 				dist = abs(shapecolor[2]-original[i,j,0])+abs(shapecolor[1]-original[i,j,1])+abs(shapecolor[0]-original[i,j,2])
-				
-				
-				if(charEM[i,j,]==1 and dist>74):
+				if(charEM[i,j,]==1 and dist>60):
 					#listp.append([original[i,j,2],original[i,j,1],original[i,j,0]])
 					listR.append(original[i,j,2])
 					listG.append(original[i,j,1])
@@ -90,6 +87,12 @@ def getColor(ShapeMask,CharMask, original, isShape,shapecolor):
 	#print listG
 	#print listB
 	#print
+	if(len(listB)==0):
+		listB.append(0)
+	if(len(listG)==0):
+		listG.append(0)
+	if(len(listR)==0):
+		listR.append(0)
 	color= (listR[len(listR)/2],listG[len(listG)/2],listB[len(listB)/2])
 	return color
 
