@@ -29,14 +29,14 @@ void GOCRBackboneInterface :: execute(imgdata_t *imdata, std::string args) {
             global_GOCR_module_instance->do_OCR_on_one_CSEG(cv::imdecode(**cseg_iter, CV_LOAD_IMAGE_ANYDEPTH));
         }
         
-        imdata->character = "";
+        imdata->character1 = "";
         
         std::pair<char,int> output = global_GOCR_module_instance->ProcessCandidates();
         char outchar = std::get<0>(output);
         int orientation = std::get<1>(output);
 
         if(outchar != '_' && outchar != '\0') {
-            imdata->character += outchar;
+            imdata->character1 += outchar;
             imdata->targetorientation = orientation + to_degrees(imdata->planeheading + kPI);
             while(imdata->targetorientation < 0) imdata->targetorientation += 360;
             while(imdata->targetorientation >= 360) imdata->targetorientation -= 360;

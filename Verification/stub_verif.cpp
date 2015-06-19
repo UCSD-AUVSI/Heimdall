@@ -16,10 +16,10 @@ void StubVerify :: execute(imgdata_t *imdata, std::string args){
 	else
 		cout << "shape found: \'" << imdata->shape << "\'" << endl;
 	
-	if(imdata->character.empty())
-		cout << "no character found!" << endl;
+	if(imdata->character1.empty())
+		cout << "no character 1 found!" << endl;
 	else
-		cout << "character found: \'" << imdata->character << "\'" << endl;
+		cout << "character 1 found: \'" << imdata->character1 << "\'" << endl;
 	
     setDone(imdata, VERIF);
 }

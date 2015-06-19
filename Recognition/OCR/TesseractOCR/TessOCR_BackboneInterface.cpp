@@ -31,7 +31,7 @@ void TessOCR :: execute(imgdata_t *imdata, std::string args) {
 		
 		global_TessOCR_module_instance->RotateAndGetLetterCandidates(&given_CSEGs);
 		global_TessOCR_module_instance->SiftThroughCandidates(4);
-		imdata->character = global_TessOCR_module_instance->GetBestCandidate();
+		imdata->character1 = global_TessOCR_module_instance->GetBestCandidate();
 		
 		
 		//print top 4 results

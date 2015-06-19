@@ -52,8 +52,10 @@ void PythonOCRModuleInterface :: execute(imgdata_t *imdata, std::string args)
 			ocrdoer.ProcessOCR(cv::imdecode(**cseg_iter, CV_LOAD_IMAGE_GRAYSCALE),
 										char1, char1conf, char1angle,
 										char2, char2conf, char2angle);
-			imdata->character = char_to_string(char1);
-			imdata->charconfidence = char1conf;
+			imdata->character1 = char_to_string(char1);
+			imdata->char1confidence = char1conf;
+			imdata->character2 = char_to_string(char2);
+			imdata->char2confidence = char2conf;
 			num_csegs_done++;
         }
 	}

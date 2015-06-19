@@ -40,7 +40,8 @@ void orUpdate(imgdata_t *first, imgdata_t *second){
     first->verified         |= second->verified;
 
     saveLargerString(first->shape, second->shape);
-    saveLargerString(first->character, second->character);
+    saveLargerString(first->character1, second->character1);
+    saveLargerString(first->character2, second->character2);
     saveLargerString(first->scolor, second->scolor);
     saveLargerString(first->ccolor, second->ccolor);
     saveLargerString(first->qrCodeMessage, second->qrCodeMessage);

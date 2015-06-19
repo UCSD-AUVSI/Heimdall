@@ -41,13 +41,14 @@ struct imgdata_t{
 	bool verified;
 	
 	std::string qrCodeMessage;
-	std::string shape, character;
+	std::string shape;
+	std::string character1, character2;
 	uint8_t scolorR, scolorG, scolorB;
 	uint8_t ccolorR, ccolorG, ccolorB;
 	std::string scolor, ccolor;
 	
 	double shapeconfidence;
-	double charconfidence;
+	double char1confidence, char2confidence;
 	
 	//see FolderPush; gotten from Exif data
 	double planelat, planelongt, planealt; //altitude is relative to the ground, not sea level!!!
@@ -89,11 +90,13 @@ struct imgdata_t{
 		
 		qrCodeMessage(""),
 		shape(""),
-		character(""),
+		character1(""),
+		character2(""),
 		scolor(""),
 		ccolor(""),
 		shapeconfidence(0.0),
-		charconfidence(0.0),
+		char1confidence(0.0),
+		char2confidence(0.0),
 		
 		planelat(-1.0),
 		planelongt(-1.0),

@@ -32,7 +32,8 @@ void PSSub :: DoWork() {
         out << imdata->qrCodeMessage << endl;
         out << imdata->shape << endl;
         out << imdata->scolor << endl;
-        out << imdata->character << endl;
+        out << imdata->character1 << endl;
+        out << imdata->character2 << endl;
         out << imdata->ccolor << endl;
         out << imdata->targetlat << endl;
         out << imdata->targetlongt << endl;

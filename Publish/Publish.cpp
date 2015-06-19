@@ -103,7 +103,8 @@ void Publish :: DoWork() {
         out << DefaultIfEmpty(imdata->scolor) << "\t";
 
         // Character + Color
-        out << DefaultIfEmpty(imdata->character) << "\t";
+        out << DefaultIfEmpty(imdata->character1) << "\t";
+        out << DefaultIfEmpty(imdata->character2) << "\t";
         out << DefaultIfEmpty(imdata->ccolor) << "\t";
 
         // Image file name

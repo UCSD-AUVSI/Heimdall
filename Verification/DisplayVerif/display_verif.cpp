@@ -54,7 +54,8 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
         (*outfile_verif_results) << "target# " << imdata->id << ", " << imdata->cropid << endl;
         (*outfile_verif_results) << "shape:  " << imdata->shape << endl;
         (*outfile_verif_results) << "scolor:  " << imdata->scolor << endl;
-        (*outfile_verif_results) << "char:  " << imdata->character << endl;
+        (*outfile_verif_results) << "char:  " << imdata->character1 << endl;
+        (*outfile_verif_results) << "char2:  " << imdata->character2 << endl;
         (*outfile_verif_results) << "ccolor:  " << imdata->ccolor << endl;
         (*outfile_verif_results) << "lat:  " << imdata->targetlat << endl;
         (*outfile_verif_results) << "long:  " << imdata->targetlongt << endl;
@@ -98,10 +99,15 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     else
         cout << "shape found: \'" << imdata->shape << "\'" << endl;
 
-    if(imdata->character.empty())
-        cout << "no character found!" << endl;
+    if(imdata->character1.empty())
+        cout << "no character (1) found!" << endl;
     else
-        cout << "character found: \'" << imdata->character << "\'" << endl;
+        cout << "character (1) found: \'" << imdata->character1 << "\'" << endl;
+
+    if(imdata->character2.empty())
+        cout << "no character 2" << endl;
+    else
+        cout << "character 2 found: \'" << imdata->character2 << "\'" << endl;
 
     // Show images
     if(kShowImages)

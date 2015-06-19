@@ -46,7 +46,8 @@ int messageSizeNeeded(imgdata_t *imdata){
 	//the +1 in these is to make space for the null character \0 that terminates the string
 	len += imdata->qrCodeMessage.size() + 1;
 	len += imdata->shape.size() + 1;
-	len += imdata->character.size() + 1;
+	len += imdata->character1.size() + 1;
+	len += imdata->character2.size() + 1;
 	len += imdata->scolor.size() + 1;
 	len += imdata->ccolor.size() + 1;
 	len += imdata->name_of_original_image_file_for_debugging.size() + 1;
@@ -207,8 +208,10 @@ unsigned char *linearizeData(imgdata_t *imdata, int *retlen){
 	memcpy(arr + start, imdata->shape.c_str(), imdata->shape.size() + 1);
 	start += imdata->shape.size() + 1;
 	
-	memcpy(arr + start, imdata->character.c_str(), imdata->character.size() + 1);
-	start += imdata->character.size() + 1;
+	memcpy(arr + start, imdata->character1.c_str(), imdata->character1.size() + 1);
+	start += imdata->character1.size() + 1;
+	memcpy(arr + start, imdata->character2.c_str(), imdata->character2.size() + 1);
+	start += imdata->character2.size() + 1;
 	
     memcpy(arr + start, imdata->scolor.c_str(), imdata->scolor.size() + 1);
 	start += imdata->scolor.size() + 1;
@@ -271,8 +274,10 @@ void expandData(imgdata_t *imdata, unsigned char *arr){
 	start += (imdata->qrCodeMessage.size() + 1);
 	imdata->shape = reinterpret_cast<char*>(arr+start);
 	start += (imdata->shape.size() + 1);
-	imdata->character = reinterpret_cast<char*>(arr+start);
-	start += (imdata->character.size() + 1);
+	imdata->character1 = reinterpret_cast<char*>(arr+start);
+	start += (imdata->character1.size() + 1);
+	imdata->character2 = reinterpret_cast<char*>(arr+start);
+	start += (imdata->character2.size() + 1);
 	imdata->scolor = reinterpret_cast<char*>(arr+start);
 	start += (imdata->scolor.size() + 1);
 	imdata->ccolor = reinterpret_cast<char*>(arr+start);

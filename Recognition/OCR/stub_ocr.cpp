@@ -8,7 +8,7 @@ using std::endl;
 #include "Backbone/IMGData.hpp"
 
 void StubOCR :: execute(imgdata_t *imdata, std::string args) {
-    imdata->character = args;
+    imdata->character1 = args;
 	cout << "Stub OCR" << endl;
 	setDone(imdata, OCR);
 }

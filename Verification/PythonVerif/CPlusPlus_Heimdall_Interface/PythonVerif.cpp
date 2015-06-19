@@ -22,7 +22,10 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 											unsigned char ccolorG,
 											unsigned char ccolorB,
 											std::string character_color,
-											std::string character_name,
+											std::string character1_name,
+											double character1_conf,
+											std::string character2_name,
+											double character2_conf,
 											double target_latitude,
 											double target_longitude,
 											double target_orientation,
@@ -99,7 +102,11 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 		bp::str bpShapeName(shape_name.c_str());
 		
 		bp::str bpCharColorStr(character_color.c_str());
-		bp::str bpCharName(character_name.c_str());
+	
+		bp::str bpChar1Name(character1_name.c_str());
+		bp::object bpChar1conf(character1_conf);
+		bp::str bpChar2Name(character2_name.c_str());
+		bp::object bpChar2conf(character2_conf);
 		
 		bp::object bpTargetLat(target_latitude);
 		bp::object bpTargetLong(target_longitude);
@@ -114,7 +121,8 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 			bp::list extraArgs = std_vector_to_py_list<double>(additional_args);
 			try {
 				pythoncvfunctionhandle(	bpShapeColorVals, bpShapeColorStr, bpShapeName,
-										bpCharColorVals,  bpCharColorStr,  bpCharName,
+										bpCharColorVals,  bpCharColorStr,
+										bpChar1Name, bpChar1conf, bpChar2Name, bpChar2conf,
 										bpTargetLat, bpTargetLong, bpTargetOrientation,
 										bpOrigImageFilename,givenImgPyObj,
 										extraArgs);
@@ -127,7 +135,8 @@ void PythonVerifClass::ProcessVerification(	unsigned char scolorR,
 		else {
 			try {
 				pythoncvfunctionhandle(	bpShapeColorVals, bpShapeColorStr, bpShapeName,
-										bpCharColorVals,  bpCharColorStr,  bpCharName,
+										bpCharColorVals,  bpCharColorStr,
+										bpChar1Name, bpChar1conf, bpChar2Name, bpChar2conf,
 										bpTargetLat, bpTargetLong, bpTargetOrientation,
 										bpOrigImageFilename,givenImgPyObj,
 										bp::object());
