@@ -554,7 +554,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	
 	
 	if(maskNumber==7):
-		return (np.zeros((10,10,1),np.uint8), (0,0,0), np.zeros((10,10,1),np.uint8), (0,0,0), "")
+		return (np.zeros((10,10,1),np.uint8), (0,0,0), np.zeros((10,10,1),np.uint8), (0,0,0))
 	
 	
 	
@@ -600,7 +600,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 		KEq2=False;
 		#print "KEq2=False"
 		if(len(kontours)==0):
-			return (np.zeros((10,10,1), np.uint8), (0,0,0),np.zeros((10,10,1),np.uint8), (0,0,0), "")
+			return (np.zeros((10,10,1), np.uint8), (0,0,0),np.zeros((10,10,1),np.uint8), (0,0,0))
 		unicon=np.vstack(kontours)
 		convex=cv2.convexHull(unicon,False)
 		cv2.drawContours(hulll,[convex],0,1,-1)
@@ -642,7 +642,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	noCores=cv2.countNonZero(shapeSegMask)
 	
 	if(noCores<100):
-		return	(np.zeros((10,10,1),np.uint8),(0,0,0), np.zeros((10,10,1),np.uint8), (0,0,0), "")
+		return	(np.zeros((10,10,1),np.uint8),(0,0,0), np.zeros((10,10,1),np.uint8), (0,0,0))
 		 
 	if(KEq2):
 		jjj=2		
@@ -849,7 +849,7 @@ def doSegmentation(cropImg, optionalArgs, tc=None):
 	#print "end"
 	#print time.time() - start
 	#cv2.waitKey(0);
-	return (shapeSeg*255, shapeColor, charSeg*255, charColor, shapefound)
+	return (shapeSeg*255, shapeColor, charSeg*255, charColor)
 
 
 

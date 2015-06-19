@@ -21,7 +21,7 @@ static void pythonSegFunc(std::string segmentationModuleFolderName,
 							cv::Scalar & returned_SColor,
 							cv::Mat & returned_CSEG,
 							cv::Scalar & returned_CColor,
-							std::vector<double> *additional_args/*=nullptr*/)
+							std::vector<double> *additional_args=nullptr)
 {
 	returned_SSEG = cv::Mat();
 	returned_SColor = cv::Scalar();
@@ -97,7 +97,7 @@ static void pythonSegFunc(std::string segmentationModuleFolderName,
 		}
 		else {
 			try {
-				resultobj = pythoncvfunctionhandle(givenImgPyObj);
+				resultobj = pythoncvfunctionhandle(givenImgPyObj, bp::object());
 			}
 			catch(bp::error_already_set) {
 				std::cout << "PythonSegmentation ERROR: error when running python file \"" << pythonFilename << "\"! PYTHON ERROR REPORT:" << std::endl;
@@ -109,7 +109,7 @@ static void pythonSegFunc(std::string segmentationModuleFolderName,
 		
 		// extract results from Python to C++
 		bp::tuple resultsTuple(resultobj);
-		if(((int)bp::len(resultsTuple)) == 5) {
+		if(((int)bp::len(resultsTuple)) == 4) {
 			bp::object ssegObj = boost::python::extract<boost::python::object>(resultsTuple[0])();
 			returned_SSEG = cvt.toMat(ssegObj.ptr());
 			
@@ -155,8 +155,8 @@ void PythonSegmentationClass::ProcessSegmentation(cv::Mat inputCropImage,
 					returned_SSEG,
 					returned_SColor,
 					returned_CSEG,
-					returned_CColor,
-					&additional_args);
+					returned_CColor);//,
+					//&additional_args);
 }
 
 
