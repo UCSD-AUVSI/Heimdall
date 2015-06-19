@@ -114,7 +114,7 @@ void DisplayVerify :: execute(imgdata_t *imdata, std::string args){
     {
         std::string name_of_crop_window = std::string("crop (") + to_istring(imdata->id)
             + std::string(",") + to_istring(imdata->cropid) + std::string("), char \'")
-            + imdata->character + std::string("\'");
+            + imdata->character1 + std::string("\'");
 
         cv::startWindowThread();
         cv::namedWindow(name_of_crop_window, CV_WINDOW_NORMAL);
