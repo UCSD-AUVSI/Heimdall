@@ -48,14 +48,12 @@ def getColor(ShapeMask,CharMask, original, isShape,shapecolor):
 					listB.append(original[i,j,0])
 	else:
 		
-		kern=cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(8,8))
-		charEM=cv2.erode(CharMask,kern,iterations=1)
 	
 		for i in range(0,original.shape[0]):
 	
 			for j in range(0,original.shape[1]):
 				dist = abs(shapecolor[2]-original[i,j,0])+abs(shapecolor[1]-original[i,j,1])+abs(shapecolor[0]-original[i,j,2])
-				if(charEM[i,j,]==1 and dist>60):
+				if(CharMask[i,j,]==1 and dist>60):
 					#listp.append([original[i,j,2],original[i,j,1],original[i,j,0]])
 					listR.append(original[i,j,2])
 					listG.append(original[i,j,1])
