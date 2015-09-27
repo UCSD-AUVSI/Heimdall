@@ -1,0 +1,553 @@
+CMake Warning at CMakeLists.txt:12 (find_package):
+  By not providing "FindQt5Widgets.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "Qt5Widgets", but CMake did not find one.
+
+  Could not find a package configuration file provided by "Qt5Widgets" with
+  any of the following names:
+
+    Qt5WidgetsConfig.cmake
+    qt5widgets-config.cmake
+
+  Add the installation prefix of "Qt5Widgets" to CMAKE_PREFIX_PATH or set
+  "Qt5Widgets_DIR" to a directory containing one of the above files.  If
+  "Qt5Widgets" provides a separate development package or SDK, be sure it has
+  been installed.
+
+
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mywork/Heimdall/build
+=====================================================================================================
+({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': 2.0, 'l2fpool': 2.0, 'l2nfilt': 322.0}, 733.0, 4.0, 3.0, 701.0, 4.0, 2.0, 2201.0, 1062.0)
+=====================================================================================================
+Using gpu device 0: GeForce GTX 980 Ti
+m^[[19~mvc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            note: if l3nfilt <= 0, then the 4th convolutional layer will not exist
+initializing myCNNForOrientationParamsSTUBTEMPLATE with 145 classes!!!!!!!
+... found datasets, loading data
+... building OCR_CNN model
+nkerns == [701, 733, 322]
+filter sizes:  [4, 4, 2]
+pool sizes:  [2, 3, 2]
+~~~~~~~~~~~ will construct layers with dropouts and noise!!!
+------------------------ finished constructing network
+convolutional layer 0 outputs a 701-channel 18x18 image, i.e. 227124 points
+convolutional layer 1 outputs a 733-channel 5x5 image, i.e. 18325 points
+convolutional layer 2 outputs a 322-channel 2x2 image, i.e. 1288 points
+fully-connected layer3 has 1288 inputs and 2201 outputs
+fully-connected layer4 has 2201 inputs and 1062 outputs
+classification layer5 has 1062 inputs and 145 outputs
+------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Rotated characters are being used, with 4 rotations per char
+allocating device memory with 288 megabytes for training
+allocating device memory with 64 megabytes for validation
+datasets[2][0].dtype == uint8
+read X file with shape (555492,1600)
+the raw X array read had shape (888787200,) and type uint8
+read Y file with shape (555492,)
+the raw Y array read had shape (555492,) and type int64
+done loading newdatasets1; X has shape (555492, 1600)
+read X file with shape (78156,1600)
+the raw X array read had shape (125049600,) and type uint8
+read Y file with shape (78156,)
+the raw Y array read had shape (78156,) and type int64
+done loading newdatasets2; X has shape (78156, 1600)
+warping training images!
+num images in training set: 45000
+num images in validation set: 10000
+batch size == 100
+num valid images actually used in training set: 45000
+num valid images actually used in validation set: 10000
+num images MISSING from training set due to minibatch rounding: 0
+num images MISSING from validation set due to minibatch rounding: 0
+SETTING UP TRAINING FOR DATASETS ON DEVICE AND NOT MICROBATCHES
+... training
+USING ADADELTA ~~~~~~~~~~~~
+warping training images!
+training @ iter =  0
+training @ iter =  100
+training @ iter =  200
+training @ iter =  300
+training @ iter =  400
+epoch 1, minibatch 450/450, validation error 86.820000 %
+warping training images!
+training @ iter =  500
+training @ iter =  600
+training @ iter =  700
+training @ iter =  800
+epoch 2, minibatch 450/450, validation error 69.330000 %
+warping training images!
+training @ iter =  900
+training @ iter =  1000
+training @ iter =  1100
+training @ iter =  1200
+training @ iter =  1300
+epoch 3, minibatch 450/450, validation error 63.920000 %
+warping training images!
+training @ iter =  1400
+training @ iter =  1500
+training @ iter =  1600
+training @ iter =  1700
+epoch 4, minibatch 450/450, validation error 62.540000 %
+warping training images!
+training @ iter =  1800
+training @ iter =  1900
+training @ iter =  2000
+training @ iter =  2100
+training @ iter =  2200
+epoch 5, minibatch 450/450, validation error 60.780000 %
+warping training images!
+training @ iter =  2300
+training @ iter =  2400
+training @ iter =  2500
+training @ iter =  2600
+epoch 6, minibatch 450/450, validation error 59.080000 %
+warping training images!
+training @ iter =  2700
+training @ iter =  2800
+training @ iter =  2900
+training @ iter =  3000
+training @ iter =  3100
+epoch 7, minibatch 450/450, validation error 60.460000 %
+warping training images!
+training @ iter =  3200
+training @ iter =  3300
+training @ iter =  3400
+training @ iter =  3500
+epoch 8, minibatch 450/450, validation error 58.240000 %
+warping training images!
+training @ iter =  3600
+training @ iter =  3700
+training @ iter =  3800
+training @ iter =  3900
+training @ iter =  4000
+epoch 9, minibatch 450/450, validation error 57.010000 %
+warping training images!
+training @ iter =  4100
+training @ iter =  4200
+training @ iter =  4300
+training @ iter =  4400
+epoch 10, minibatch 450/450, validation error 58.100000 %
+warping training images!
+training @ iter =  4500
+training @ iter =  4600
+training @ iter =  4700
+training @ iter =  4800
+training @ iter =  4900
+epoch 11, minibatch 450/450, validation error 58.340000 %
+warping training images!
+training @ iter =  5000
+training @ iter =  5100
+training @ iter =  5200
+training @ iter =  5300
+epoch 12, minibatch 450/450, validation error 57.970000 %
+0.5701
+0.5701
+0.5701
+0.5701
+~=~=~=~=~=~= result: 0.5701
+~=~=~=~=~=~= params: ({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': 2.0, 'l2fpool': 2.0, 'l2nfilt': 322.0}, 733.0, 4.0, 3.0, 701.0, 4.0, 2.0, 2201.0, 1062.0)
+=====================================================================================================
+({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': -1, 'l2fpool': -1, 'l2nfilt': -1}, 758.0, 4.0, 2.0, 415.0, 3.0, 2.0, 881.0, 1217.0)
+=====================================================================================================
+Using gpu device 0: GeForce GTX 980 Ti
+note: if l3nfilt <= 0, then the 4th convolutional layer will not exist
+initializing myCNNForOrientationParamsSTUBTEMPLATE with 145 classes!!!!!!!
+... found datasets, loading data
+... building OCR_CNN model
+nkerns == [415, 758]
+filter sizes:  [3, 4]
+pool sizes:  [2, 2]
+~~~~~~~~~~~ will construct layers with dropouts and noise!!!
+------------------------ finished constructing network
+convolutional layer 0 outputs a 415-channel 19x19 image, i.e. 149815 points
+convolutional layer 1 outputs a 758-channel 8x8 image, i.e. 48512 points
+fully-connected layer2 has 48512 inputs and 881 outputs
+fully-connected layer3 has 881 inputs and 1217 outputs
+classification layer4 has 1217 inputs and 145 outputs
+------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Rotated characters are being used, with 4 rotations per char
+allocating device memory with 288 megabytes for training
+allocating device memory with 64 megabytes for validation
+datasets[2][0].dtype == uint8
+read X file with shape (555492,1600)
+the raw X array read had shape (888787200,) and type uint8
+read Y file with shape (555492,)
+the raw Y array read had shape (555492,) and type int64
+done loading newdatasets1; X has shape (555492, 1600)
+read X file with shape (78156,1600)
+the raw X array read had shape (125049600,) and type uint8
+read Y file with shape (78156,)
+the raw Y array read had shape (78156,) and type int64
+done loading newdatasets2; X has shape (78156, 1600)
+warping training images!
+num images in training set: 45000
+num images in validation set: 10000
+batch size == 100
+num valid images actually used in training set: 45000
+num valid images actually used in validation set: 10000
+num images MISSING from training set due to minibatch rounding: 0
+num images MISSING from validation set due to minibatch rounding: 0
+SETTING UP TRAINING FOR DATASETS ON DEVICE AND NOT MICROBATCHES
+... training
+USING ADADELTA ~~~~~~~~~~~~
+warping training images!
+training @ iter =  0
+training @ iter =  100
+training @ iter =  200
+training @ iter =  300
+training @ iter =  400
+epoch 1, minibatch 450/450, validation error 77.500000 %
+warping training images!
+training @ iter =  500
+training @ iter =  600
+training @ iter =  700
+training @ iter =  800
+epoch 2, minibatch 450/450, validation error 71.750000 %
+warping training images!
+training @ iter =  900
+training @ iter =  1000
+training @ iter =  1100
+training @ iter =  1200
+training @ iter =  1300
+epoch 3, minibatch 450/450, validation error 67.020000 %
+warping training images!
+training @ iter =  1400
+training @ iter =  1500
+training @ iter =  1600
+training @ iter =  1700
+epoch 4, minibatch 450/450, validation error 64.360000 %
+warping training images!
+training @ iter =  1800
+training @ iter =  1900
+training @ iter =  2000
+training @ iter =  2100
+training @ iter =  2200
+epoch 5, minibatch 450/450, validation error 63.210000 %
+warping training images!
+training @ iter =  2300
+training @ iter =  2400
+training @ iter =  2500
+training @ iter =  2600
+epoch 6, minibatch 450/450, validation error 62.840000 %
+warping training images!
+training @ iter =  2700
+training @ iter =  2800
+training @ iter =  2900
+training @ iter =  3000
+training @ iter =  3100
+epoch 7, minibatch 450/450, validation error 62.030000 %
+warping training images!
+training @ iter =  3200
+training @ iter =  3300
+training @ iter =  3400
+training @ iter =  3500
+epoch 8, minibatch 450/450, validation error 65.860000 %
+warping training images!
+training @ iter =  3600
+training @ iter =  3700
+training @ iter =  3800
+training @ iter =  3900
+training @ iter =  4000
+epoch 9, minibatch 450/450, validation error 60.700000 %
+warping training images!
+training @ iter =  4100
+training @ iter =  4200
+training @ iter =  4300
+training @ iter =  4400
+epoch 10, minibatch 450/450, validation error 61.490000 %
+warping training images!
+training @ iter =  4500
+training @ iter =  4600
+training @ iter =  4700
+training @ iter =  4800
+training @ iter =  4900
+epoch 11, minibatch 450/450, validation error 61.410000 %
+warping training images!
+training @ iter =  5000
+training @ iter =  5100
+training @ iter =  5200
+training @ iter =  5300
+epoch 12, minibatch 450/450, validation error 60.230000 %
+0.6023
+0.6023
+0.6023
+0.6023
+~=~=~=~=~=~= result: 0.6023
+~=~=~=~=~=~= params: ({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': -1, 'l2fpool': -1, 'l2nfilt': -1}, 758.0, 4.0, 2.0, 415.0, 3.0, 2.0, 881.0, 1217.0)
+=====================================================================================================
+({'l3fpool': 3.0, 'l3nfilt': 983.0, 'l3fsize': 2.0}, {'l2fsize': 6.0, 'l2fpool': 2.0, 'l2nfilt': 175.0}, 442.0, 4.0, 2.0, 369.0, 2.0, 3.0, 2550.0, 305.0)
+=====================================================================================================
+Using gpu device 0: GeForce GTX 980 Ti
+note: if l3nfilt <= 0, then the 4th convolutional layer will not exist
+initializing myCNNForOrientationParamsSTUBTEMPLATE with 145 classes!!!!!!!
+... found datasets, loading data
+... building OCR_CNN model
+nkerns == [369, 442, 175, 983]
+filter sizes:  [2, 4, 6, 2]
+pool sizes:  [3, 2, 2, 3]
+~~~~~~~~~~~ will construct layers with dropouts and noise!!!
+exception while building OCR_CNN()
+=====================================================================================================
+({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': 2.0, 'l2fpool': 1.0, 'l2nfilt': 172.0}, 760.0, 3.0, 2.0, 97.0, 4.0, 2.0, 2451.0, 2428.0)
+=====================================================================================================
+Using gpu device 0: GeForce GTX 980 Ti
+note: if l3nfilt <= 0, then the 4th convolutional layer will not exist
+initializing myCNNForOrientationParamsSTUBTEMPLATE with 145 classes!!!!!!!
+... found datasets, loading data
+... building OCR_CNN model
+nkerns == [97, 760, 172]
+filter sizes:  [4, 3, 2]
+pool sizes:  [2, 2, 1]
+~~~~~~~~~~~ will construct layers with dropouts and noise!!!
+------------------------ finished constructing network
+convolutional layer 0 outputs a 97-channel 18x18 image, i.e. 31428 points
+convolutional layer 1 outputs a 760-channel 8x8 image, i.e. 48640 points
+convolutional layer 2 outputs a 172-channel 7x7 image, i.e. 8428 points
+fully-connected layer3 has 8428 inputs and 2451 outputs
+fully-connected layer4 has 2451 inputs and 2428 outputs
+classification layer5 has 2428 inputs and 145 outputs
+------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Rotated characters are being used, with 4 rotations per char
+allocating device memory with 288 megabytes for training
+allocating device memory with 64 megabytes for validation
+datasets[2][0].dtype == uint8
+read X file with shape (555492,1600)
+the raw X array read had shape (888787200,) and type uint8
+read Y file with shape (555492,)
+the raw Y array read had shape (555492,) and type int64
+done loading newdatasets1; X has shape (555492, 1600)
+read X file with shape (78156,1600)
+the raw X array read had shape (125049600,) and type uint8
+read Y file with shape (78156,)
+the raw Y array read had shape (78156,) and type int64
+done loading newdatasets2; X has shape (78156, 1600)
+warping training images!
+num images in training set: 45000
+num images in validation set: 10000
+batch size == 100
+num valid images actually used in training set: 45000
+num valid images actually used in validation set: 10000
+num images MISSING from training set due to minibatch rounding: 0
+num images MISSING from validation set due to minibatch rounding: 0
+SETTING UP TRAINING FOR DATASETS ON DEVICE AND NOT MICROBATCHES
+... training
+USING ADADELTA ~~~~~~~~~~~~
+warping training images!
+training @ iter =  0
+training @ iter =  100
+training @ iter =  200
+training @ iter =  300
+training @ iter =  400
+epoch 1, minibatch 450/450, validation error 87.360000 %
+warping training images!
+training @ iter =  500
+training @ iter =  600
+training @ iter =  700
+training @ iter =  800
+epoch 2, minibatch 450/450, validation error 68.730000 %
+warping training images!
+training @ iter =  900
+training @ iter =  1000
+training @ iter =  1100
+training @ iter =  1200
+training @ iter =  1300
+epoch 3, minibatch 450/450, validation error 62.850000 %
+warping training images!
+training @ iter =  1400
+training @ iter =  1500
+training @ iter =  1600
+training @ iter =  1700
+epoch 4, minibatch 450/450, validation error 61.940000 %
+warping training images!
+training @ iter =  1800
+training @ iter =  1900
+training @ iter =  2000
+training @ iter =  2100
+training @ iter =  2200
+epoch 5, minibatch 450/450, validation error 60.540000 %
+warping training images!
+training @ iter =  2300
+training @ iter =  2400
+training @ iter =  2500
+training @ iter =  2600
+epoch 6, minibatch 450/450, validation error 61.100000 %
+warping training images!
+training @ iter =  2700
+training @ iter =  2800
+training @ iter =  2900
+training @ iter =  3000
+training @ iter =  3100
+epoch 7, minibatch 450/450, validation error 58.700000 %
+warping training images!
+training @ iter =  3200
+training @ iter =  3300
+training @ iter =  3400
+training @ iter =  3500
+epoch 8, minibatch 450/450, validation error 57.470000 %
+warping training images!
+training @ iter =  3600
+training @ iter =  3700
+training @ iter =  3800
+training @ iter =  3900
+training @ iter =  4000
+epoch 9, minibatch 450/450, validation error 57.970000 %
+warping training images!
+training @ iter =  4100
+training @ iter =  4200
+training @ iter =  4300
+training @ iter =  4400
+epoch 10, minibatch 450/450, validation error 57.210000 %
+warping training images!
+training @ iter =  4500
+training @ iter =  4600
+training @ iter =  4700
+training @ iter =  4800
+training @ iter =  4900
+epoch 11, minibatch 450/450, validation error 57.770000 %
+warping training images!
+training @ iter =  5000
+training @ iter =  5100
+training @ iter =  5200
+training @ iter =  5300
+epoch 12, minibatch 450/450, validation error 56.500000 %
+0.565
+0.565
+0.565
+0.565
+~=~=~=~=~=~= result: 0.565
+~=~=~=~=~=~= params: ({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': 2.0, 'l2fpool': 1.0, 'l2nfilt': 172.0}, 760.0, 3.0, 2.0, 97.0, 4.0, 2.0, 2451.0, 2428.0)
+=====================================================================================================
+({'l3fpool': 2.0, 'l3nfilt': 102.0, 'l3fsize': 5.0}, {'l2fsize': 2.0, 'l2fpool': 2.0, 'l2nfilt': 575.0}, 730.0, 5.0, 2.0, 911.0, 2.0, 1.0, 1966.0, 312.0)
+=====================================================================================================
+Using gpu device 0: GeForce GTX 980 Ti
+note: if l3nfilt <= 0, then the 4th convolutional layer will not exist
+initializing myCNNForOrientationParamsSTUBTEMPLATE with 145 classes!!!!!!!
+... found datasets, loading data
+... building OCR_CNN model
+nkerns == [911, 730, 575, 102]
+filter sizes:  [2, 5, 2, 5]
+pool sizes:  [1, 2, 2, 2]
+~~~~~~~~~~~ will construct layers with dropouts and noise!!!
+------------------------ finished constructing network
+convolutional layer 0 outputs a 911-channel 39x39 image, i.e. 1385631 points
+convolutional layer 1 outputs a 730-channel 17x17 image, i.e. 210970 points
+convolutional layer 2 outputs a 575-channel 8x8 image, i.e. 36800 points
+convolutional layer 3 outputs a 102-channel 2x2 image, i.e. 408 points
+fully-connected layer4 has 408 inputs and 1966 outputs
+fully-connected layer5 has 1966 inputs and 312 outputs
+classification layer6 has 312 inputs and 145 outputs
+------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Rotated characters are being used, with 4 rotations per char
+allocating device memory with 288 megabytes for training
+allocating device memory with 64 megabytes for validation
+datasets[2][0].dtype == uint8
+read X file with shape (555492,1600)
+the raw X array read had shape (888787200,) and type uint8
+read Y file with shape (555492,)
+the raw Y array read had shape (555492,) and type int64
+done loading newdatasets1; X has shape (555492, 1600)
+read X file with shape (78156,1600)
+the raw X array read had shape (125049600,) and type uint8
+read Y file with shape (78156,)
+the raw Y array read had shape (78156,) and type int64
+done loading newdatasets2; X has shape (78156, 1600)
+warping training images!
+num images in training set: 45000
+num images in validation set: 10000
+batch size == 100
+num valid images actually used in training set: 45000
+num valid images actually used in validation set: 10000
+num images MISSING from training set due to minibatch rounding: 0
+num images MISSING from validation set due to minibatch rounding: 0
+SETTING UP TRAINING FOR DATASETS ON DEVICE AND NOT MICROBATCHES
+... training
+USING ADADELTA ~~~~~~~~~~~~
+warping training images!
+training @ iter =  0
+training @ iter =  100
+training @ iter =  200
+training @ iter =  300
+training @ iter =  400
+epoch 1, minibatch 450/450, validation error 96.510000 %
+warping training images!
+training @ iter =  500
+training @ iter =  600
+training @ iter =  700
+training @ iter =  800
+epoch 2, minibatch 450/450, validation error 76.970000 %
+warping training images!
+training @ iter =  900
+training @ iter =  1000
+training @ iter =  1100
+training @ iter =  1200
+training @ iter =  1300
+epoch 3, minibatch 450/450, validation error 67.130000 %
+warping training images!
+training @ iter =  1400
+training @ iter =  1500
+training @ iter =  1600
+training @ iter =  1700
+epoch 4, minibatch 450/450, validation error 63.090000 %
+warping training images!
+training @ iter =  1800
+training @ iter =  1900
+training @ iter =  2000
+training @ iter =  2100
+training @ iter =  2200
+epoch 5, minibatch 450/450, validation error 61.690000 %
+warping training images!
+training @ iter =  2300
+training @ iter =  2400
+training @ iter =  2500
+training @ iter =  2600
+epoch 6, minibatch 450/450, validation error 59.820000 %
+warping training images!
+training @ iter =  2700
+training @ iter =  2800
+training @ iter =  2900
+training @ iter =  3000
+training @ iter =  3100
+epoch 7, minibatch 450/450, validation error 59.600000 %
+warping training images!
+training @ iter =  3200
+training @ iter =  3300
+training @ iter =  3400
+training @ iter =  3500
+epoch 8, minibatch 450/450, validation error 58.560000 %
+warping training images!
+training @ iter =  3600
+training @ iter =  3700
+training @ iter =  3800
+training @ iter =  3900
+training @ iter =  4000
+epoch 9, minibatch 450/450, validation error 58.700000 %
+warping training images!
+training @ iter =  4100
+training @ iter =  4200
+training @ iter =  4300
+training @ iter =  4400
+epoch 10, minibatch 450/450, validation error 55.440000 %
+warping training images!
+training @ iter =  4500
+training @ iter =  4600
+training @ iter =  4700
+training @ iter =  4800
+training @ iter =  4900
+epoch 11, minibatch 450/450, validation error 55.340000 %
+warping training images!
+training @ iter =  5000
+training @ iter =  5100
+training @ iter =  5200
+training @ iter =  5300
+epoch 12, minibatch 450/450, validation error 55.770000 %
+0.5534
+0.5534
+0.5534
+0.5534
+~=~=~=~=~=~= result: 0.5534
+~=~=~=~=~=~= params: ({'l3fpool': 2.0, 'l3nfilt': 102.0, 'l3fsize': 5.0}, {'l2fsize': 2.0, 'l2fpool': 2.0, 'l2nfilt': 575.0}, 730.0, 5.0, 2.0, 911.0, 2.0, 1.0, 1966.0, 312.0)
+=====================================================================================================
+({'l3fpool': -1, 'l3nfilt': -1, 'l3fsize': -1}, {'l2fsize': 2.0, 'l2fpool': 1.0, 'l2nfilt': 300.0}, 277.0, 5.0, 3.0, 621.0, 3.0, 1.0, 374.0, 962.0)
+=====================================================================================================
+Using gpu device 0: GeForce GTX 980 Ti

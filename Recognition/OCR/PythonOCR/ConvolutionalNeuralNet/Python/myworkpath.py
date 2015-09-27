@@ -1,0 +1,1 @@
+myworkpath = "/mywork/CharRec"
