@@ -10,10 +10,7 @@ set(pycanny3dcpplib_source_files
 	)
 
 SET(CMAKE_SHARED_MODULE_PREFIX )
-
 add_library(pycanny3dcpplib MODULE ${pycanny3dcpplib_source_files})
-
-target_link_libraries(pycanny3dcpplib sharedutilspython ${OpenCV_LIBS})
-
+target_link_libraries(pycanny3dcpplib sharedutilspython sharedutilspython_cvmatconv ${OpenCV_LIBS})
 include_directories(${CMAKE_SOURCE_DIR} ${PYTHON_INCLUDE_PATH})
 

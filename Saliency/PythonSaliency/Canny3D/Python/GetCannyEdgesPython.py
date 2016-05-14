@@ -3,7 +3,7 @@ import EdgesToContours
 import numpy as np
 import cv2
 
-def GetEdges(givenImg, gBlurRadius, cLowThresh, cHighThresh, kernelSize, boolReturnBlurred):
+def GetEdges(givenImg, gBlurRadius, cLowThresh, cHighThresh, kernelSize, boolReturnBlurred=False):
 	
 	# OpenCV requires blur radii to be an odd integer greater than zero; enforce this
 	if gBlurRadius == 0: #if it's zero
