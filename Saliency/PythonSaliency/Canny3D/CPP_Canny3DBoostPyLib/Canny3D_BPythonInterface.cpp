@@ -18,13 +18,13 @@ PyObject* CannyNewFuncRGB(PyObject *srcImgPy, double threshLow, double threshHig
     return cvt.toNDArray(returnedEdges);
 }
 
-PyObject* CannyNewFuncCIELAB(PyObject *srcImgPy, double threshLow, double threshHigh, int kernelSize)
+PyObject* CannyNewFuncCIELAB(PyObject *srcImgPy, double threshLow, double threshHigh, int kernelSize, double colorspacescalar)
 {
     NDArrayConverter cvt;
     cv::Mat srcImg = cvt.toMat(srcImgPy);
 	cv::Mat returnedEdges;
 	
-	cppCannyBunk_CIELAB(srcImg, returnedEdges, threshLow, threshHigh, kernelSize);
+	cppCannyBunk_CIELAB(srcImg, returnedEdges, threshLow, threshHigh, kernelSize, colorspacescalar);
 	
     return cvt.toNDArray(returnedEdges);
 }

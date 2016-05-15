@@ -13,6 +13,6 @@ void cppCannyBunk_RGB( const cv::Mat& image, cv::Mat& edges,
                 
 void cppCannyBunk_CIELAB( const cv::Mat& image, cv::Mat& edges,
                 double threshold1, double threshold2,
-                int apertureSize );
+                int apertureSize, double colorspacescalar = 1.0 );
 
 #endif

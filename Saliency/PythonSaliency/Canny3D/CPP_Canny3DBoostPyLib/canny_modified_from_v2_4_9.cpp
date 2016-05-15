@@ -374,7 +374,7 @@ void cppCannyBunk_RGB( const cv::Mat& image, cv::Mat& edges,
 
 void cppCannyBunk_CIELAB( const cv::Mat& image, cv::Mat& edges,
                 double threshold1, double threshold2,
-                int apertureSize )
+                int apertureSize, double colorspacescalar /* = 1.0 */ )
 {
 	CV_Assert(image.channels() == 3);
 	CV_Assert(image.type() == CV_8UC3 || image.type() == CV_32FC3);
@@ -382,11 +382,13 @@ void cppCannyBunk_CIELAB( const cv::Mat& image, cv::Mat& edges,
 	cv::Mat srcConverted;
 	if(image.type() != CV_32FC3) {
 		image.convertTo(srcConverted, CV_32FC3);
+		srcConverted = (srcConverted / 255.0f);
+	} else {
+		srcConverted = image.clone();
 	}
-	srcConverted = (srcConverted / 255.0f);
 	cv::cvtColor(srcConverted, srcConverted, CV_BGR2Lab);
 	
-	colorspaceApproxMaxx = 95.0f;
+	colorspaceApproxMaxx = 95.0f * ((float)colorspacescalar);
 	
 	cppCannyBunk_Internal(srcConverted, edges, threshold1, threshold2, apertureSize);
 }
